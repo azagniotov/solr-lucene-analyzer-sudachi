@@ -1,0 +1,58 @@
+/*
+ * Copyright 2023 https://github.com/apache/lucene
+ * Concept and modifications 2023 Alexander Zagniotov
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+apply plugin: "de.undercouch.download"
+
+plugins.withType(JavaPlugin) {
+    ext {
+        targetDir = file("src/main/resources")
+    }
+    task deleteDictionaryData() {
+        doFirst {
+            sourceSets.main.resources.srcDirs.each { location ->
+                delete fileTree(dir: location, include: "**/*.dic")
+            }
+        }
+    }
+
+    task downloadSystemDict(type: Download) {
+        description "Recompile dictionaries from UniDic data from https://clrd.ninjal.ac.jp/unidic_archive"
+
+        dependsOn deleteDictionaryData
+        dependsOn sourceSets.main.runtimeClasspath
+
+        def dictionaryName = "sudachi-dictionary-20230711-core"
+        def dictionarySource = "http://sudachi.s3-website-ap-northeast-1.amazonaws.com/sudachidict/${dictionaryName}.zip"
+        def dictionaryFile = file("${buildDir}/downloaded/${dictionaryName}.zip")
+        def unpackedDir = file("${targetDir}/system-dict")
+
+        src dictionarySource
+        dest dictionaryFile
+        onlyIfModified true
+
+        doLast {
+            // Unpack the downloaded archive.
+            delete unpackedDir
+            ant.unzip(src: dictionaryFile, dest: unpackedDir) {
+                ant.cutdirsmapper(dirs: "1")
+            }
+        }
+    }
+}
