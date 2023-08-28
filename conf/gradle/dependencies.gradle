@@ -1,0 +1,11 @@
+dependencies {
+    api "com.worksap.nlp:sudachi:${sudachiVersion}"
+
+
+
+    testImplementation "junit:junit:4.13.2"
+    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
+    // https://github.com/mockito/mockito/issues/2231
+    testImplementation "org.mockito:mockito-inline:${mockitoVersion}"
+    testImplementation "com.google.truth:truth:1.1.5"
+}
