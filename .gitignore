@@ -54,3 +54,7 @@ Thumbs.db
 # Ignore Gradle build output directory
 build
 
+# Sudachi
+*.dic*
+system-dict
+
