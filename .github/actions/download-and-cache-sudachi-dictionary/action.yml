@@ -1,0 +1,34 @@
+name: download-and-cache-sudachi-dictionary
+description: Downloads Sudachi dictionary from AWS and caches it
+
+runs:
+  using: composite
+  steps:
+    - name: Restore cached Sudachi default dictionary
+      uses: actions/cache/restore@v3
+      env:
+        cache-name: cache-sudachi-dictionary
+      with:
+        path: "${{ github.workspace }}/build/downloaded"
+        key: ${{ runner.os }}-${{ env.cache-name }}-sudachi-v1
+        restore-keys: |
+          ${{ runner.os }}-${{ env.cache-name }}-sudachi-v1
+          ${{ runner.os }}-${{ env.cache-name }}-
+          ${{ runner.os }}-
+
+    - name: Download Sudachi default dictionary
+      run: ./gradlew configureDictionariesLocally
+      shell: bash
+
+    # https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#usage-limits-and-eviction-policy
+    - name: Cache Sudachi default dictionary
+      uses: actions/cache@v3
+      env:
+        cache-name: cache-sudachi-dictionary
+      with:
+        path: "${{ github.workspace }}/build/downloaded"
+        key: ${{ runner.os }}-${{ env.cache-name }}-sudachi-v1
+        restore-keys: |
+          ${{ runner.os }}-${{ env.cache-name }}-sudachi-v1
+          ${{ runner.os }}-${{ env.cache-name }}-
+          ${{ runner.os }}-

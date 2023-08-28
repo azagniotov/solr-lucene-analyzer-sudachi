@@ -1,0 +1,61 @@
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+
+final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter
+        .ofPattern("yyyy-MM-dd HH:mm:ssZ")
+        .withZone(ZoneOffset.systemDefault())
+
+
+project.ext.lucenelessDependencies = configurations.runtimeClasspath.resolve().findAll { file ->
+    return !file.name.contains("lucene-") && !file.name.contains("-sources")
+}
+
+project.ext.projectManifest = manifest {
+    def manifestClasspath = project.ext.lucenelessDependencies.collect { it.getName() }.join(',')
+    attributes 'Package': 'io.github.azagniotov.lucene.analysis.ja.sudachi',
+            'Class-Path': manifestClasspath,
+            'Implementation-Title': "${solrLuceneAnalyzerSudachiProjectName}",
+            'Implementation-Version': "${solrLuceneAnalyzerSudachiProjectVersion}",
+            'Implementation-Vendor': 'Alexander Zagniotov',
+            'Built-By': 'Alexander Zagniotov',
+            'Built-Date': DATE_TIME_FORMATTER.format(Instant.now()),
+            'Built-With': "gradle-${project.getGradle().getGradleVersion()}, groovy-${GroovySystem.getVersion()}",
+            'Created-By': System.getProperty('java.version') + ' (' + System.getProperty('java.vendor') + ')'
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    description = 'Creates a shaded/uberjar/fatjar of Solr Lucene Analyzer Sudachi plugin'
+    archiveFileName = "${solrLuceneAnalyzerSudachiProjectName}-${solrLuceneAnalyzerSudachiProjectVersion}.jar"
+    manifest = project.ext.projectManifest
+    from sourceSets.main.output
+    from(project.ext.lucenelessDependencies.collect { zipTree(it) }) {
+        exclude 'META-INF/*.SF'
+        exclude 'META-INF/*.DSA'
+        exclude 'META-INF/*.RSA'
+        exclude 'META-INF/*.INF'
+        exclude 'META-INF/*.inf'
+    }
+    doLast {
+        println ":" + name + " Packaged the following dependencies: " + project.ext.lucenelessDependencies.collect { File file -> file.name }
+    }
+}
+
+task solrLuceneAnalyzerSudachiJavadocJar(type: Jar) {
+    description = 'Creates a Javadoc JAR of Solr Lucene Analyzer Sudachi plugin'
+    archiveBaseName = "${solrLuceneAnalyzerSudachiProjectName}"
+    archiveVersion = "${solrLuceneAnalyzerSudachiProjectVersion}"
+    archiveClassifier = "javadoc"
+    archiveExtension = "jar"
+    from tasks.getByName(JavaPlugin.JAVADOC_TASK_NAME)
+}
+
+task solrLuceneAnalyzerSudachiSourceJar(type: Jar) {
+    description = 'Creates a Source JAR of Solr Lucene Analyzer Sudachi plugin'
+    archiveBaseName = "${solrLuceneAnalyzerSudachiProjectName}"
+    archiveVersion = "${solrLuceneAnalyzerSudachiProjectVersion}"
+    archiveClassifier = "sources"
+    archiveExtension = "jar"
+    from sourceSets.main.allJava
+}
