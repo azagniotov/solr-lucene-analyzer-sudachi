@@ -5,6 +5,50 @@ A Solr plugin that leverages [Sudachi](https://github.com/WorksApplications/Suda
 
 TBD
 
+## Local Development
+
+### System Requirements
+
+- The plugin keeps Java 8 source compatibility at the moment
+
+### Build System
+
+The plugin uses [Gradle](https://gradle.org/) for as a build system.
+
+#### Building
+
+Building and packaging can be done with the following command:
+
+```bash
+./gradlew build
+```
+
+#### Formatting
+
+The project leverages the [Spotless Gradle plugin](https://github.com/diffplug/spotless/tree/main/plugin-gradle) and follows the [palantir-java-format](https://github.com/palantir/palantir-java-format) style guide.
+
+To format the sources, run the following command:
+
+```bash
+./gradlew spotlessApply
+```
+
+#### Testing
+
+To run tests, run the following command:
+
+```bash
+./gradlew test
+```
+
+#### List of Gradle tasks
+
+For list of all the available Gradle tasks, run the following command:
+
+```bash
+./gradlew tasks
+```
+
 ## Licenses
 
 ### Sudachi
