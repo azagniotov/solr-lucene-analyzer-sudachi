@@ -1,0 +1,14 @@
+apply plugin: "com.diffplug.spotless"
+
+spotless {
+    java {
+        ratchetFrom "origin/master" // only format files which have changed since origin/master
+
+        importOrder()
+        removeUnusedImports()
+        palantirJavaFormat()
+        formatAnnotations()
+
+        licenseHeaderFile(rootProject.file(".spotless/apache-2.0-license.txt"))
+    }
+}

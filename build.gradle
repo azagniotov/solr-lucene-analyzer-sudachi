@@ -10,8 +10,10 @@ buildscript {
     dependencies {
         classpath "org.unbroken-dome.gradle-plugins:gradle-testsets-plugin:4.0.0"
         classpath("de.undercouch:gradle-download-task:5.5.0")
+        classpath("com.diffplug.spotless:spotless-plugin-gradle:6.21.0")
     }
 }
+
 
 apply plugin: "java-library"
 apply plugin: "idea"
@@ -42,16 +44,6 @@ repositories {
 }
 
 apply from: "$rootDir/conf/gradle/dependencies.gradle"
+apply from: "$rootDir/conf/gradle/tests.gradle"
 apply from: "$rootDir/conf/gradle/sudachi.gradle"
-
-test {
-    // initial heap size
-    minHeapSize = "512m"
-
-    // maximum heap size
-    maxHeapSize = "2048m"
-
-    // memory argument for the test JVM
-    // jvmArgs "-XX:MaxPermSize=1024m"
-}
-
+apply from: "$rootDir/conf/gradle/spotless.gradle"
