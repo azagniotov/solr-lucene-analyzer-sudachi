@@ -13,16 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.github.azagniotov.lucene.analysis;
 
-import com.worksap.nlp.sudachi.*;
-
+import com.worksap.nlp.sudachi.Config;
+import com.worksap.nlp.sudachi.Dictionary;
+import com.worksap.nlp.sudachi.DictionaryFactory;
+import com.worksap.nlp.sudachi.Morpheme;
+import com.worksap.nlp.sudachi.MorphemeList;
+import com.worksap.nlp.sudachi.Tokenizer;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class JapaneseTokenizer {
+
+    // http://www.rikai.com/library/kanjitables/kanji_codes.unicode.shtml
+    private static final Pattern JAPANESE_PUNCTUATION = Pattern.compile("[\\x{3000}-\\x{303F}]");
+
+    // !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~:
+    private static final Pattern ASCII_PUNCTUATION = Pattern.compile("\\p{Punct}");
+
+    // https://en.wikipedia.org/wiki/Latin-1_Supplement
+    private static final Pattern LATIN_1_PUNCTUATION = Pattern.compile("[\\x{0080}-\\x{00FF}]");
 
     private final Tokenizer sudachiTokenizer;
 
@@ -32,14 +47,28 @@ public class JapaneseTokenizer {
 
     public static JapaneseTokenizer fromSystemDict(final String fileCanonicalPath) throws IOException {
         final Config config = Config.defaultConfig().systemDictionary(Paths.get(fileCanonicalPath));
-        try (final Dictionary dictionary = new DictionaryFactory().create(config)) {
-            return new JapaneseTokenizer(dictionary.create());
-        }
+        final Dictionary dictionary = new DictionaryFactory().create(config);
+        return new JapaneseTokenizer(dictionary.create());
     }
 
     public List<String> tokenize(final String query) {
         final MorphemeList morphemeList = sudachiTokenizer.tokenize(Tokenizer.SplitMode.A, query);
 
-        return morphemeList.stream().map(Morpheme::surface).collect(Collectors.toList());
+        return morphemeList.stream()
+                .map(Morpheme::surface)
+                .map(String::trim)
+                .filter(surface -> !surface.isEmpty())
+                .filter(surface -> !isPunctuation(surface))
+                .collect(Collectors.toList());
+    }
+
+    boolean isPunctuation(final String query) {
+        if (query == null || query.trim().length() == 0) {
+            return false;
+        } else {
+            return JAPANESE_PUNCTUATION.matcher(query).matches()
+                    || ASCII_PUNCTUATION.matcher(query).matches()
+                    || LATIN_1_PUNCTUATION.matcher(query).matches();
+        }
     }
 }
