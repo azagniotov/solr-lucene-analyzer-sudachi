@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Alexander Zagniotov
+ * Copyright (c) $YEAR Alexander Zagniotov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,3 @@
  * limitations under the License.
  */
 
-dependencies {
-    api "com.worksap.nlp:sudachi:${sudachiVersion}"
-
-    testImplementation "junit:junit:4.13.2"
-    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
-    // https://github.com/mockito/mockito/issues/2231
-    testImplementation "org.mockito:mockito-inline:${mockitoVersion}"
-    testImplementation "com.google.truth:truth:1.1.5"
-    testImplementation "org.testng:testng:7.7.1"
-}

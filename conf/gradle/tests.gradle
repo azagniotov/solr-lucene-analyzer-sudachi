@@ -14,13 +14,26 @@
  * limitations under the License.
  */
 
-dependencies {
-    api "com.worksap.nlp:sudachi:${sudachiVersion}"
+test {
+    useTestNG()
+    // initial heap size
+    minHeapSize = "512m"
 
-    testImplementation "junit:junit:4.13.2"
-    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
-    // https://github.com/mockito/mockito/issues/2231
-    testImplementation "org.mockito:mockito-inline:${mockitoVersion}"
-    testImplementation "com.google.truth:truth:1.1.5"
-    testImplementation "org.testng:testng:7.7.1"
+    // maximum heap size
+    maxHeapSize = "4096m"
+}
+
+tasks.withType(Test).configureEach {
+    reports.html.required = false
+    reports.junitXml.required = false
+    ignoreFailures = false
+    testLogging {
+        // showStandardStreams true
+        events /*"passed", */ "skipped", "failed"
+        exceptionFormat "full"
+        showExceptions true
+        showCauses true
+        showStackTraces true
+        showStandardStreams true
+    }
 }
