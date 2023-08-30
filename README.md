@@ -23,6 +23,16 @@ Building and packaging can be done with the following command:
 ./gradlew build
 ```
 
+#### Downloading a Sudachi dictionary
+
+The plugin needs a dictionary in order to run the tests, thus, it needs to be downloaded using the following command:
+
+```bash
+./gradlew downloadSystemDict
+```
+
+As per [https://github.com/WorksApplications/Sudachi#dictionaries](https://github.com/WorksApplications/Sudachi#dictionaries), the above command will download a `system_core.dic` and will place it under [src/main/resources/system-dict/](src/main/resources/system-dict)
+
 #### Formatting
 
 The project leverages the [Spotless Gradle plugin](https://github.com/diffplug/spotless/tree/main/plugin-gradle) and follows the [palantir-java-format](https://github.com/palantir/palantir-java-format) style guide.

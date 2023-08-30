@@ -18,9 +18,12 @@ package io.github.azagniotov.lucene.analysis;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import java.net.URL;
+import com.worksap.nlp.sudachi.dictionary.UserDictionaryBuilder;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -28,23 +31,36 @@ import org.testng.annotations.Test;
 
 public class JapaneseTokenizerTest {
 
-    private static final URL systemDictResource;
+    private static final Path systemDictPath;
+    private static final Path userLexiconCsvPath;
     private static final Pattern WHITESPACE_REGEX = Pattern.compile("\\s+");
 
     static {
-        systemDictResource = JapaneseTokenizerTest.class.getResource("/system-dict/system_core.dic");
+        final String systemDictPathStr = Objects.requireNonNull(
+                        JapaneseTokenizerTest.class.getResource("/system-dict/system_core.dic"))
+                .getPath();
+        systemDictPath = Paths.get(systemDictPathStr);
+
+        final String userLexiconCsvPathStr = Objects.requireNonNull(
+                        JapaneseTokenizerTest.class.getResource("/user-dict/user_lexicon.csv"))
+                .getPath();
+        userLexiconCsvPath = Paths.get(userLexiconCsvPathStr);
     }
 
     private static JapaneseTokenizer japaneseTokenizer;
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        japaneseTokenizer = JapaneseTokenizer.fromSystemDict(systemDictResource.getPath());
+        final String currentDirectory =
+                Path.of(System.getProperty("user.dir")).toAbsolutePath().toString();
+        final String userDictFilename = String.join("/", currentDirectory, "user_lexicon.dic");
+        UserDictionaryBuilder.main(
+                new String[] {"-o", userDictFilename, "-s", systemDictPath.toString(), userLexiconCsvPath.toString()});
+        japaneseTokenizer = JapaneseTokenizer.from(systemDictPath, Paths.get(userDictFilename));
     }
 
     @Test
     public void sanityCheck() {
-        assertThat(systemDictResource).isNotNull();
         assertThat(japaneseTokenizer).isNotNull();
     }
 
@@ -80,7 +96,19 @@ public class JapaneseTokenizerTest {
         return new Object[][] {
             {"令和", new Object[] {"令和"}},
             {"京都。東京.東京都。京都", new Object[] {"京都", "東京", "東京", "都", "京都"}},
-            {"清水寺は東京都にあります", new Object[] {"清水", "寺", "は", "東京", "都", "に", "あり", "ます"}},
+
+            // https://raw.githubusercontent.com/WorksApplications/Sudachi/develop/docs/user_dict.md
+            /* === Example: Start of custom tokenization using the user dictionary === */
+            {"清水寺は東京都にあります", new Object[] {"清水寺", "は", "東京", "都", "に", "あり", "ます"}},
+            {"にじさんじ", new Object[] {"にじさんじ"}},
+            {"にじさんじましろ", new Object[] {"にじさんじ", "ましろ"}},
+            {"にじさんじのましろ", new Object[] {"にじさんじ", "の", "ましろ"}},
+            {"ちいかわ", new Object[] {"ちいかわ"}},
+            {"くら寿司ちいかわ", new Object[] {"くら", "寿司", "ちいかわ"}},
+            {"ぼのぼの", new Object[] {"ぼのぼの"}},
+            {"ぼのぼのアニメ公式サイト", new Object[] {"ぼのぼの", "アニメ", "公式", "サイト"}},
+            /* === Example: End of custom tokenization using the user dictionary === */
+
             {"お試し用(使い切り)", new Object[] {"お", "試し", "用", "使い", "切り"}},
             {"聖川真斗", new Object[] {"聖川", "真斗"}},
             {"IKEAの椅子", new Object[] {"IKEA", "の", "椅子"}},
@@ -93,9 +121,6 @@ public class JapaneseTokenizerTest {
             {"アンパスィ", new Object[] {"アンパスィ"}},
             {"トラックボール", new Object[] {"トラック", "ボール"}},
             {"日本限定ソファ", new Object[] {"日本", "限定", "ソファ"}},
-            {"ちいかわ", new Object[] {"ちい", "か", "わ"}},
-            {"くら寿司 ちいかわ", new Object[] {"くら", "寿司", "ちい", "か", "わ"}},
-            {"ぼのぼの", new Object[] {"ぼ", "の", "ぼ", "の"}},
             {"吾輩は猫である", new Object[] {"吾輩", "は", "猫", "で", "ある"}},
             {"あなたが誰かを殺した", new Object[] {"あなた", "が", "誰", "か", "を", "殺し", "た"}},
             {"日本語【単話版】", new Object[] {"日本", "語", "単", "話", "版"}},
@@ -115,8 +140,6 @@ public class JapaneseTokenizerTest {
             {"パラライ", new Object[] {"パラライ"}},
             {"ルイヴィトン財布", new Object[] {"ルイヴィトン", "財布"}},
             {"終わりのセラフ", new Object[] {"終わり", "の", "セラフ"}},
-            {"にじさんじ", new Object[] {"にじ", "さん", "じ"}},
-            {"にじさんじましろ", new Object[] {"にじ", "さん", "じま", "しろ"}},
             {"グランドセイコー", new Object[] {"グランド", "セイコー"}},
             {"神宮寺レン", new Object[] {"神宮寺", "レン"}},
             {"ストウブ", new Object[] {"ストウブ"}},

@@ -57,4 +57,5 @@ build
 # Sudachi
 *.dic*
 system-dict
+!resources/user-dict/user_lexicon.csv
 

@@ -23,7 +23,7 @@ import com.worksap.nlp.sudachi.Morpheme;
 import com.worksap.nlp.sudachi.MorphemeList;
 import com.worksap.nlp.sudachi.Tokenizer;
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -45,8 +45,10 @@ public class JapaneseTokenizer {
         this.sudachiTokenizer = sudachiTokenizer;
     }
 
-    public static JapaneseTokenizer fromSystemDict(final String fileCanonicalPath) throws IOException {
-        final Config config = Config.defaultConfig().systemDictionary(Paths.get(fileCanonicalPath));
+    public static JapaneseTokenizer from(final Path systemDictPath, final Path userDictPath) throws IOException {
+        final Config config =
+                Config.defaultConfig().systemDictionary(systemDictPath).addUserDictionary(userDictPath);
+
         final Dictionary dictionary = new DictionaryFactory().create(config);
         return new JapaneseTokenizer(dictionary.create());
     }
