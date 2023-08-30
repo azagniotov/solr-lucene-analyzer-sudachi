@@ -52,7 +52,7 @@ public class JapaneseTokenizerTest {
     @BeforeClass
     public static void beforeClass() throws Exception {
         final String currentDirectory =
-                Path.of(System.getProperty("user.dir")).toAbsolutePath().toString();
+                Paths.get(System.getProperty("user.dir")).toAbsolutePath().toString();
         final String userDictFilename = String.join("/", currentDirectory, "user_lexicon.dic");
         UserDictionaryBuilder.main(
                 new String[] {"-o", userDictFilename, "-s", systemDictPath.toString(), userLexiconCsvPath.toString()});
@@ -162,10 +162,11 @@ public class JapaneseTokenizerTest {
         final String katakanaWord = "テスト";
 
         final StringBuilder sb = new StringBuilder();
-        sb.append(katakanaWord.repeat(limit));
+        sb.append(new String(new char[limit]).replace("\0", katakanaWord));
 
         final List<String> nCopies = Collections.nCopies(limit, katakanaWord);
 
+        assertThat(nCopies.size()).isEqualTo(limit);
         assertThat(japaneseTokenizer.tokenize(sb.toString())).containsExactly(nCopies.toArray(new Object[0]));
     }
 }

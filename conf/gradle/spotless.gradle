@@ -7,7 +7,6 @@ spotless {
         importOrder()
         removeUnusedImports()
         palantirJavaFormat()
-        formatAnnotations()
 
         licenseHeaderFile(rootProject.file(".spotless/apache-2.0-license.txt"))
     }

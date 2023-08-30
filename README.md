@@ -43,6 +43,8 @@ To format the sources, run the following command:
 ./gradlew spotlessApply
 ```
 
+To note: Spotless Gradle plugin is invoked implicitly when running the `./gradlew build` command.
+
 #### Testing
 
 To run tests, run the following command:
