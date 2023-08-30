@@ -23,6 +23,7 @@ apply plugin: "de.undercouch.download"
 plugins.withType(JavaPlugin) {
     ext {
         targetDir = file("src/main/resources")
+        dictionaryName = "sudachi-dictionary-20230711-core"
     }
     task deleteDictionaryData() {
         doFirst {
@@ -32,13 +33,12 @@ plugins.withType(JavaPlugin) {
         }
     }
 
-    task downloadSystemDict(type: Download) {
+    task downloadFile(type: Download) {
         description "Recompile dictionaries from UniDic data from https://clrd.ninjal.ac.jp/unidic_archive"
 
         dependsOn deleteDictionaryData
         dependsOn sourceSets.main.runtimeClasspath
 
-        def dictionaryName = "sudachi-dictionary-20230711-core"
         def dictionarySource = "http://sudachi.s3-website-ap-northeast-1.amazonaws.com/sudachidict/${dictionaryName}.zip"
         def dictionaryFile = file("${buildDir}/downloaded/${dictionaryName}.zip")
         def unpackedDir = file("${targetDir}/system-dict")
@@ -46,6 +46,7 @@ plugins.withType(JavaPlugin) {
         src dictionarySource
         dest dictionaryFile
         onlyIfModified true
+        quiet false
 
         doLast {
             // Unpack the downloaded archive.
@@ -54,5 +55,11 @@ plugins.withType(JavaPlugin) {
                 ant.cutdirsmapper(dirs: "1")
             }
         }
+    }
+
+    task downloadSystemDict(type: Verify, dependsOn: downloadFile) {
+        src layout.buildDirectory.file("downloaded/${dictionaryName}.zip")
+        algorithm "MD5"
+        checksum "806bd34246704cfcacc51829df42c505"
     }
 }
