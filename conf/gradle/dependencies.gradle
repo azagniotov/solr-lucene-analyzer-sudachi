@@ -17,6 +17,11 @@
 dependencies {
     api "com.worksap.nlp:sudachi:${sudachiVersion}"
 
+    api "org.apache.solr:solr-core:${solrjVersion}"
+    api "org.apache.solr:solr-solrj:${solrjVersion}"
+
+    testImplementation "org.apache.solr:solr-test-framework:${solrjVersion}"
+
     testImplementation "junit:junit:4.13.2"
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"
     // https://github.com/mockito/mockito/issues/2231
@@ -24,4 +29,14 @@ dependencies {
     testImplementation "com.google.truth:truth:1.1.5"
     // From v7.6.0 (inc.) Java 8 support is dropped
     testImplementation "org.testng:testng:7.5.1"
+}
+
+configurations.api {
+    // Default Japanese tokenizer
+    exclude group: "org.apache.lucene", module: "lucene-analysis-kuromoji"
+    // Default Korean tokenizer
+    // exclude group: "org.apache.lucene", module: "lucene-analysis-nori"
+
+    exclude group: "org.apache.solr", module: "solr-solrj-zookeeper"
+    exclude group: "org.apache.solr", module: "solr-solrj-streaming"
 }
