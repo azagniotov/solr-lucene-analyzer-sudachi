@@ -17,10 +17,10 @@
 dependencies {
     api "com.worksap.nlp:sudachi:${sudachiVersion}"
 
-    api "org.apache.solr:solr-core:${solrjVersion}"
-    api "org.apache.solr:solr-solrj:${solrjVersion}"
+    api "org.apache.solr:solr-core:${solrVersion}"
+    api "org.apache.solr:solr-solrj:${solrVersion}"
 
-    testImplementation "org.apache.solr:solr-test-framework:${solrjVersion}"
+    testImplementation "org.apache.solr:solr-test-framework:${solrVersion}"
 
     testImplementation "junit:junit:4.13.2"
     testImplementation "org.mockito:mockito-core:${mockitoVersion}"
