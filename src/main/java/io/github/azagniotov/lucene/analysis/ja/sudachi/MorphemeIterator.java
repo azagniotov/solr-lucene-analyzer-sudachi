@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023 Sho Nakamura (https://github.com/sh0nk/solr-sudachi)
+ * Copyright (c) 2017-2023 Works Applications Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,23 @@
 package io.github.azagniotov.lucene.analysis.ja.sudachi;
 
 import com.worksap.nlp.sudachi.Morpheme;
-import org.apache.lucene.util.Attribute;
 
-/**
- * Attribute for {@link Morpheme#surface()}
- */
-public interface SurfaceFormAttribute extends Attribute {
-    String getSurface();
+public interface MorphemeIterator {
 
-    void setMorpheme(Morpheme morpheme);
+    MorphemeIterator EMPTY = new MorphemeIterator() {
+
+        @Override
+        public Morpheme next() {
+            return null;
+        }
+
+        @Override
+        public int getBaseOffset() {
+            return 0;
+        }
+    };
+
+    Morpheme next();
+
+    int getBaseOffset();
 }

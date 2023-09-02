@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.github.azagniotov.lucene.analysis.ja.sudachi;
 
 import static com.worksap.nlp.sudachi.Tokenizer.*;
@@ -25,10 +24,10 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Objects;
 import org.apache.lucene.analysis.Tokenizer;
-import org.apache.lucene.analysis.TokenizerFactory;
+import org.apache.lucene.analysis.util.ResourceLoader;
+import org.apache.lucene.analysis.util.ResourceLoaderAware;
+import org.apache.lucene.analysis.util.TokenizerFactory;
 import org.apache.lucene.util.AttributeFactory;
-import org.apache.lucene.util.ResourceLoader;
-import org.apache.lucene.util.ResourceLoaderAware;
 
 public class SudachiTokenizerFactory extends TokenizerFactory implements ResourceLoaderAware {
 

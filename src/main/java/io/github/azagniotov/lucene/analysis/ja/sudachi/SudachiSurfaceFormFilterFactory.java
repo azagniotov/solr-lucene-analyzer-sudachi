@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Alexander Zagniotov
+ * Copyright (c) 2017-2023 Sho Nakamura (https://github.com/sh0nk/solr-sudachi)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.github.azagniotov.lucene.analysis.ja.sudachi;
 
 import java.util.Map;
-import org.apache.lucene.analysis.TokenFilterFactory;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.util.TokenFilterFactory;
 
 /**
  * Factory for {@link SudachiSurfaceFormFilter}.
@@ -43,7 +42,7 @@ public class SudachiSurfaceFormFilterFactory extends TokenFilterFactory {
     }
 
     @Override
-    public TokenStream create(TokenStream tokenStream) {
+    public TokenStream create(final TokenStream tokenStream) {
         return new SudachiSurfaceFormFilter(tokenStream);
     }
 }

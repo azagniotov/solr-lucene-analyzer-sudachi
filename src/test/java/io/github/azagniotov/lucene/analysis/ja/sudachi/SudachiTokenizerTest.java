@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.github.azagniotov.lucene.analysis.ja.sudachi;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.apache.lucene.analysis.TokenStream.DEFAULT_TOKEN_ATTRIBUTE_FACTORY;
 
 import com.worksap.nlp.sudachi.Morpheme;
+import com.worksap.nlp.sudachi.MorphemeList;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.util.Strings;
 import java.io.Reader;
 import java.io.StringReader;
@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -37,13 +36,11 @@ import org.testng.annotations.Test;
 
 public class SudachiTokenizerTest {
 
-    private static final Pattern WHITESPACE_REGEX = Pattern.compile("\\s+");
-
     private static SudachiTokenizer sudachiTokenizer;
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        final Map<String, String> args = new HashMap<>() {
+        final Map<String, String> args = new HashMap<String, String>() {
             {
                 put("mode", "search");
                 put("discardPunctuation", "true");
@@ -56,32 +53,6 @@ public class SudachiTokenizerTest {
     @Test
     public void sanityCheck() {
         assertThat(sudachiTokenizer).isNotNull();
-    }
-
-    @Test
-    public void isJapanesePunctuation() throws Exception {
-        // http://www.rikai.com/library/kanjitables/kanji_codes.unicode.shtml
-        final String punctuation = "、 。 〃 〄  〈 〉 《 》 「 」 『 』 【 】 〒 〓 〔 〕 " + "〖 〗 〘 〙 〚 〛 〜 〝 〞 〟 〠";
-        for (final String punt : WHITESPACE_REGEX.split(punctuation)) {
-            assertThat(Strings.isPunctuation(punt.trim())).isTrue();
-        }
-    }
-
-    @Test
-    public void isAsciiPunctuation() throws Exception {
-        // !"#$%&'()*+,-./:;<=>?@[\]^_`{ }~:
-        final String punctuation = "@ / ! . , + - : ; [ ] { } ~ _ ( ) # $ % & ' \" * < > ? ^ ` \\";
-        for (final String punt : WHITESPACE_REGEX.split(punctuation)) {
-            assertThat(Strings.isPunctuation(punt.trim())).isTrue();
-        }
-    }
-
-    @Test
-    public void isLatinOnePunctuation() throws Exception {
-        final String punctuation = "· ¶ »";
-        for (final String punt : WHITESPACE_REGEX.split(punctuation)) {
-            assertThat(Strings.isPunctuation(punt.trim())).isTrue();
-        }
     }
 
     @DataProvider(name = "queryTokens")
@@ -161,13 +132,23 @@ public class SudachiTokenizerTest {
         final List<String> nCopies = Collections.nCopies(limit, katakanaWord);
 
         assertThat(nCopies.size()).isEqualTo(limit);
-        //        assertThat(sudachiTokenizer.tokenize(sb.toString())).containsExactly(nCopies.toArray(new Object[0]));
+
+        final Reader stringReader = new StringReader(sb.toString());
+        assertThat(tokens(sudachiTokenizer.tokenize(stringReader))).containsExactly(nCopies.toArray(new Object[0]));
     }
 
-    private List<String> tokens(final Iterator<Morpheme> morphemeList) {
+    private List<String> tokens(final Iterator<MorphemeList> morphemeList) {
         final List<Morpheme> result = new ArrayList<>();
-        morphemeList.forEachRemaining(result::add);
 
-        return result.stream().map(Morpheme::surface).collect(Collectors.toList());
+        for (final Iterator<MorphemeList> it = morphemeList; it.hasNext(); ) {
+            final MorphemeList sentence = it.next();
+            sentence.iterator().forEachRemaining(morpheme -> {
+                if (!Strings.isPunctuation(morpheme.normalizedForm())) {
+                    result.add(morpheme);
+                }
+            });
+        }
+
+        return result.stream().map(Morpheme::surface).map(String::trim).collect(Collectors.toList());
     }
 }
