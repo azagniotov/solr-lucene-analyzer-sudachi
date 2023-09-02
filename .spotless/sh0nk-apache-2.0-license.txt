@@ -1,5 +1,5 @@
 /*
- * Copyright (c) $YEAR Alexander Zagniotov
+ * Copyright (c) $YEAR Sho Nakamura (https://github.com/sh0nk/solr-sudachi)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,4 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
