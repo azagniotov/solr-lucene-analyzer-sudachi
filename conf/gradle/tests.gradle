@@ -14,13 +14,35 @@
  * limitations under the License.
  */
 
-test {
-    useTestNG()
-    // initial heap size
-    minHeapSize = "512m"
+configurations {
+    integrationTestImplementation.extendsFrom testImplementation
+}
 
-    // maximum heap size
-    maxHeapSize = "4096m"
+testing {
+    suites {
+        test {
+            useTestNG()
+        }
+
+        integrationTest(JvmTestSuite) {
+            useJUnit()
+            dependencies {
+                implementation project()
+            }
+
+            targets {
+                all {
+                    testTask.configure {
+                        shouldRunAfter(test)
+                    }
+                }
+            }
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn(testing.suites.integrationTest)
 }
 
 tasks.withType(Test).configureEach {
@@ -29,11 +51,11 @@ tasks.withType(Test).configureEach {
     ignoreFailures = false
     testLogging {
         // showStandardStreams true
-        events /*"passed", */ "skipped", "failed"
+        events "passed", "skipped", "failed"
         exceptionFormat "full"
         showExceptions true
         showCauses true
         showStackTraces true
-        showStandardStreams true
+        showStandardStreams false
     }
 }

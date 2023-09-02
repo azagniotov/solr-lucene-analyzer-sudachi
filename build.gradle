@@ -8,7 +8,6 @@ buildscript {
         }
     }
     dependencies {
-        classpath "org.unbroken-dome.gradle-plugins:gradle-testsets-plugin:4.0.0"
         classpath("de.undercouch:gradle-download-task:5.5.0")
         // From v6.14.0 (inc.) Java 8 support is dropped
         classpath("com.diffplug.spotless:spotless-plugin-gradle:6.13.0")
@@ -17,12 +16,13 @@ buildscript {
 
 
 apply plugin: "java-library"
+apply plugin: "jvm-test-suite"
 apply plugin: "idea"
 apply plugin: "eclipse"
 apply plugin: "jacoco"
 
 defaultTasks 'clean', 'test', 'build'
-description = 'Gradle configuration for Solr Morphological Analyzer Sudachi'
+description = 'Gradle configuration for Solr Lucene Analyzer Sudachi'
 
 compileJava {
     options.encoding = 'UTF-8'
