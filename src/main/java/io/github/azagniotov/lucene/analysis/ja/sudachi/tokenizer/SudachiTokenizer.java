@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.azagniotov.lucene.analysis.ja.sudachi;
+package io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer;
 
 import static com.worksap.nlp.sudachi.Tokenizer.SplitMode;
 
@@ -24,6 +24,7 @@ import com.worksap.nlp.sudachi.DictionaryFactory;
 import com.worksap.nlp.sudachi.Morpheme;
 import com.worksap.nlp.sudachi.MorphemeList;
 import com.worksap.nlp.sudachi.Tokenizer;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SurfaceFormAttribute;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Path;

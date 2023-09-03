@@ -4,6 +4,8 @@ spotless {
     java {
         ratchetFrom "origin/master" // only format files which have changed since origin/master
 
+        target "src/**/*.java"
+
         importOrder()
         removeUnusedImports()
         palantirJavaFormat()

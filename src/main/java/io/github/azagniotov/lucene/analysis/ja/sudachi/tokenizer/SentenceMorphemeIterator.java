@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.azagniotov.lucene.analysis.ja.sudachi;
+package io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer;
 
 import com.worksap.nlp.sudachi.Morpheme;
 import com.worksap.nlp.sudachi.MorphemeList;
 import java.util.Iterator;
 
-public class SentenceMorphemeIterator implements MorphemeIterator {
+class SentenceMorphemeIterator implements MorphemeIterator {
 
     private Iterator<Morpheme> morphemeIterator;
     private final Iterator<MorphemeList> sentenceIterator;

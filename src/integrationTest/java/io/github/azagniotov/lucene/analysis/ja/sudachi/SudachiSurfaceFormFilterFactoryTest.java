@@ -16,8 +16,9 @@
 package io.github.azagniotov.lucene.analysis.ja.sudachi;
 
 import static org.apache.lucene.analysis.BaseTokenStreamTestCase.assertAnalyzesTo;
-import static org.apache.lucene.analysis.BaseTokenStreamTestCase.checkOneTerm;
 
+import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiSurfaceFormFilterFactory;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiTokenizerFactory;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
