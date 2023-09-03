@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017-2023 Alexander Zagniotov
+ * Copyright (c) 2017-2023 Works Applications Co., Ltd.
+ * Modifications copyright (c) 2023 Alexander Zagniotov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,9 +66,5 @@ public class Strings {
             mask = mask | (1L << value);
         }
         return mask;
-    }
-
-    public static int codepointCount(CharSequence seq) {
-        return Character.codePointCount(seq, 0, seq.length());
     }
 }
