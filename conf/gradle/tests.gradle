@@ -14,20 +14,30 @@
  * limitations under the License.
  */
 
-configurations {
-    integrationTestImplementation.extendsFrom testImplementation
-}
-
 testing {
     suites {
         test {
             useTestNG()
+            dependencies {
+                implementation "com.google.truth:truth:1.1.5"
+                // From v7.6.0 (inc.) Java 8 support is dropped
+                implementation "org.testng:testng:7.5.1"
+            }
         }
 
         integrationTest(JvmTestSuite) {
+            sources {
+                resources {
+                    srcDirs += [
+                            "src/main/resources"
+                    ]
+                }
+            }
             useJUnit()
             dependencies {
                 implementation project()
+                implementation "org.apache.solr:solr-test-framework:${solrVersion}"
+                implementation "junit:junit:4.13.2"
             }
 
             targets {
@@ -44,6 +54,8 @@ testing {
 tasks.named('check') {
     dependsOn(testing.suites.integrationTest)
 }
+
+processIntegrationTestResources.dependsOn(processResources)
 
 tasks.withType(Test).configureEach {
     reports.html.required = false

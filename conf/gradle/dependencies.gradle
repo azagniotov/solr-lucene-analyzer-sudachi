@@ -20,15 +20,7 @@ dependencies {
     api "org.apache.solr:solr-core:${solrVersion}"
     api "org.apache.solr:solr-solrj:${solrVersion}"
 
-    testImplementation "org.apache.solr:solr-test-framework:${solrVersion}"
-
-    testImplementation "junit:junit:4.13.2"
-    testImplementation "org.mockito:mockito-core:${mockitoVersion}"
-    // https://github.com/mockito/mockito/issues/2231
-    testImplementation "org.mockito:mockito-inline:${mockitoVersion}"
-    testImplementation "com.google.truth:truth:1.1.5"
-    // From v7.6.0 (inc.) Java 8 support is dropped
-    testImplementation "org.testng:testng:7.5.1"
+    // See conf/tests.gradle for test related dependencies
 }
 
 configurations.api {
