@@ -3,6 +3,7 @@
 # Solr Lucene Analyzer Sudachi
 <img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" /> [Sudachi](https://github.com/WorksApplications/Sudachi) を活用した日本語解析のための Lucene プラグイン <img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" /> A Lucene-based plugin on [Sudachi](https://github.com/WorksApplications/Sudachi) <img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" />
 
+## Table of Contents
 <!-- TOC -->
 * [Plugin philosophy and background](#plugin-philosophy-and-background)
 * [Prerequisites](#prerequisites)
@@ -10,12 +11,12 @@
 * [Local Development](#local-development)
   * [System Requirements](#system-requirements)
   * [Build System](#build-system)
+    * [List of Gradle tasks](#list-of-gradle-tasks)
     * [Building](#building)
     * [Formatting](#formatting)
   * [Testing](#testing)
     * [Unit tests](#unit-tests)
     * [Integration tests](#integration-tests)
-    * [List of Gradle tasks](#list-of-gradle-tasks)
 * [Licenses](#licenses)
   * [Sudachi and Sudachi Logo](#sudachi-and-sudachi-logo)
   * [Lucene](#lucene)
@@ -28,6 +29,7 @@ The plugin is largely based on the other good work by the [Sudachi](https://gith
 
 In terms of the filter configuration parity with the Lucene's built-n Kuromoji analyzer plugin, the Solr Lucene Analyzer plugin filter configuration matches [the current default in the built-in Kuromoji](https://github.com/apache/lucene/blob/305d9ebb86b74dea725ed38f2ae3d8bc1b107ed5/lucene/analysis/kuromoji/src/java/org/apache/lucene/analysis/ja/JapaneseAnalyzer.java#L109-L116)
 
+[`Back to top`](#table-of-contents)
 
 ## Prerequisites
 
@@ -39,6 +41,8 @@ The plugin needs a dictionary in order to run the tests, thus, it needs to be do
 ./gradlew downloadSystemDict
 ```
 
+[`Back to top`](#table-of-contents)
+
 ## Local Development
 
 ### System Requirements
@@ -48,6 +52,14 @@ The plugin needs a dictionary in order to run the tests, thus, it needs to be do
 ### Build System
 
 The plugin uses [Gradle](https://gradle.org/) for as a build system.
+
+#### List of Gradle tasks
+
+For list of all the available Gradle tasks, run the following command:
+
+```bash
+./gradlew tasks
+```
 
 #### Building
 
@@ -91,13 +103,7 @@ To run integration tests, run the following command:
 ./gradlew integrationTest
 ```
 
-#### List of Gradle tasks
-
-For list of all the available Gradle tasks, run the following command:
-
-```bash
-./gradlew tasks
-```
+[`Back to top`](#table-of-contents)
 
 ## Licenses
 
@@ -131,3 +137,4 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
+[`Back to top`](#table-of-contents)
