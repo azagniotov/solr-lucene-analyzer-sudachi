@@ -21,7 +21,7 @@ import org.apache.lucene.util.Attribute;
 /**
  * Attribute for {@link Morpheme#surface()}
  */
-public interface SurfaceFormAttribute extends Attribute {
+public interface SudachiSurfaceFormAttribute extends Attribute {
     String getSurface();
 
     void setMorpheme(Morpheme morpheme);

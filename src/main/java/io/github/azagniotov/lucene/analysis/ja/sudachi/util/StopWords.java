@@ -25,10 +25,10 @@ import java.util.Objects;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.WordlistLoader;
 
-public class Stopwords {
+public class StopWords {
     public static CharArraySet load(final boolean ignoreCase, final String filename, final String comment)
             throws IOException {
-        try (final InputStream inputStream = Stopwords.class.getResourceAsStream(filename);
+        try (final InputStream inputStream = StopWords.class.getResourceAsStream("/" + filename);
                 final InputStreamReader inputStreamReader =
                         new InputStreamReader(Objects.requireNonNull(inputStream), StandardCharsets.UTF_8);
                 final BufferedReader bufferedReader = new BufferedReader(inputStreamReader)) {

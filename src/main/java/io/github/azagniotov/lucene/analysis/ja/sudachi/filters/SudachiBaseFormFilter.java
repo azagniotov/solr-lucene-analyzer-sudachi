@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023 Sho Nakamura (https://github.com/sh0nk/solr-sudachi)
+ * Copyright (c) 2023 Alexander Zagniotov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,27 +20,23 @@ import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
-/**
- * Replaces the SolrSudachiTokenizer's default normalized form term text
- * with the {@link SudachiSurfaceFormAttribute} (untouched input split token)
- */
-public final class SudachiSurfaceFormFilter extends TokenFilter {
+public final class SudachiBaseFormFilter extends TokenFilter {
     private final CharTermAttribute termAtt;
-    private final SudachiSurfaceFormAttribute surfaceAtt;
+    private final SudachiBaseFormAttribute baseFormAtt;
 
-    public SudachiSurfaceFormFilter(TokenStream input) {
+    public SudachiBaseFormFilter(TokenStream input) {
         super(input);
         termAtt = addAttribute(CharTermAttribute.class);
-        surfaceAtt = addAttribute(SudachiSurfaceFormAttribute.class);
+        baseFormAtt = addAttribute(SudachiBaseFormAttribute.class);
     }
 
     @Override
     public boolean incrementToken() throws IOException {
         if (input.incrementToken()) {
-            if (surfaceAtt != null
-                    && surfaceAtt.getSurface() != null
-                    && !surfaceAtt.getSurface().isEmpty()) {
-                termAtt.setEmpty().append(surfaceAtt.getSurface());
+            if (baseFormAtt != null
+                    && baseFormAtt.getDictionaryForm() != null
+                    && !baseFormAtt.getDictionaryForm().isEmpty()) {
+                termAtt.setEmpty().append(baseFormAtt.getDictionaryForm());
             }
             return true;
         }

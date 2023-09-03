@@ -19,7 +19,7 @@ import com.worksap.nlp.sudachi.Morpheme;
 import org.apache.lucene.util.AttributeImpl;
 import org.apache.lucene.util.AttributeReflector;
 
-public class SurfaceFormAttributeImpl extends AttributeImpl implements SurfaceFormAttribute {
+public class SudachiSurfaceFormAttributeImpl extends AttributeImpl implements SudachiSurfaceFormAttribute {
 
     private Morpheme morpheme;
 
@@ -40,12 +40,12 @@ public class SurfaceFormAttributeImpl extends AttributeImpl implements SurfaceFo
 
     @Override
     public void reflectWith(AttributeReflector attributeReflector) {
-        attributeReflector.reflect(SurfaceFormAttribute.class, "surfaceForm", getSurface());
+        attributeReflector.reflect(SudachiSurfaceFormAttribute.class, "surfaceForm", getSurface());
     }
 
     @Override
     public void copyTo(AttributeImpl attribute) {
-        SurfaceFormAttribute at = (SurfaceFormAttribute) attribute;
+        SudachiSurfaceFormAttribute at = (SudachiSurfaceFormAttribute) attribute;
         at.setMorpheme(morpheme);
     }
 }
