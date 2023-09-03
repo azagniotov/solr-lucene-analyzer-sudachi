@@ -13,12 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.azagniotov.lucene.analysis.ja.sudachi;
+package io.github.azagniotov.lucene.analysis.ja.sudachi.filters;
 
-import static org.apache.lucene.analysis.BaseTokenStreamTestCase.assertAnalyzesTo;
-
-import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiSurfaceFormFilterFactory;
-import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiTokenizerFactory;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;

@@ -38,13 +38,14 @@ import org.testng.annotations.Test;
 public class SudachiTokenizerTest {
 
     private static SudachiTokenizer sudachiTokenizer;
+    private static final boolean DISCARD_PUNCTUATION = true;
 
     @BeforeClass
     public static void beforeClass() throws Exception {
         final Map<String, String> args = new HashMap<String, String>() {
             {
                 put("mode", "search");
-                put("discardPunctuation", "true");
+                put("discardPunctuation", String.valueOf(DISCARD_PUNCTUATION));
             }
         };
         final SudachiTokenizerFactory sudachiTokenizerFactory = new SudachiTokenizerFactory(args);
@@ -56,8 +57,8 @@ public class SudachiTokenizerTest {
         assertThat(sudachiTokenizer).isNotNull();
     }
 
-    @DataProvider(name = "queryTokens")
-    public static Object[][] queryTokens() {
+    @DataProvider(name = "querySurfaces")
+    public static Object[][] querySurfaces() {
         return new Object[][] {
             {"令和", new Object[] {"令和"}},
             {"京都。東京.東京都。京都", new Object[] {"京都", "東京", "東京", "都", "京都"}},
@@ -116,8 +117,8 @@ public class SudachiTokenizerTest {
         };
     }
 
-    @Test(dataProvider = "queryTokens")
-    public void testTokenize(final Object query, final Object... expected) throws Exception {
+    @Test(dataProvider = "querySurfaces")
+    public void testTokenizeSurfaces(final Object query, final Object... expected) throws Exception {
         final Reader stringReader = new StringReader(query.toString());
         assertThat(tokens(sudachiTokenizer.tokenize(stringReader))).containsExactly(expected);
     }
@@ -143,8 +144,13 @@ public class SudachiTokenizerTest {
 
         for (final Iterator<MorphemeList> it = morphemeList; it.hasNext(); ) {
             final MorphemeList sentence = it.next();
+
             sentence.iterator().forEachRemaining(morpheme -> {
-                if (!Strings.isPunctuation(morpheme.normalizedForm())) {
+                if (DISCARD_PUNCTUATION) {
+                    if (!Strings.isPunctuation(morpheme.normalizedForm())) {
+                        result.add(morpheme);
+                    }
+                } else {
                     result.add(morpheme);
                 }
             });
