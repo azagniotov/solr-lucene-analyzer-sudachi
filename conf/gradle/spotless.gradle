@@ -4,10 +4,26 @@ spotless {
     java {
         ratchetFrom "origin/master" // only format files which have changed since origin/master
 
+        target "src/**/*.java"
+
         importOrder()
         removeUnusedImports()
         palantirJavaFormat()
 
-        licenseHeaderFile(rootProject.file(".spotless/apache-2.0-license.txt"))
+        licenseHeaderFile(rootProject.file(".spotless/modifications.by-apache-2.0-license.txt")).
+                named("modifications.by.alexander.zagniotov").
+                onlyIfContentMatches("Modifications copyright (c) \\.* Alexander Zagniotov")
+
+        licenseHeaderFile(rootProject.file(".spotless/alexander.zagniotov-apache-2.0-license.txt")).
+                named("alexander.zagniotov").
+                onlyIfContentMatches("Copyright (c) \\.* Alexander Zagniotov")
+
+        licenseHeaderFile(rootProject.file(".spotless/works.apps-apache-2.0-license.txt")).
+                named("works.apps").
+                onlyIfContentMatches("^(?!Alexander Zagniotov)(Works Applications)\$")
+
+        licenseHeaderFile(rootProject.file(".spotless/sh0nk-apache-2.0-license.txt")).
+                named("sh0nk").
+                onlyIfContentMatches("Sho Nakamura")
     }
 }

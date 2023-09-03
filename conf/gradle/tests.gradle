@@ -14,14 +14,48 @@
  * limitations under the License.
  */
 
-test {
-    useTestNG()
-    // initial heap size
-    minHeapSize = "512m"
+testing {
+    suites {
+        test {
+            useTestNG()
+            dependencies {
+                implementation "com.google.truth:truth:1.1.5"
+                // From v7.6.0 (inc.) Java 8 support is dropped
+                implementation "org.testng:testng:7.5.1"
+            }
+        }
 
-    // maximum heap size
-    maxHeapSize = "4096m"
+        integrationTest(JvmTestSuite) {
+            sources {
+                resources {
+                    srcDirs += [
+                            "src/main/resources"
+                    ]
+                }
+            }
+            useJUnit()
+            dependencies {
+                implementation project()
+                implementation "org.apache.solr:solr-test-framework:${solrVersion}"
+                implementation "junit:junit:4.13.2"
+            }
+
+            targets {
+                all {
+                    testTask.configure {
+                        shouldRunAfter(test)
+                    }
+                }
+            }
+        }
+    }
 }
+
+tasks.named('check') {
+    dependsOn(testing.suites.integrationTest)
+}
+
+processIntegrationTestResources.dependsOn(processResources)
 
 tasks.withType(Test).configureEach {
     reports.html.required = false
@@ -29,11 +63,11 @@ tasks.withType(Test).configureEach {
     ignoreFailures = false
     testLogging {
         // showStandardStreams true
-        events /*"passed", */ "skipped", "failed"
+        events "passed", "skipped", "failed"
         exceptionFormat "full"
         showExceptions true
         showCauses true
         showStackTraces true
-        showStandardStreams true
+        showStandardStreams false
     }
 }

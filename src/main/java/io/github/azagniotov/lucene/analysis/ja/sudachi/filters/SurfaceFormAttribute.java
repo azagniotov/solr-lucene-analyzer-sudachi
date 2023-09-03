@@ -1,5 +1,5 @@
 /*
- * Copyright (c) $YEAR Alexander Zagniotov
+ * Copyright (c) 2017-2023 Sho Nakamura (https://github.com/sh0nk/solr-sudachi)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,4 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.github.azagniotov.lucene.analysis.ja.sudachi.filters;
 
+import com.worksap.nlp.sudachi.Morpheme;
+import org.apache.lucene.util.Attribute;
+
+/**
+ * Attribute for {@link Morpheme#surface()}
+ */
+public interface SurfaceFormAttribute extends Attribute {
+    String getSurface();
+
+    void setMorpheme(Morpheme morpheme);
+}

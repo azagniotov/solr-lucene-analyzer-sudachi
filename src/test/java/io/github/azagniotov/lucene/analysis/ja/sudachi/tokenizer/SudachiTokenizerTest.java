@@ -13,82 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package io.github.azagniotov.lucene.analysis;
+package io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.apache.lucene.analysis.TokenStream.DEFAULT_TOKEN_ATTRIBUTE_FACTORY;
 
-import com.worksap.nlp.sudachi.dictionary.UserDictionaryBuilder;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import com.worksap.nlp.sudachi.Morpheme;
+import com.worksap.nlp.sudachi.MorphemeList;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiTokenizerFactory;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.util.Strings;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
-import java.util.regex.Pattern;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-public class JapaneseTokenizerTest {
+public class SudachiTokenizerTest {
 
-    private static final Path systemDictPath;
-    private static final Path userLexiconCsvPath;
-    private static final Pattern WHITESPACE_REGEX = Pattern.compile("\\s+");
-
-    static {
-        final String systemDictPathStr = Objects.requireNonNull(
-                        JapaneseTokenizerTest.class.getResource("/system-dict/system_core.dic"))
-                .getPath();
-        systemDictPath = Paths.get(systemDictPathStr);
-
-        final String userLexiconCsvPathStr = Objects.requireNonNull(
-                        JapaneseTokenizerTest.class.getResource("/user-dict/user_lexicon.csv"))
-                .getPath();
-        userLexiconCsvPath = Paths.get(userLexiconCsvPathStr);
-    }
-
-    private static JapaneseTokenizer japaneseTokenizer;
+    private static SudachiTokenizer sudachiTokenizer;
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        final String currentDirectory =
-                Paths.get(System.getProperty("user.dir")).toAbsolutePath().toString();
-        final String userDictFilename = String.join("/", currentDirectory, "user_lexicon.dic");
-        UserDictionaryBuilder.main(
-                new String[] {"-o", userDictFilename, "-s", systemDictPath.toString(), userLexiconCsvPath.toString()});
-        japaneseTokenizer = JapaneseTokenizer.from(systemDictPath, Paths.get(userDictFilename));
+        final Map<String, String> args = new HashMap<String, String>() {
+            {
+                put("mode", "search");
+                put("discardPunctuation", "true");
+            }
+        };
+        final SudachiTokenizerFactory sudachiTokenizerFactory = new SudachiTokenizerFactory(args);
+        sudachiTokenizer = (SudachiTokenizer) sudachiTokenizerFactory.create(DEFAULT_TOKEN_ATTRIBUTE_FACTORY);
     }
 
     @Test
     public void sanityCheck() {
-        assertThat(japaneseTokenizer).isNotNull();
-    }
-
-    @Test
-    public void isJapanesePunctuation() throws Exception {
-        // http://www.rikai.com/library/kanjitables/kanji_codes.unicode.shtml
-        final String punctuation = "、 。 〃 〄 々 〆 〇 〈 〉 《 》 「 」 『 』 【 】 〒 〓 〔 〕 "
-                + "〖 〗 〘 〙 〚 〛 〜 〝 〞 〟 〠 〡 〢 〣 〤 〥 〦 〧 〨 〩 〪 〫 〬 〭 〮 〯  〰 〱 " + "〲 〳 〴 〵 〶 〷 〸 〹 〺 〻 〼 〽 〾 〿 ";
-        for (final String punt : WHITESPACE_REGEX.split(punctuation)) {
-            assertThat(japaneseTokenizer.isPunctuation(punt.trim())).isTrue();
-        }
-    }
-
-    @Test
-    public void isAsciiPunctuation() throws Exception {
-        // !"#$%&'()*+,-./:;<=>?@[\]^_`{ }~:
-        final String punctuation = "@ / ! . , + - : ; [ ] { } ~ _ ( ) # $ % & ' \" * < > ? ^ ` \\";
-        for (final String punt : WHITESPACE_REGEX.split(punctuation)) {
-            assertThat(japaneseTokenizer.isPunctuation(punt.trim())).isTrue();
-        }
-    }
-
-    @Test
-    public void isLatinOnePunctuation() throws Exception {
-        final String punctuation = "· ¶ »";
-        for (final String punt : WHITESPACE_REGEX.split(punctuation)) {
-            assertThat(japaneseTokenizer.isPunctuation(punt.trim())).isTrue();
-        }
+        assertThat(sudachiTokenizer).isNotNull();
     }
 
     @DataProvider(name = "queryTokens")
@@ -152,8 +117,9 @@ public class JapaneseTokenizerTest {
     }
 
     @Test(dataProvider = "queryTokens")
-    public void testSanityCheckExcel(final Object query, final Object... expected) throws Exception {
-        assertThat(japaneseTokenizer.tokenize(query.toString())).containsExactly(expected);
+    public void testTokenize(final Object query, final Object... expected) throws Exception {
+        final Reader stringReader = new StringReader(query.toString());
+        assertThat(tokens(sudachiTokenizer.tokenize(stringReader))).containsExactly(expected);
     }
 
     @Test
@@ -167,6 +133,23 @@ public class JapaneseTokenizerTest {
         final List<String> nCopies = Collections.nCopies(limit, katakanaWord);
 
         assertThat(nCopies.size()).isEqualTo(limit);
-        assertThat(japaneseTokenizer.tokenize(sb.toString())).containsExactly(nCopies.toArray(new Object[0]));
+
+        final Reader stringReader = new StringReader(sb.toString());
+        assertThat(tokens(sudachiTokenizer.tokenize(stringReader))).containsExactly(nCopies.toArray(new Object[0]));
+    }
+
+    private List<String> tokens(final Iterator<MorphemeList> morphemeList) {
+        final List<Morpheme> result = new ArrayList<>();
+
+        for (final Iterator<MorphemeList> it = morphemeList; it.hasNext(); ) {
+            final MorphemeList sentence = it.next();
+            sentence.iterator().forEachRemaining(morpheme -> {
+                if (!Strings.isPunctuation(morpheme.normalizedForm())) {
+                    result.add(morpheme);
+                }
+            });
+        }
+
+        return result.stream().map(Morpheme::surface).map(String::trim).collect(Collectors.toList());
     }
 }
