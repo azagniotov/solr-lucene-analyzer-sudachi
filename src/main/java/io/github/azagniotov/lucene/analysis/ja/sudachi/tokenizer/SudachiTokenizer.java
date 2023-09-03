@@ -24,7 +24,8 @@ import com.worksap.nlp.sudachi.DictionaryFactory;
 import com.worksap.nlp.sudachi.Morpheme;
 import com.worksap.nlp.sudachi.MorphemeList;
 import com.worksap.nlp.sudachi.Tokenizer;
-import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SurfaceFormAttribute;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormAttribute;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiSurfaceFormAttribute;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Path;
@@ -43,7 +44,8 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
     private final OffsetAttribute offsetAtt;
     private final PositionIncrementAttribute posIncAtt;
 
-    private final SurfaceFormAttribute surfaceAtt;
+    private final SudachiSurfaceFormAttribute surfaceAtt;
+    private final SudachiBaseFormAttribute baseFormAtt;
     private final PositionLengthAttribute posLengthAtt;
     private final Path systemDictPath;
     private final Path userDictPath;
@@ -68,7 +70,8 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
         this.systemDictPath = systemDictPath;
         this.userDictPath = userDictPath;
 
-        this.surfaceAtt = addAttribute(SurfaceFormAttribute.class);
+        this.baseFormAtt = addAttribute(SudachiBaseFormAttribute.class);
+        this.surfaceAtt = addAttribute(SudachiSurfaceFormAttribute.class);
         this.offsetAtt = addAttribute(OffsetAttribute.class);
         this.posIncAtt = addAttribute(PositionIncrementAttribute.class);
         this.posLengthAtt = addAttribute(PositionLengthAttribute.class);
@@ -126,6 +129,7 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
 
     private void setMorphemeAttributes(final Morpheme morpheme) throws IOException {
         this.surfaceAtt.setMorpheme(morpheme);
+        this.baseFormAtt.setMorpheme(morpheme);
         final int baseOffset = morphemeIterator.getBaseOffset();
         this.offsetAtt.setOffset(
                 correctOffset(baseOffset + morpheme.begin()), correctOffset(baseOffset + morpheme.end()));

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023 Sho Nakamura (https://github.com/sh0nk/solr-sudachi)
+ * Copyright (c) 2023 Alexander Zagniotov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import org.apache.lucene.util.Attribute;
 /**
  * Attribute for {@link Morpheme#surface()}
  */
-public interface SudachiSurfaceFormAttribute extends Attribute {
-    String getSurface();
+public interface SudachiBaseFormAttribute extends Attribute {
+    String getDictionaryForm();
 
     void setMorpheme(Morpheme morpheme);
 }

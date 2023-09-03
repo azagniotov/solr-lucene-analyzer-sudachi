@@ -20,7 +20,6 @@ import static org.apache.lucene.analysis.TokenStream.DEFAULT_TOKEN_ATTRIBUTE_FAC
 
 import com.worksap.nlp.sudachi.Morpheme;
 import com.worksap.nlp.sudachi.MorphemeList;
-import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiTokenizerFactory;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.util.Strings;
 import java.io.Reader;
 import java.io.StringReader;

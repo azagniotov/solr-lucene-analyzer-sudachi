@@ -15,6 +15,7 @@
  */
 package io.github.azagniotov.lucene.analysis.ja.sudachi.filters;
 
+import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
@@ -28,7 +29,7 @@ import org.apache.lucene.analysis.core.KeywordTokenizer;
 import org.apache.solr.core.SolrResourceLoader;
 import org.junit.Test;
 
-public class SudachiSurfaceFormFilterFactoryTest extends BaseTokenStreamTestCase {
+public class SudachiSurfaceFormFilterTest extends BaseTokenStreamTestCase {
     private Analyzer analyzer;
 
     private Tokenizer createTokenizer(final Map<String, String> args) throws IOException, URISyntaxException {
@@ -65,12 +66,14 @@ public class SudachiSurfaceFormFilterFactoryTest extends BaseTokenStreamTestCase
 
     @Test
     public void testBasics() throws IOException {
-        assertAnalyzesTo(analyzer, "吾輩は猫である。", new String[] {"吾輩", "は", "猫", "で", "ある"});
+        assertAnalyzesTo(analyzer, "昨日は学校に行った後に走って食べました。", new String[] {
+            "昨日", "は", "学校", "に", "行っ", "た", "後", "に", "走っ", "て", "食べ", "まし", "た"
+        });
     }
 
     @Test
     public void testEnglish() throws IOException {
-        assertAnalyzesTo(analyzer, "This is a pen.", new String[] {"This", "is", "a", "pen"});
+        assertAnalyzesTo(analyzer, "I like reading Japanese", new String[] {"I", "like", "reading", "Japanese"});
     }
 
     @Test

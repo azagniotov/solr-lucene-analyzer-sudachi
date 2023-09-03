@@ -28,7 +28,7 @@ import org.apache.lucene.analysis.Tokenizer;
 import org.apache.solr.core.SolrResourceLoader;
 import org.junit.Test;
 
-public class SudachiBaseFormFilterFactoryTest extends BaseTokenStreamTestCase {
+public class SudachiBaseFormFilterTest extends BaseTokenStreamTestCase {
     private Analyzer analyzer;
 
     private Tokenizer createTokenizer(final Map<String, String> args) throws IOException, URISyntaxException {

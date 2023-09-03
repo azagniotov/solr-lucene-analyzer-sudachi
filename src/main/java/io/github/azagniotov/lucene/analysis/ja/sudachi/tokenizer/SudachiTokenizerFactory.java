@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.azagniotov.lucene.analysis.ja.sudachi.filters;
+package io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer;
 
 import static com.worksap.nlp.sudachi.Tokenizer.SplitMode;
 
 import com.worksap.nlp.sudachi.dictionary.UserDictionaryBuilder;
-import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizer;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;

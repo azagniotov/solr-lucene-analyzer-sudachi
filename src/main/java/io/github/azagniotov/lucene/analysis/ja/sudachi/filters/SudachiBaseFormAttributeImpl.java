@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023 Sho Nakamura (https://github.com/sh0nk/solr-sudachi)
+ * Copyright (c) 2023 Alexander Zagniotov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@ import com.worksap.nlp.sudachi.Morpheme;
 import org.apache.lucene.util.AttributeImpl;
 import org.apache.lucene.util.AttributeReflector;
 
-public class SudachiSurfaceFormAttributeImpl extends AttributeImpl implements SudachiSurfaceFormAttribute {
+public class SudachiBaseFormAttributeImpl extends AttributeImpl implements SudachiBaseFormAttribute {
 
     private Morpheme morpheme;
 
     @Override
-    public String getSurface() {
-        return morpheme == null ? null : morpheme.surface();
+    public String getDictionaryForm() {
+        return morpheme == null ? null : morpheme.dictionaryForm();
     }
 
     @Override
@@ -40,12 +40,12 @@ public class SudachiSurfaceFormAttributeImpl extends AttributeImpl implements Su
 
     @Override
     public void reflectWith(AttributeReflector attributeReflector) {
-        attributeReflector.reflect(SudachiSurfaceFormAttribute.class, "surfaceForm", getSurface());
+        attributeReflector.reflect(SudachiBaseFormAttribute.class, "dictionaryForm", getDictionaryForm());
     }
 
     @Override
     public void copyTo(AttributeImpl attribute) {
-        SudachiSurfaceFormAttribute at = (SudachiSurfaceFormAttribute) attribute;
+        final SudachiBaseFormAttribute at = (SudachiBaseFormAttribute) attribute;
         at.setMorpheme(morpheme);
     }
 }
