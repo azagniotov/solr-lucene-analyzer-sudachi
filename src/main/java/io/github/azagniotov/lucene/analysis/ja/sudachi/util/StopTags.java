@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class Stoptags {
+public class StopTags {
 
     private static final Pattern COMMA_REGEX = Pattern.compile(",");
 

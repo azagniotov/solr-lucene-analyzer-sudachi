@@ -15,47 +15,25 @@
  */
 package io.github.azagniotov.lucene.analysis.ja.sudachi.filters;
 
-import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory;
+import static com.worksap.nlp.sudachi.Tokenizer.SplitMode;
+
+import io.github.azagniotov.lucene.analysis.ja.sudachi.analyzer.SudachiAnalyzer;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.BaseTokenStreamTestCase;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.core.KeywordTokenizer;
-import org.apache.solr.core.SolrResourceLoader;
 import org.junit.Test;
 
 public class SudachiSurfaceFormFilterTest extends BaseTokenStreamTestCase {
     private Analyzer analyzer;
 
-    private Tokenizer createTokenizer(final Map<String, String> args) throws IOException, URISyntaxException {
-        final Map<String, String> map = new HashMap<>(args);
-        final SudachiTokenizerFactory factory = new SudachiTokenizerFactory(map);
-        factory.inform(new SolrResourceLoader(Paths.get(".")));
-
-        return factory.create(BaseTokenStreamTestCase.newAttributeFactory());
-    }
-
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        analyzer = new Analyzer() {
-            @Override
-            protected TokenStreamComponents createComponents(String s) {
-                try {
-                    final Tokenizer tokenizer = createTokenizer(Collections.emptyMap());
-                    return new TokenStreamComponents(
-                            tokenizer, new SudachiSurfaceFormFilterFactory(Collections.emptyMap()).create(tokenizer));
-                } catch (IOException | URISyntaxException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        };
-        checkOneTerm(analyzer, "人間", "人間");
+
+        analyzer = new SudachiAnalyzer(SudachiAnalyzer.getDefaultStopSet(), true, true, SplitMode.A);
     }
 
     @Override
@@ -65,10 +43,8 @@ public class SudachiSurfaceFormFilterTest extends BaseTokenStreamTestCase {
     }
 
     @Test
-    public void testBasics() throws IOException {
-        assertAnalyzesTo(analyzer, "昨日は学校に行った後に走って食べました。", new String[] {
-            "昨日", "は", "学校", "に", "行っ", "た", "後", "に", "走っ", "て", "食べ", "まし", "た"
-        });
+    public void testJapanese() throws IOException {
+        assertAnalyzesTo(analyzer, "昨日は学校に行った後に走って食べました。", new String[] {"昨日", "学校", "行っ", "後", "走っ", "食べ", "まし"});
     }
 
     @Test
@@ -94,6 +70,5 @@ public class SudachiSurfaceFormFilterTest extends BaseTokenStreamTestCase {
             }
         };
         checkOneTerm(analyzer, "", "");
-        analyzer.close();
     }
 }
