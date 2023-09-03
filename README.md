@@ -1,9 +1,43 @@
 # UNDER DEVELOPMENT. THIS IS A WiP [NOT READY FOR PRODUCTION USE]
 
 # Solr Lucene Analyzer Sudachi
-<img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" /> [Sudachi](https://github.com/WorksApplications/Sudachi) を活用した日本語解析のための Lucene Solr プラグイン <img align="center" 
- src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" /> A Lucene-based Solr plugin on [Sudachi](https://github.com/WorksApplications/Sudachi) <img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" />
+<img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" /> [Sudachi](https://github.com/WorksApplications/Sudachi) を活用した日本語解析のための Lucene プラグイン <img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" /> A Lucene-based plugin on [Sudachi](https://github.com/WorksApplications/Sudachi) <img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" />
 
+<!-- TOC -->
+* [Plugin philosophy and background](#plugin-philosophy-and-background)
+* [Prerequisites](#prerequisites)
+  * [Downloading a Sudachi dictionary](#downloading-a-sudachi-dictionary)
+* [Local Development](#local-development)
+  * [System Requirements](#system-requirements)
+  * [Build System](#build-system)
+    * [Building](#building)
+    * [Formatting](#formatting)
+  * [Testing](#testing)
+    * [Unit tests](#unit-tests)
+    * [Integration tests](#integration-tests)
+    * [List of Gradle tasks](#list-of-gradle-tasks)
+* [Licenses](#licenses)
+  * [Sudachi and Sudachi Logo](#sudachi-and-sudachi-logo)
+  * [Lucene](#lucene)
+  * [Solr Lucene Analyzer Sudachi](#solr-lucene-analyzer-sudachi)
+<!-- TOC -->
+
+## Plugin philosophy and background
+
+The plugin is largely based on the other good work by the [Sudachi](https://github.com/WorksApplications/Sudachi) owners, the [elasticsearch-sudachi](https://github.com/WorksApplications/elasticsearch-sudachi) plugin. In addition, the current plugin drew inspiration from the past work by Sho Nakamura, the [solr-sudachi](https://github.com/sh0nk/solr-sudachi).
+
+In terms of the filter configuration parity with the Lucene's built-n Kuromoji analyzer plugin, the Solr Lucene Analyzer plugin filter configuration matches [the current default in the built-in Kuromoji](https://github.com/apache/lucene/blob/305d9ebb86b74dea725ed38f2ae3d8bc1b107ed5/lucene/analysis/kuromoji/src/java/org/apache/lucene/analysis/ja/JapaneseAnalyzer.java#L109-L116)
+
+
+## Prerequisites
+
+### Downloading a Sudachi dictionary
+
+The plugin needs a dictionary in order to run the tests, thus, it needs to be downloaded using the following command:
+
+```bash
+./gradlew downloadSystemDict
+```
 
 ## Local Development
 
@@ -23,14 +57,6 @@ Building and packaging can be done with the following command:
 ./gradlew build
 ```
 
-#### Downloading a Sudachi dictionary
-
-The plugin needs a dictionary in order to run the tests, thus, it needs to be downloaded using the following command:
-
-```bash
-./gradlew downloadSystemDict
-```
-
 As per [https://github.com/WorksApplications/Sudachi#dictionaries](https://github.com/WorksApplications/Sudachi#dictionaries), the above command will download a `system_core.dic` and will place it under [src/main/resources/system-dict/](src/main/resources/system-dict)
 
 #### Formatting
@@ -45,12 +71,24 @@ To format the sources, run the following command:
 
 To note: Spotless Gradle plugin is invoked implicitly when running the `./gradlew build` command.
 
-#### Testing
+### Testing
 
-To run tests, run the following command:
+#### Unit tests
+
+To run unit tests, run the following command:
 
 ```bash
 ./gradlew test
+```
+
+#### Integration tests
+
+The meaning of `integration` is that the test sources extend from `org.apache.lucene.analysis.BaseTokenStreamTestCase` in order to spin-up the Lucene ecosystem.
+
+To run integration tests, run the following command:
+
+```bash
+./gradlew integrationTest
 ```
 
 #### List of Gradle tasks
