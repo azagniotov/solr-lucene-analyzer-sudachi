@@ -75,7 +75,7 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
         assertAnalyzesToPositions(
                 analyzer,
                 "シニアプロジェクトマネージャー",
-                new String[] {"シニア", "プロジェクト", "マネージャー"}, // trailing ー removed by stemming
+                new String[] {"シニア", "プロジェクト", "マネージャ"}, // trailing ー removed by stemming
                 new int[] {1, 1, 1},
                 new int[] {1, 1, 1});
 
@@ -126,6 +126,24 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
                 new int[] {0, 2, 4, 7},
                 new int[] {2, 3, 6, 8},
                 8);
+    }
+
+    @Test
+    public void testHalfWidthVariants() throws IOException {
+        assertAnalyzesTo(analyzer, "ﾀｸｼｰ", new String[] {"タクシ"});
+        assertAnalyzesTo(analyzer, "ｻﾝﾌﾟﾙ", new String[] {"サンプル"});
+        assertAnalyzesTo(analyzer, "ｼﾆｱﾌﾟﾛｼﾞｪｸﾄﾏﾈｰｼﾞｬｰ", new String[] {"シニア", "プロジェクト", "マネージャ"});
+        assertAnalyzesTo(analyzer, "ｺﾆｶﾐﾉﾙﾀﾎｰﾙﾃﾞｨﾝｸﾞｽ", new String[] {"コニカ", "ミノルタ", "ホールディングス"});
+    }
+
+    @Test
+    public void testStemVariants() throws IOException {
+        assertAnalyzesTo(
+                analyzer,
+                "コピー コーヒー タクシー パーティー パーティ センター",
+                new String[] {"コピー", "コーヒ", "タクシ", "パーティ", "パーティ", "センタ"},
+                new int[] {0, 4, 9, 14, 20, 25},
+                new int[] {3, 8, 13, 19, 24, 29});
     }
 
     // https://issues.apache.org/jira/browse/LUCENE-3897: this string (found by running all jawiki
