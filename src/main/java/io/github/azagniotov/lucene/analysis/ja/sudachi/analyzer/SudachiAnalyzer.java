@@ -30,6 +30,7 @@ import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenize
 import io.github.azagniotov.lucene.analysis.ja.sudachi.util.StopTags;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.util.StopWords;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,10 +38,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.lucene.analysis.CharArraySet;
+import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.StopwordAnalyzerBase;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.cjk.CJKWidthCharFilter;
 import org.apache.lucene.analysis.core.StopFilter;
+import org.apache.lucene.analysis.ja.JapaneseKatakanaStemFilter;
 import org.apache.lucene.util.AttributeFactory;
 
 /**
@@ -122,7 +126,24 @@ public class SudachiAnalyzer extends StopwordAnalyzerBase {
         }
 
         stream = new StopFilter(stream, this.stopwords);
+        stream = new JapaneseKatakanaStemFilter(stream);
+        stream = new LowerCaseFilter(stream);
         return new TokenStreamComponents(tokenizer, stream);
+    }
+
+    @Override
+    protected TokenStream normalize(String fieldName, TokenStream in) {
+        return new LowerCaseFilter(in);
+    }
+
+    @Override
+    protected Reader initReader(final String fieldName, final Reader reader) {
+        return new CJKWidthCharFilter(reader);
+    }
+
+    @Override
+    protected Reader initReaderForNormalization(final String fieldName, final Reader reader) {
+        return new CJKWidthCharFilter(reader);
     }
 
     private Tokenizer createTokenizer(final Map<String, String> args) {
