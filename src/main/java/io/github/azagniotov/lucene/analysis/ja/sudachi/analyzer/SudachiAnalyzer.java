@@ -17,9 +17,13 @@
 
 package io.github.azagniotov.lucene.analysis.ja.sudachi.analyzer;
 
+import com.worksap.nlp.sudachi.JapaneseDictionary;
 import com.worksap.nlp.sudachi.PartialPOS;
+import com.worksap.nlp.sudachi.PosMatcher;
 import com.worksap.nlp.sudachi.Tokenizer.SplitMode;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiAttribute;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilter;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilter;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiSurfaceFormFilter;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizer;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory;
@@ -41,24 +45,31 @@ import org.apache.lucene.util.AttributeFactory;
 
 /**
  * Analyzer which uses Sudachi as internal tokenizer. It also applies
- * BaseFormFilter and stop word/stop POS filtering.
+ * {@link SudachiBaseFormFilter} and stop word/stop POS filtering.
  *
  * @see SudachiTokenizer
  */
 public class SudachiAnalyzer extends StopwordAnalyzerBase {
 
     private final SplitMode mode;
+    private final List<PartialPOS> stoptags;
     private final boolean discardPunctuation;
-    private boolean useSurfaceFilter;
+    private boolean useSurfaceFormFilter;
+
+    public SudachiAnalyzer() {
+        this(getDefaultStopSet(), getDefaultStopTags(), true, false, SplitMode.A);
+    }
 
     public SudachiAnalyzer(
             final CharArraySet stopwords,
+            final List<PartialPOS> stoptags,
             final boolean discardPunctuation,
-            final boolean useSurfaceFilter,
+            final boolean useSurfaceFormFilter,
             final SplitMode mode) {
         super(stopwords);
+        this.stoptags = stoptags;
         this.discardPunctuation = discardPunctuation;
-        this.useSurfaceFilter = useSurfaceFilter;
+        this.useSurfaceFormFilter = useSurfaceFormFilter;
         this.mode = mode;
     }
 
@@ -97,10 +108,17 @@ public class SudachiAnalyzer extends StopwordAnalyzerBase {
         Tokenizer tokenizer = createTokenizer(new HashMap<>());
         TokenStream stream = tokenizer;
 
-        if (this.useSurfaceFilter) {
+        if (this.useSurfaceFormFilter) {
             stream = new SudachiSurfaceFormFilter(stream);
         } else {
             stream = new SudachiBaseFormFilter(stream);
+        }
+
+        if (!getDefaultStopTags().isEmpty()) {
+            final SudachiAttribute sudachiAttribute = stream.getAttribute(SudachiAttribute.class);
+            final JapaneseDictionary japaneseDictionary = (JapaneseDictionary) sudachiAttribute.getDictionary();
+            final PosMatcher posMatcher = japaneseDictionary.posMatcher(this.stoptags);
+            stream = new SudachiPartOfSpeechStopFilter(stream, posMatcher);
         }
 
         stream = new StopFilter(stream, this.stopwords);
