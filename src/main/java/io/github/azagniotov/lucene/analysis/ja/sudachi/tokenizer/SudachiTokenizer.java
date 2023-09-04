@@ -24,12 +24,16 @@ import com.worksap.nlp.sudachi.DictionaryFactory;
 import com.worksap.nlp.sudachi.Morpheme;
 import com.worksap.nlp.sudachi.MorphemeList;
 import com.worksap.nlp.sudachi.Tokenizer;
-import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormAttribute;
-import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiSurfaceFormAttribute;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.MorphemeConsumerAttribute;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiAttribute;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiBaseFormAttribute;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiMorphemeAttribute;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiSurfaceFormAttribute;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Path;
 import java.util.Iterator;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionLengthAttribute;
@@ -38,6 +42,9 @@ import org.apache.lucene.util.AttributeFactory;
 public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer {
 
     private final SplitMode mode;
+    private final SudachiMorphemeAttribute morphemeAtt;
+    private final CharTermAttribute termAtt;
+    private final MorphemeConsumerAttribute morphemeConsumerAttribute;
     private MorphemeIterator morphemeIterator;
     private Tokenizer sudachiTokenizer;
     private final boolean discardPunctuation;
@@ -70,11 +77,14 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
         this.systemDictPath = systemDictPath;
         this.userDictPath = userDictPath;
 
+        this.morphemeAtt = addAttribute(SudachiMorphemeAttribute.class);
         this.baseFormAtt = addAttribute(SudachiBaseFormAttribute.class);
         this.surfaceAtt = addAttribute(SudachiSurfaceFormAttribute.class);
         this.offsetAtt = addAttribute(OffsetAttribute.class);
         this.posIncAtt = addAttribute(PositionIncrementAttribute.class);
         this.posLengthAtt = addAttribute(PositionLengthAttribute.class);
+        this.termAtt = addAttribute(CharTermAttribute.class);
+        this.morphemeConsumerAttribute = addAttribute(MorphemeConsumerAttribute.class);
     }
 
     public void createDict() throws IOException {
@@ -83,6 +93,11 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
 
         final Dictionary dictionary = new DictionaryFactory().create(config);
         this.sudachiTokenizer = dictionary.create();
+
+        final SudachiAttribute sudachiAttribute = addAttribute(SudachiAttribute.class);
+        sudachiAttribute.setDictionary(dictionary);
+
+        morphemeConsumerAttribute.setCurrentConsumer(this);
     }
 
     @Override
@@ -110,28 +125,24 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
     @Override
     public boolean incrementToken() throws IOException {
         clearAttributes();
-
         final Morpheme morpheme = this.morphemeIterator.next();
         if (morpheme == null) {
             return false;
         }
 
-        setAttributes(morpheme);
-
-        return true;
-    }
-
-    private void setAttributes(final Morpheme morpheme) throws IOException {
         posLengthAtt.setPositionLength(1);
         posIncAtt.setPositionIncrement(1);
-        setMorphemeAttributes(morpheme);
-    }
-
-    private void setMorphemeAttributes(final Morpheme morpheme) throws IOException {
+        this.morphemeAtt.setMorpheme(morpheme);
         this.surfaceAtt.setMorpheme(morpheme);
         this.baseFormAtt.setMorpheme(morpheme);
         final int baseOffset = morphemeIterator.getBaseOffset();
         this.offsetAtt.setOffset(
                 correctOffset(baseOffset + morpheme.begin()), correctOffset(baseOffset + morpheme.end()));
+
+        if (this.morphemeConsumerAttribute.shouldConsume(this)) {
+            this.termAtt.append(morpheme.surface());
+        }
+
+        return true;
     }
 }

@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017-2023 Sho Nakamura (https://github.com/sh0nk/solr-sudachi)
+ * Copyright (c) 2017-2023 Works Applications Co., Ltd.
+ * Modifications copyright (c) 2023 Alexander Zagniotov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.azagniotov.lucene.analysis.ja.sudachi.filters;
+package io.github.azagniotov.lucene.analysis.ja.sudachi.attributes;
 
 import com.worksap.nlp.sudachi.Morpheme;
 import org.apache.lucene.util.AttributeImpl;
 import org.apache.lucene.util.AttributeReflector;
 
-public class SudachiSurfaceFormAttributeImpl extends AttributeImpl implements SudachiSurfaceFormAttribute {
+public class SudachiMorphemeAttributeImpl extends AttributeImpl implements SudachiMorphemeAttribute {
 
     private Morpheme morpheme;
 
     @Override
-    public String getSurface() {
-        return morpheme == null ? null : morpheme.surface();
+    public Morpheme getMorpheme() {
+        return morpheme;
     }
 
     @Override
-    public void setMorpheme(Morpheme morpheme) {
+    public void setMorpheme(final Morpheme morpheme) {
         this.morpheme = morpheme;
     }
 
@@ -40,12 +41,12 @@ public class SudachiSurfaceFormAttributeImpl extends AttributeImpl implements Su
 
     @Override
     public void reflectWith(AttributeReflector attributeReflector) {
-        attributeReflector.reflect(SudachiSurfaceFormAttribute.class, "surfaceForm", getSurface());
+        attributeReflector.reflect(SudachiAttribute.class, "morpheme", getMorpheme());
     }
 
     @Override
     public void copyTo(AttributeImpl attribute) {
-        SudachiSurfaceFormAttribute at = (SudachiSurfaceFormAttribute) attribute;
+        final SudachiMorphemeAttribute at = (SudachiMorphemeAttribute) attribute;
         at.setMorpheme(morpheme);
     }
 }

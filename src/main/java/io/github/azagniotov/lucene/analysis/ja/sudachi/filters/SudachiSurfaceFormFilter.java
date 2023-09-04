@@ -15,6 +15,8 @@
  */
 package io.github.azagniotov.lucene.analysis.ja.sudachi.filters;
 
+import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.MorphemeConsumerAttribute;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiSurfaceFormAttribute;
 import java.io.IOException;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
@@ -22,26 +24,34 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
 /**
  * Replaces the SolrSudachiTokenizer's default normalized form term text
- * with the {@link SudachiSurfaceFormAttribute} (untouched input split token)
+ * with the {@link io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiSurfaceFormAttribute} (untouched input split token)
  */
 public final class SudachiSurfaceFormFilter extends TokenFilter {
     private final CharTermAttribute termAtt;
     private final SudachiSurfaceFormAttribute surfaceAtt;
+    private final MorphemeConsumerAttribute morphemeConsumerAttribute;
 
     public SudachiSurfaceFormFilter(TokenStream input) {
         super(input);
         termAtt = addAttribute(CharTermAttribute.class);
         surfaceAtt = addAttribute(SudachiSurfaceFormAttribute.class);
+
+        this.morphemeConsumerAttribute = addAttribute(MorphemeConsumerAttribute.class);
+        this.morphemeConsumerAttribute.setCurrentConsumer(this);
     }
 
     @Override
     public boolean incrementToken() throws IOException {
         if (input.incrementToken()) {
-            if (surfaceAtt != null
-                    && surfaceAtt.getSurface() != null
-                    && !surfaceAtt.getSurface().isEmpty()) {
-                termAtt.setEmpty().append(surfaceAtt.getSurface());
+
+            if (morphemeConsumerAttribute.shouldConsume(this)) {
+                if (surfaceAtt != null
+                        && surfaceAtt.getSurface() != null
+                        && !surfaceAtt.getSurface().isEmpty()) {
+                    termAtt.setEmpty().append(surfaceAtt.getSurface());
+                }
             }
+
             return true;
         }
         return false;
