@@ -41,11 +41,8 @@ class SentenceMorphemeIterator implements MorphemeIterator {
             this.baseOffset += this.currentLength;
             if (sentenceIterator.hasNext()) {
                 final MorphemeList sentencesList = sentenceIterator.next();
-                if (!sentenceIterator.hasNext()) {
-                    currentLength = sentencesList.get(sentencesList.size() - 1).end();
-                } else {
-                    currentLength = 0;
-                }
+                final Morpheme lastMorpheme = sentencesList.get(sentencesList.size() - 1);
+                this.currentLength = lastMorpheme.end();
                 this.morphemeIterator = sentencesList.iterator();
                 // Try once more with a recursive call, which starts consuming
                 // Morphemes from the newly assigned morpheme iterator

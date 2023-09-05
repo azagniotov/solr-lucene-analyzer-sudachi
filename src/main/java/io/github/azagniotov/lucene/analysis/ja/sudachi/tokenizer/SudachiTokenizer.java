@@ -24,11 +24,8 @@ import com.worksap.nlp.sudachi.DictionaryFactory;
 import com.worksap.nlp.sudachi.Morpheme;
 import com.worksap.nlp.sudachi.MorphemeList;
 import com.worksap.nlp.sudachi.Tokenizer;
-import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.MorphemeConsumerAttribute;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiAttribute;
-import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiBaseFormAttribute;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiMorphemeAttribute;
-import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiSurfaceFormAttribute;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Path;
@@ -41,19 +38,15 @@ import org.apache.lucene.util.AttributeFactory;
 
 public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer {
 
-    private final SplitMode mode;
-    private final SudachiMorphemeAttribute morphemeAtt;
-    private final CharTermAttribute termAtt;
-    private final MorphemeConsumerAttribute morphemeConsumerAttribute;
     private MorphemeIterator morphemeIterator;
+    private final CharTermAttribute termAtt;
+    private final OffsetAttribute offsetAtt;
+    private final PositionLengthAttribute posLengthAtt;
+    private final PositionIncrementAttribute posIncAtt;
+    private final SudachiMorphemeAttribute morphemeAtt;
     private Tokenizer sudachiTokenizer;
     private final boolean discardPunctuation;
-    private final OffsetAttribute offsetAtt;
-    private final PositionIncrementAttribute posIncAtt;
-
-    private final SudachiSurfaceFormAttribute surfaceAtt;
-    private final SudachiBaseFormAttribute baseFormAtt;
-    private final PositionLengthAttribute posLengthAtt;
+    private final SplitMode mode;
     private final Path systemDictPath;
     private final Path userDictPath;
 
@@ -77,27 +70,24 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
         this.systemDictPath = systemDictPath;
         this.userDictPath = userDictPath;
 
-        this.morphemeAtt = addAttribute(SudachiMorphemeAttribute.class);
-        this.baseFormAtt = addAttribute(SudachiBaseFormAttribute.class);
-        this.surfaceAtt = addAttribute(SudachiSurfaceFormAttribute.class);
-        this.offsetAtt = addAttribute(OffsetAttribute.class);
-        this.posIncAtt = addAttribute(PositionIncrementAttribute.class);
-        this.posLengthAtt = addAttribute(PositionLengthAttribute.class);
         this.termAtt = addAttribute(CharTermAttribute.class);
-        this.morphemeConsumerAttribute = addAttribute(MorphemeConsumerAttribute.class);
+        this.offsetAtt = addAttribute(OffsetAttribute.class);
+        this.posLengthAtt = addAttribute(PositionLengthAttribute.class);
+        this.posIncAtt = addAttribute(PositionIncrementAttribute.class);
+        this.morphemeAtt = addAttribute(SudachiMorphemeAttribute.class);
+
+        this.morphemeIterator = MorphemeIterator.EMPTY;
     }
 
-    public void createDict() throws IOException {
+    public void createDict(final Config defaultConfig) throws IOException {
         final Config config =
-                Config.defaultConfig().systemDictionary(this.systemDictPath).addUserDictionary(this.userDictPath);
+                defaultConfig.systemDictionary(this.systemDictPath).addUserDictionary(this.userDictPath);
 
         final Dictionary dictionary = new DictionaryFactory().create(config);
         this.sudachiTokenizer = dictionary.create();
 
         final SudachiAttribute sudachiAttribute = addAttribute(SudachiAttribute.class);
         sudachiAttribute.setDictionary(dictionary);
-
-        morphemeConsumerAttribute.setCurrentConsumer(this);
     }
 
     @Override
@@ -129,19 +119,17 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
         if (morpheme == null) {
             return false;
         }
-
-        posLengthAtt.setPositionLength(1);
-        posIncAtt.setPositionIncrement(1);
         this.morphemeAtt.setMorpheme(morpheme);
-        this.surfaceAtt.setMorpheme(morpheme);
-        this.baseFormAtt.setMorpheme(morpheme);
-        final int baseOffset = morphemeIterator.getBaseOffset();
-        this.offsetAtt.setOffset(
-                correctOffset(baseOffset + morpheme.begin()), correctOffset(baseOffset + morpheme.end()));
 
-        if (this.morphemeConsumerAttribute.shouldConsume(this)) {
-            this.termAtt.append(morpheme.surface());
-        }
+        this.posIncAtt.setPositionIncrement(1);
+        this.posLengthAtt.setPositionLength(1);
+
+        final int baseOffset = morphemeIterator.getBaseOffset();
+        final int startOffset = correctOffset(baseOffset + morpheme.begin());
+        final int endOffset = correctOffset(baseOffset + morpheme.end());
+        this.offsetAtt.setOffset(startOffset, endOffset);
+
+        this.termAtt.append(morpheme.surface());
 
         return true;
     }

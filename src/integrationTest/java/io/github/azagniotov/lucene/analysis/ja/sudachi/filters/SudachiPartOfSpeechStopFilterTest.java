@@ -17,6 +17,7 @@
 
 package io.github.azagniotov.lucene.analysis.ja.sudachi.filters;
 
+import com.worksap.nlp.sudachi.Config;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.analyzer.SudachiAnalyzer;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.test.TestUtils;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.util.StringResourceLoader;
@@ -33,15 +34,18 @@ public class SudachiPartOfSpeechStopFilterTest extends BaseTokenStreamTestCase {
 
     private TokenStream tokenStream;
 
+    private TestUtils testUtils;
+
     @Override
     public void setUp() throws Exception {
         super.setUp();
+        this.testUtils = new TestUtils(Config.defaultConfig());
         factory = new SudachiPartOfSpeechStopFilterFactory(new HashMap<String, String>() {
             {
                 put("tags", "stoptags.txt");
             }
         });
-        tokenStream = TestUtils.tokenize("東京都に行った。");
+        tokenStream = this.testUtils.tokenize("東京都に行った。");
     }
 
     @Override
@@ -108,7 +112,7 @@ public class SudachiPartOfSpeechStopFilterTest extends BaseTokenStreamTestCase {
 
     /** If we don't specify "tags", then load the default stop tags. */
     public void testNoTagsSpecified() throws IOException {
-        TokenStream localTokenStream = TestUtils.tokenize("私は制限スピードを超える。");
+        TokenStream localTokenStream = this.testUtils.tokenize("私は制限スピードを超える。");
 
         SudachiPartOfSpeechStopFilterFactory factory = new SudachiPartOfSpeechStopFilterFactory(new HashMap<>());
         factory.inform(new ClasspathResourceLoader(SudachiAnalyzer.class));

@@ -16,8 +16,10 @@
 
 package io.github.azagniotov.lucene.analysis.ja.sudachi.test;
 
+import static com.worksap.nlp.sudachi.Tokenizer.*;
 import static org.apache.lucene.analysis.TokenStream.DEFAULT_TOKEN_ATTRIBUTE_FACTORY;
 
+import com.worksap.nlp.sudachi.Config;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory;
 import java.io.StringReader;
 import java.util.HashMap;
@@ -26,19 +28,29 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 
 public class TestUtils {
+    private final Config config;
 
-    private TestUtils() {}
+    public TestUtils(final Config config) {
+        this.config = config;
+    }
 
-    private static final boolean DISCARD_PUNCTUATION = true;
+    public TokenStream tokenize(final String input) {
+        return tokenize(input, true, SplitMode.A);
+    }
 
-    public static TokenStream tokenize(final String input) {
+    public TokenStream tokenize(final String input, final boolean discardPunctuation) {
+        return tokenize(input, discardPunctuation, SplitMode.A);
+    }
+
+    public TokenStream tokenize(final String input, final boolean discardPunctuation, final SplitMode splitMode) {
+        final String mode = splitMode == SplitMode.A ? "search" : (splitMode == SplitMode.B ? "normal" : "extended");
         final Map<String, String> args = new HashMap<String, String>() {
             {
-                put("mode", "search");
-                put("discardPunctuation", String.valueOf(DISCARD_PUNCTUATION));
+                put("mode", mode);
+                put("discardPunctuation", String.valueOf(discardPunctuation));
             }
         };
-        final SudachiTokenizerFactory sudachiTokenizerFactory = new SudachiTokenizerFactory(args);
+        final SudachiTokenizerFactory sudachiTokenizerFactory = new SudachiTokenizerFactory(args, this.config);
         final Tokenizer tokenizer = sudachiTokenizerFactory.create(DEFAULT_TOKEN_ATTRIBUTE_FACTORY);
         tokenizer.setReader(new StringReader(input));
 

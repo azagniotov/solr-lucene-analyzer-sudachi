@@ -17,14 +17,13 @@
 
 package io.github.azagniotov.lucene.analysis.ja.sudachi.analyzer;
 
+import com.worksap.nlp.sudachi.Config;
 import com.worksap.nlp.sudachi.JapaneseDictionary;
 import com.worksap.nlp.sudachi.PartialPOS;
 import com.worksap.nlp.sudachi.PosMatcher;
-import com.worksap.nlp.sudachi.Tokenizer.SplitMode;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiAttribute;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilter;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilter;
-import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiSurfaceFormFilter;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizer;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.util.StopTags;
@@ -55,25 +54,22 @@ import org.apache.lucene.util.AttributeFactory;
  */
 public class SudachiAnalyzer extends StopwordAnalyzerBase {
 
-    private final SplitMode mode;
+    private final String mode;
     private final List<PartialPOS> stoptags;
     private final boolean discardPunctuation;
-    private boolean useSurfaceFormFilter;
 
     public SudachiAnalyzer() {
-        this(getDefaultStopSet(), getDefaultStopTags(), true, false, SplitMode.A);
+        this(getDefaultStopSet(), getDefaultStopTags(), true, "search");
     }
 
     public SudachiAnalyzer(
             final CharArraySet stopwords,
             final List<PartialPOS> stoptags,
             final boolean discardPunctuation,
-            final boolean useSurfaceFormFilter,
-            final SplitMode mode) {
+            final String mode) {
         super(stopwords);
         this.stoptags = stoptags;
         this.discardPunctuation = discardPunctuation;
-        this.useSurfaceFormFilter = useSurfaceFormFilter;
         this.mode = mode;
     }
 
@@ -112,13 +108,9 @@ public class SudachiAnalyzer extends StopwordAnalyzerBase {
         Tokenizer tokenizer = createTokenizer(new HashMap<>());
         TokenStream stream = tokenizer;
 
-        if (this.useSurfaceFormFilter) {
-            stream = new SudachiSurfaceFormFilter(stream);
-        } else {
-            stream = new SudachiBaseFormFilter(stream);
-        }
+        stream = new SudachiBaseFormFilter(stream);
 
-        if (!getDefaultStopTags().isEmpty()) {
+        if (!this.stoptags.isEmpty()) {
             final SudachiAttribute sudachiAttribute = stream.getAttribute(SudachiAttribute.class);
             final JapaneseDictionary japaneseDictionary = (JapaneseDictionary) sudachiAttribute.getDictionary();
             final PosMatcher posMatcher = japaneseDictionary.posMatcher(this.stoptags);
@@ -149,10 +141,15 @@ public class SudachiAnalyzer extends StopwordAnalyzerBase {
     private Tokenizer createTokenizer(final Map<String, String> args) {
 
         final Map<String, String> map = new HashMap<>(args);
-        map.put("mode", String.valueOf(this.mode));
+        map.put("mode", this.mode);
         map.put("discardPunctuation", String.valueOf(this.discardPunctuation));
-        final SudachiTokenizerFactory factory = new SudachiTokenizerFactory(map);
+        try {
+            final Config defaultConfig = Config.defaultConfig();
+            final SudachiTokenizerFactory factory = new SudachiTokenizerFactory(map, defaultConfig);
 
-        return factory.create(AttributeFactory.DEFAULT_ATTRIBUTE_FACTORY);
+            return factory.create(AttributeFactory.DEFAULT_ATTRIBUTE_FACTORY);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }

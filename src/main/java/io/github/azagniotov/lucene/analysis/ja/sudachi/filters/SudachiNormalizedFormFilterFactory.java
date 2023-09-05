@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023 Sho Nakamura (https://github.com/sh0nk/solr-sudachi)
+ * Copyright (c) 2023 Alexander Zagniotov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,22 +19,9 @@ import java.util.Map;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.util.TokenFilterFactory;
 
-/**
- * Factory for {@link SudachiSurfaceFormFilter}.
- * <pre class="prettyprint">
- * &lt;fieldType name="text_ja" class="solr.TextField"&gt;
- *   &lt;analyzer&gt;
- *     &lt;tokenizer class="com.github.sh0nk.solr.sudachi.SolrSudachiTokenizerFactory"
- *       systemDictPath="sudachi/system_core.dic"
- *     /&gt;
- *     &lt;filter class="com.github.sh0nk.solr.sudachi.SudachiSurfaceFormFilterFactory"/&gt;
- *   &lt;/analyzer&gt;
- * &lt;/fieldType&gt;
- * </pre>
- */
-public class SudachiSurfaceFormFilterFactory extends TokenFilterFactory {
+public class SudachiNormalizedFormFilterFactory extends TokenFilterFactory {
 
-    public SudachiSurfaceFormFilterFactory(Map<String, String> args) {
+    public SudachiNormalizedFormFilterFactory(Map<String, String> args) {
         super(args);
         if (!args.isEmpty()) {
             throw new IllegalArgumentException("Unknown parameters: " + args);
@@ -43,6 +30,6 @@ public class SudachiSurfaceFormFilterFactory extends TokenFilterFactory {
 
     @Override
     public TokenStream create(final TokenStream tokenStream) {
-        return new SudachiSurfaceFormFilter(tokenStream);
+        return new SudachiNormalizedFormFilter(tokenStream);
     }
 }

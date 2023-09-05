@@ -15,6 +15,7 @@
  */
 package io.github.azagniotov.lucene.analysis.ja.sudachi.filters;
 
+import com.worksap.nlp.sudachi.Config;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.test.TestUtils;
 import java.io.IOException;
 import java.util.Collections;
@@ -22,14 +23,16 @@ import org.apache.lucene.analysis.BaseTokenStreamTestCase;
 import org.apache.lucene.analysis.TokenStream;
 import org.junit.Test;
 
-public class SudachiSurfaceFormFilterTest extends BaseTokenStreamTestCase {
+public class SudachiNormalizedFormFilterTest extends BaseTokenStreamTestCase {
 
-    private SudachiSurfaceFormFilterFactory factory;
+    private SudachiNormalizedFormFilterFactory factory;
+    private TestUtils testUtils;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        factory = new SudachiSurfaceFormFilterFactory(Collections.emptyMap());
+        this.factory = new SudachiNormalizedFormFilterFactory(Collections.emptyMap());
+        this.testUtils = new TestUtils(Config.defaultConfig());
     }
 
     @Override
@@ -38,19 +41,20 @@ public class SudachiSurfaceFormFilterTest extends BaseTokenStreamTestCase {
     }
 
     @Test
-    public void testJapanese() throws IOException {
-        TokenStream tokenStream = TestUtils.tokenize("昨日は学校に行った後に走って食べました。");
+    public void testJapaneseNormalizedForm() throws IOException {
+        TokenStream tokenStream = this.testUtils.tokenize("昨日は学校に行った後に走って食べました。");
         tokenStream = factory.create(tokenStream);
 
         assertTokenStreamContents(
-                tokenStream, new String[] {"昨日", "は", "学校", "に", "行っ", "た", "後", "に", "走っ", "て", "食べ", "まし", "た"});
+                tokenStream, new String[] {"昨日", "は", "学校", "に", "行く", "た", "後", "に", "走る", "て", "食べる", "ます", "た"});
     }
 
     @Test
-    public void testEnglish() throws IOException {
-        TokenStream tokenStream = TestUtils.tokenize("I like reading Japanese");
+    public void testJapaneseNormalizedFormWithUnNormalizedWord() throws IOException {
+        TokenStream tokenStream = this.testUtils.tokenize("昨日は学校にいった後に走って食べました。");
         tokenStream = factory.create(tokenStream);
 
-        assertTokenStreamContents(tokenStream, new String[] {"I", "like", "reading", "Japanese"});
+        assertTokenStreamContents(
+                tokenStream, new String[] {"昨日", "は", "学校", "に", "行く", "た", "後", "に", "走る", "て", "食べる", "ます", "た"});
     }
 }
