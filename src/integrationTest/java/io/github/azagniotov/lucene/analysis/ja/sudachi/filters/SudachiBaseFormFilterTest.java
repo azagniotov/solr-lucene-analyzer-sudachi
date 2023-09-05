@@ -15,6 +15,7 @@
  */
 package io.github.azagniotov.lucene.analysis.ja.sudachi.filters;
 
+import com.worksap.nlp.sudachi.Config;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.test.TestUtils;
 import java.io.IOException;
 import java.util.Collections;
@@ -26,10 +27,13 @@ public class SudachiBaseFormFilterTest extends BaseTokenStreamTestCase {
 
     private SudachiBaseFormFilterFactory factory;
 
+    private TestUtils testUtils;
+
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        factory = new SudachiBaseFormFilterFactory(Collections.emptyMap());
+        this.factory = new SudachiBaseFormFilterFactory(Collections.emptyMap());
+        this.testUtils = new TestUtils(Config.defaultConfig());
     }
 
     @Override
@@ -38,8 +42,8 @@ public class SudachiBaseFormFilterTest extends BaseTokenStreamTestCase {
     }
 
     @Test
-    public void testJapanese() throws IOException {
-        TokenStream tokenStream = TestUtils.tokenize("昨日は学校に行った後に走って食べました。");
+    public void testJapaneseBaseForm() throws IOException {
+        TokenStream tokenStream = this.testUtils.tokenize("昨日は学校に行った後に走って食べました。");
         tokenStream = factory.create(tokenStream);
 
         assertTokenStreamContents(
@@ -47,10 +51,11 @@ public class SudachiBaseFormFilterTest extends BaseTokenStreamTestCase {
     }
 
     @Test
-    public void testEnglish() throws IOException {
-        TokenStream tokenStream = TestUtils.tokenize("I like reading Japanese");
+    public void testJapaneseBaseFormWithUnNormalizedWord() throws IOException {
+        TokenStream tokenStream = this.testUtils.tokenize("昨日は学校にいった後に走って食べました。");
         tokenStream = factory.create(tokenStream);
 
-        assertTokenStreamContents(tokenStream, new String[] {"I", "LIKE", "reading", "Japanese"});
+        assertTokenStreamContents(
+                tokenStream, new String[] {"昨日", "は", "学校", "に", "いく", "た", "後", "に", "走る", "て", "食べる", "ます", "た"});
     }
 }

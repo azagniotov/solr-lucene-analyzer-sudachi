@@ -17,6 +17,7 @@ package io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer;
 
 import static com.worksap.nlp.sudachi.Tokenizer.SplitMode;
 
+import com.worksap.nlp.sudachi.Config;
 import com.worksap.nlp.sudachi.dictionary.UserDictionaryBuilder;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -38,12 +39,14 @@ public class SudachiTokenizerFactory extends TokenizerFactory implements Resourc
     private static final String DISCARD_PUNCTUATION = "discardPunctuation";
     private final SplitMode mode;
     private final boolean discardPunctuation;
+    private final Config config;
 
-    public SudachiTokenizerFactory(final Map<String, String> args) {
+    public SudachiTokenizerFactory(final Map<String, String> args, final Config config) {
         super(args);
 
         this.mode = getMode(get(args, MODE));
         this.discardPunctuation = getBoolean(args, DISCARD_PUNCTUATION, true);
+        this.config = config;
     }
 
     @Override
@@ -68,11 +71,11 @@ public class SudachiTokenizerFactory extends TokenizerFactory implements Resourc
 
             final SudachiTokenizer sudachiTokenizer =
                     new SudachiTokenizer(discardPunctuation, mode, systemDictPath, Paths.get(userDictFilename));
-            sudachiTokenizer.createDict();
+            sudachiTokenizer.createDict(this.config);
 
             return sudachiTokenizer;
         } catch (IOException e) {
-            throw new IllegalArgumentException("Failed to create SolrSudachiTokenizer", e);
+            throw new IllegalArgumentException("Failed to create SudachiTokenizer", e);
         }
     }
 
@@ -89,6 +92,6 @@ public class SudachiTokenizerFactory extends TokenizerFactory implements Resourc
                 return SplitMode.C;
             }
         }
-        return SplitMode.A;
+        throw new IllegalArgumentException("Tokenization input mode is null");
     }
 }

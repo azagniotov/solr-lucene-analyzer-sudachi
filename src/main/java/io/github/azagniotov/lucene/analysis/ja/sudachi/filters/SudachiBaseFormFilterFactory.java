@@ -19,19 +19,6 @@ import java.util.Map;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.util.TokenFilterFactory;
 
-/**
- * Factory for {@link SudachiBaseFormFilter}.
- * <pre class="prettyprint">
- * &lt;fieldType name="text_ja" class="solr.TextField"&gt;
- *   &lt;analyzer&gt;
- *     &lt;tokenizer class="io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory"
- *       systemDictPath="sudachi/system_core.dic"
- *     /&gt;
- *     &lt;filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilter"/&gt;
- *   &lt;/analyzer&gt;
- * &lt;/fieldType&gt;
- * </pre>
- */
 public class SudachiBaseFormFilterFactory extends TokenFilterFactory {
 
     public SudachiBaseFormFilterFactory(Map<String, String> args) {

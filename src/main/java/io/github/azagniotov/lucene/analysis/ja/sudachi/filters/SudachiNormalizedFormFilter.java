@@ -17,26 +17,24 @@
 package io.github.azagniotov.lucene.analysis.ja.sudachi.filters;
 
 import com.worksap.nlp.sudachi.Morpheme;
-import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.KeywordAttribute;
 
 /**
- * Replaces term text with the value of {@link com.worksap.nlp.sudachi.Morpheme#dictionaryForm()}.
+ * Replaces term text with the value of {@link com.worksap.nlp.sudachi.Morpheme#normalizedForm()}.
  *
  * <p>This acts as a lemmatizer for verbs and adjectives.
  *
  * <p>To prevent terms from being stemmed use an instance of {@link org.apache.lucene.analysis.miscellaneous.SetKeywordMarkerFilter} or a
- * custom {@link TokenFilter} that sets the {@link KeywordAttribute} before this {@link TokenStream}.
+ * custom {@link org.apache.lucene.analysis.TokenFilter} that sets the {@link org.apache.lucene.analysis.tokenattributes.KeywordAttribute} before this {@link org.apache.lucene.analysis.TokenStream}.
  */
-public final class SudachiBaseFormFilter extends AbstractMorphemeTermFilter {
+public final class SudachiNormalizedFormFilter extends AbstractMorphemeTermFilter {
 
-    public SudachiBaseFormFilter(TokenStream input) {
+    public SudachiNormalizedFormFilter(TokenStream input) {
         super(input);
     }
 
     @Override
     public String value(final Morpheme morpheme) {
-        return morpheme.dictionaryForm();
+        return morpheme.normalizedForm();
     }
 }
