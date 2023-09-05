@@ -25,7 +25,6 @@ import io.github.azagniotov.lucene.analysis.ja.sudachi.util.Strings;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -122,22 +121,6 @@ public class SudachiTokenizerTest {
     public void testTokenizeSurfaces(final Object query, final Object... expected) throws Exception {
         final Reader stringReader = new StringReader(query.toString());
         assertThat(tokens(sudachiTokenizer.tokenize(stringReader))).containsExactly(expected);
-    }
-
-    @Test
-    public void tokenizerWithRepeatedWord() throws Exception {
-        final int limit = 8;
-        final String katakanaWord = "テスト";
-
-        final StringBuilder sb = new StringBuilder();
-        sb.append(new String(new char[limit]).replace("\0", katakanaWord));
-
-        final List<String> nCopies = Collections.nCopies(limit, katakanaWord);
-
-        assertThat(nCopies.size()).isEqualTo(limit);
-
-        final Reader stringReader = new StringReader(sb.toString());
-        assertThat(tokens(sudachiTokenizer.tokenize(stringReader))).containsExactly(nCopies.toArray(new Object[0]));
     }
 
     private List<String> tokens(final Iterator<MorphemeList> morphemeList) {

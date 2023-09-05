@@ -119,11 +119,10 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
         if (morpheme == null) {
             return false;
         }
-        this.morphemeAtt.setMorpheme(morpheme);
 
         this.posIncAtt.setPositionIncrement(1);
         this.posLengthAtt.setPositionLength(1);
-
+        this.morphemeAtt.setMorpheme(morpheme);
         final int baseOffset = morphemeIterator.getBaseOffset();
         final int startOffset = correctOffset(baseOffset + morpheme.begin());
         final int endOffset = correctOffset(baseOffset + morpheme.end());

@@ -22,7 +22,7 @@ import io.github.azagniotov.lucene.analysis.ja.sudachi.util.Strings;
 class NonPunctuationMorphemes implements MorphemeIterator {
     private MorphemeIterator inner;
 
-    public NonPunctuationMorphemes(final MorphemeIterator inner) {
+    NonPunctuationMorphemes(final MorphemeIterator inner) {
         this.inner = inner;
     }
 
