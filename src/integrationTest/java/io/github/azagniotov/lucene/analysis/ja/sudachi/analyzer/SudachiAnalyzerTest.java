@@ -108,6 +108,12 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
     }
 
     @Test
+    public void testStopWords() throws Exception {
+        assertTokenStreamContents(
+                analyzer.tokenStream("foo", "これは本ではない    "), new String[] {"本"}, new int[] {3}, new int[] {4}, 12);
+    }
+
+    @Test
     public void testHalfWidthVariants() throws IOException {
         assertAnalyzesTo(analyzer, "ﾀｸｼｰ", new String[] {"タクシ"});
         assertAnalyzesTo(analyzer, "ｻﾝﾌﾟﾙ", new String[] {"サンプル"});
@@ -136,7 +142,9 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
         checkAnalysisConsistency(random, analyzer, random.nextBoolean(), s);
     }
 
-    /** blast random strings against the analyzer */
+    /**
+     * blast random strings against the analyzer
+     */
     @Test
     @Ignore(
             "Regression with the Lucene's JapaneseAnalyzer tests: final base offset sometimes incorrect when using Sudachi's tokenizeSentences")
@@ -145,7 +153,9 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
         checkRandomData(random, analyzer, atLeast(100));
     }
 
-    /** blast some random large strings through the analyzer */
+    /**
+     * blast some random large strings through the analyzer
+     */
     @Test
     @Ignore(
             "Regression with the Lucene's JapaneseAnalyzer tests: final base offset sometimes incorrect when using Sudachi's tokenizeSentences")
