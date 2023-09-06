@@ -45,9 +45,8 @@ public class SudachiPartOfSpeechStopFilter extends FilteringTokenFilter {
 
         boolean currentTokenPoSMatchesDefinedPartOfSpeechTags = posMatcher.test(this.morphemeAtt.getMorpheme());
 
-        // Decides if the current input token should be returned by incrementToken,
-        // and if so, the token surface will be returned as part of the CharTermAttribute instance,
-        // and PoC attribute position will be incremented, see FilteringTokenFilter.incrementToken()
+        // Any token with a part-of-speech tag that exactly matches those
+        // defined in the stoptags.txt file are removed from the token stream.
         return morpheme == null || !currentTokenPoSMatchesDefinedPartOfSpeechTags;
     }
 }

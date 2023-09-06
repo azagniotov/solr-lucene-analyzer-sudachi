@@ -63,34 +63,36 @@ public class LuceneQueryIndexTest extends BaseTokenStreamTestCase {
         indexSearcher.search(query, totalHitCountCollector);
 
         final int totalHits = totalHitCountCollector.getTotalHits();
-        assertEquals(1, totalHits);
+        assertEquals(2, totalHits);
 
         final TopFieldCollector documentCollector = TopFieldCollector.create(Sort.RELEVANCE, 10, totalHits);
         indexSearcher.search(query, documentCollector);
 
         final ScoreDoc[] scoreDocs = documentCollector.topDocs().scoreDocs;
-        assertEquals(1, scoreDocs.length);
+        assertEquals(2, scoreDocs.length);
 
-        final Document found = indexSearcher.doc(scoreDocs[0].doc);
-        assertEquals("すもももももももものうち。", found.get("content"));
+        final Document foundOne = indexSearcher.doc(scoreDocs[0].doc);
+        final Document foundTwo = indexSearcher.doc(scoreDocs[1].doc);
+        assertEquals("すもももももももものうち。", foundOne.get("content"));
+        assertEquals("ももたろうは日本のおとぎ話の一つ。", foundTwo.get("content"));
 
-        final TokenStream tokenStream = found.getField("content").tokenStream(analyzer, null);
-        assertTokenStreamContents(tokenStream, new String[] {"すもも", "もも", "もも"});
+        final TokenStream tokenStreamOne = foundOne.getField("content").tokenStream(analyzer, null);
+        assertTokenStreamContents(tokenStreamOne, new String[] {"すもも", "もも", "もも"});
+
+        final TokenStream tokenStreamTwo = foundTwo.getField("content").tokenStream(analyzer, null);
+        // The "たろう" is removed by the Sudachi Analyzer because of:
+        // 1. BaseForm filter:
+        //    たろう => だ; and
+        // 2. SudachiPartOfSpeechStopFilter:
+        //    the auxiliary verb (助動詞) it is uncommented in the stoptags.txt,
+        //    thus the token is removed from the token stream.
+        assertTokenStreamContents(tokenStreamTwo, new String[] {"もも", "日本", "おとぎ話", "一"});
     }
 
     private void registerDocuments(final Directory directory, final Analyzer analyzer) throws Exception {
         try (final IndexWriter indexWriter = new IndexWriter(directory, new IndexWriterConfig(analyzer))) {
-            indexWriter.addDocument(createDocument("1", "Apache Lucene 入門 ～Java・オープンソース・全文検索システムの構築"));
-            indexWriter.addDocument(createDocument("2", "Apache Solr入門 ―オープンソース全文検索エンジン"));
-            indexWriter.addDocument(createDocument("3", "Scalaスケーラブルプログラミング第2版"));
-            indexWriter.addDocument(createDocument("4", "すもももももももものうち。"));
-            indexWriter.addDocument(createDocument("5", "メガネは顔の一部です。"));
-            indexWriter.addDocument(createDocument("6", "日本経済新聞でモバゲーの記事を読んだ。"));
-            indexWriter.addDocument(createDocument("7", "Java, Scala, Groovy, Clojure"));
-            indexWriter.addDocument(createDocument("8", "ＬＵＣＥＮＥ、ＳＯＬＲ、Lucene, Solr"));
-            indexWriter.addDocument(createDocument("9", "ｱｲｳｴｵカキクケコさしすせそABCＸＹＺ123４５６"));
-            indexWriter.addDocument(
-                    createDocument("10", "Lucene is a full-featured text search engine library written in Java."));
+            indexWriter.addDocument(createDocument("1", "すもももももももものうち。"));
+            indexWriter.addDocument(createDocument("2", "ももたろうは日本のおとぎ話の一つ。"));
 
             indexWriter.commit();
         }
