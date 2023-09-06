@@ -89,6 +89,7 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
         // 3. Lower case filter is applied
         // 4. Full-width Japanese Katakana (supports A-Z) are converted to Latin characters
         //
+
         assertAnalyzesTo(analyzer, "すもももももももものうち。", new String[] {"すもも", "もも", "もも"});
 
         assertAnalyzesTo(analyzer, "メガネは顔の一部です。", new String[] {"メガネ", "顔", "一部"});
@@ -102,5 +103,13 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
         // User dictionary fixed: さしすせそ
         assertAnalyzesTo(
                 analyzer, "ｱｲｳｴｵカキクケコさしすせそABCＸＹＺ123４５６", new String[] {"アイウエオカキクケコ", "さしすせそ", "abcxyz", "123456"});
+
+        // The "たろう" is removed by the Sudachi Analyzer because of:
+        // 1. BaseForm filter:
+        //    たろう => だ; and
+        // 2. SudachiPartOfSpeechStopFilter:
+        //    the auxiliary verb (助動詞) it is uncommented in the stoptags.txt,
+        //    thus the token is removed from the token stream.
+        assertAnalyzesTo(analyzer, "ももたろう", new String[] {"もも"});
     }
 }
