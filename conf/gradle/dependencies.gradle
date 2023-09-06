@@ -17,9 +17,9 @@
 dependencies {
     api "com.worksap.nlp:sudachi:${sudachiVersion}"
 
-    api "org.apache.solr:solr-core:${solrVersion}"
-    api "org.apache.solr:solr-solrj:${solrVersion}"
-
+    api "org.apache.lucene:lucene-core:${solrVersion}"
+    api "org.apache.lucene:lucene-analyzers-common:${solrVersion}"
+    api "org.apache.lucene:lucene-analyzers-kuromoji:${solrVersion}"
     // See conf/tests.gradle for test related dependencies
 }
 
