@@ -43,6 +43,13 @@ public class TestUtils {
     }
 
     public TokenStream tokenize(final String input, final boolean discardPunctuation, final SplitMode splitMode) {
+        final Tokenizer tokenizer = makeTokenizer(discardPunctuation, splitMode);
+        tokenizer.setReader(new StringReader(input));
+
+        return tokenizer;
+    }
+
+    public Tokenizer makeTokenizer(final boolean discardPunctuation, final SplitMode splitMode) {
         final String mode = splitMode == SplitMode.A ? "search" : (splitMode == SplitMode.B ? "normal" : "extended");
         final Map<String, String> args = new HashMap<String, String>() {
             {
@@ -51,9 +58,6 @@ public class TestUtils {
             }
         };
         final SudachiTokenizerFactory sudachiTokenizerFactory = new SudachiTokenizerFactory(args, this.config);
-        final Tokenizer tokenizer = sudachiTokenizerFactory.create(DEFAULT_TOKEN_ATTRIBUTE_FACTORY);
-        tokenizer.setReader(new StringReader(input));
-
-        return tokenizer;
+        return sudachiTokenizerFactory.create(DEFAULT_TOKEN_ATTRIBUTE_FACTORY);
     }
 }
