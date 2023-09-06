@@ -36,6 +36,31 @@ testing {
             useJUnit()
             dependencies {
                 implementation project()
+                implementation "junit:junit:4.13.2"
+                implementation "org.apache.lucene:lucene-test-framework:${solrVersion}"
+            }
+
+            targets {
+                all {
+                    testTask.configure {
+                        shouldRunAfter(test)
+                    }
+                }
+            }
+        }
+
+        functionalTest(JvmTestSuite) {
+
+            sources {
+                resources {
+                    srcDirs += [
+                            "src/main/resources"
+                    ]
+                }
+            }
+            useJUnit()
+            dependencies {
+                implementation project()
                 implementation "org.apache.solr:solr-test-framework:${solrVersion}"
                 implementation "junit:junit:4.13.2"
             }
@@ -43,6 +68,8 @@ testing {
             targets {
                 all {
                     testTask.configure {
+                        systemProperty "test.solr.allowed.securerandom", "NativePRNG"
+                        systemProperty "solr.log.dir", "/var/solr/logs"
                         shouldRunAfter(test)
                     }
                 }
@@ -58,6 +85,8 @@ tasks.named('check') {
 processIntegrationTestResources.dependsOn(processResources)
 
 tasks.withType(Test).configureEach {
+
+
     reports.html.required = false
     reports.junitXml.required = false
     ignoreFailures = false

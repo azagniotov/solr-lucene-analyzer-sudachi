@@ -40,3 +40,6 @@ jobs:
       - name: Run integration tests
         run: ./gradlew clean integrationTest
 
+      - name: Run functional tests
+        run: ./gradlew clean functionalTest
+
