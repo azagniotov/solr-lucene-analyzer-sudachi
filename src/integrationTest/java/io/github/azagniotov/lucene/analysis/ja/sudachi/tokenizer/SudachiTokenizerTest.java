@@ -5,6 +5,8 @@ import static com.worksap.nlp.sudachi.Tokenizer.SplitMode;
 import com.worksap.nlp.sudachi.Config;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.test.TestUtils;
 import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.List;
 import org.apache.lucene.analysis.BaseTokenStreamTestCase;
 import org.apache.lucene.analysis.TokenStream;
 import org.junit.Before;
@@ -147,6 +149,59 @@ public class SudachiTokenizerTest extends BaseTokenStreamTestCase {
     }
 
     public void testDecompositionPortedFromLucene_v3() throws Exception {
+        final String input = "くよくよくよくよくよくよくよくよくよくよくよくよくよくよくよくよくよくよくよくよ";
+        final TokenStream tokenStream = this.testUtils.tokenize(input, true, SplitMode.A);
+
+        assertTokenStreamContents(
+                tokenStream,
+                new String[] {"くよくよ", "くよくよ", "くよくよ", "くよくよ", "くよくよ", "くよくよ", "くよくよ", "くよくよ", "くよくよ", "くよくよ"},
+                new int[] {0, 4, 8, 12, 16, 20, 24, 28, 32, 36},
+                new int[] {4, 8, 12, 16, 20, 24, 28, 32, 36, 40});
+    }
+
+    @Test
+    public void testRepeatedHiraganaWord() throws Exception {
+        final int limit = 500;
+        final String hiraganaWord = "くよくよ";
+
+        final StringBuilder sb = new StringBuilder();
+        sb.append(new String(new char[limit]).replace("\0", hiraganaWord));
+
+        final List<String> nCopies = Collections.nCopies(limit, hiraganaWord);
+        final TokenStream tokenStream = this.testUtils.tokenize(sb.toString(), true, SplitMode.A);
+
+        assertTokenStreamContents(tokenStream, nCopies.toArray(new String[0]));
+    }
+
+    @Test
+    public void testRepeatedKatakanaWord() throws Exception {
+        final int limit = 500;
+        final String katakanaWord = "テスト";
+
+        final StringBuilder sb = new StringBuilder();
+        sb.append(new String(new char[limit]).replace("\0", katakanaWord));
+
+        final List<String> nCopies = Collections.nCopies(limit, katakanaWord);
+        final TokenStream tokenStream = this.testUtils.tokenize(sb.toString(), true, SplitMode.A);
+
+        assertTokenStreamContents(tokenStream, nCopies.toArray(new String[0]));
+    }
+
+    @Test
+    public void testRepeatedKanjiWord() throws Exception {
+        final int limit = 500;
+        final String kanjiWord = "令和";
+
+        final StringBuilder sb = new StringBuilder();
+        sb.append(new String(new char[limit]).replace("\0", kanjiWord));
+
+        final List<String> nCopies = Collections.nCopies(limit, kanjiWord);
+        final TokenStream tokenStream = this.testUtils.tokenize(sb.toString(), true, SplitMode.A);
+
+        assertTokenStreamContents(tokenStream, nCopies.toArray(new String[0]));
+    }
+
+    public void testDecompositionPortedFromLducene_v3() throws Exception {
         final String input = "くよくよくよくよくよくよくよくよくよくよくよくよくよくよくよくよくよくよくよくよ";
         final TokenStream tokenStream = this.testUtils.tokenize(input, true, SplitMode.A);
 

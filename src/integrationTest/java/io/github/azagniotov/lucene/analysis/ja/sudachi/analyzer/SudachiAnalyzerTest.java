@@ -143,7 +143,7 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
     }
 
     /**
-     * blast random strings against the analyzer
+     * Blast random strings against the analyzer
      */
     @Test
     @Ignore(

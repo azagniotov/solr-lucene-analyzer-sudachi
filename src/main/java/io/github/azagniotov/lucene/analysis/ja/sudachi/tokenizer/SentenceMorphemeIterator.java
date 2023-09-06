@@ -25,34 +25,31 @@ class SentenceMorphemeIterator implements MorphemeIterator {
     private Iterator<Morpheme> morphemeIterator;
     private final Iterator<MorphemeList> sentenceIterator;
     private int baseOffset = 0;
-    private int currentLength = 0;
+    private int sentencesTotalLength = 0;
 
-    public SentenceMorphemeIterator(final Iterator<MorphemeList> sentenceIterator) {
+    SentenceMorphemeIterator(final Iterator<MorphemeList> sentenceIterator) {
         this.morphemeIterator = new EmptyIterator();
         this.sentenceIterator = sentenceIterator;
     }
 
     @Override
     public Morpheme next() {
-        final Iterator<Morpheme> currentMorphemeIterator = this.morphemeIterator;
-        if (currentMorphemeIterator.hasNext()) {
-            return currentMorphemeIterator.next();
+        if (this.morphemeIterator.hasNext()) {
+            final Morpheme morpheme = morphemeIterator.next();
+            this.sentencesTotalLength = morpheme.end();
+            return morpheme;
         } else {
-            this.baseOffset += this.currentLength;
+            // The base offset is incremented again last time, since we need to add
+            // the length of the current sentence that we just processed.
+            // This value is used as final offset by the Tokenizer.end() method
+            this.baseOffset += this.sentencesTotalLength;
             if (sentenceIterator.hasNext()) {
-                final MorphemeList sentencesList = sentenceIterator.next();
-                final Morpheme lastMorpheme = sentencesList.get(sentencesList.size() - 1);
-                this.currentLength = lastMorpheme.end();
-                this.morphemeIterator = sentencesList.iterator();
-                // Try once more with a recursive call, which starts consuming
-                // Morphemes from the newly assigned morpheme iterator
-                return this.next();
+                this.morphemeIterator = sentenceIterator.next().iterator();
+                return next();
             } else {
-                currentLength = 0;
+                return null;
             }
         }
-
-        return null;
     }
 
     @Override
