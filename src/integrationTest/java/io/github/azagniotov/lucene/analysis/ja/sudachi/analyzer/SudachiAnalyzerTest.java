@@ -18,6 +18,7 @@
  */
 package io.github.azagniotov.lucene.analysis.ja.sudachi.analyzer;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import org.apache.lucene.analysis.Analyzer;
@@ -76,5 +77,30 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
 
         final List<String> nCopies = Collections.nCopies(limit, kanjiWord);
         assertAnalyzesTo(analyzer, sb.toString(), nCopies.toArray(new String[0]));
+    }
+
+    @Test
+    public void testDecomposition() throws IOException {
+        //
+        // Please keep in mind that:
+        //
+        // 1. The stop words うち, も, は, の, です, を, etc. are removed.
+        // 2. The conjugated verbs are returned in their base/dictionary form.
+        // 3. Lower case filter is applied
+        // 4. Full-width Japanese Katakana (supports A-Z) are converted to Latin characters
+        //
+        assertAnalyzesTo(analyzer, "すもももももももものうち。", new String[] {"すもも", "もも", "もも"});
+
+        assertAnalyzesTo(analyzer, "メガネは顔の一部です。", new String[] {"メガネ", "顔", "一部"});
+
+        assertAnalyzesTo(analyzer, "日本経済新聞でモバゲーの記事を読んだ。", new String[] {"日本", "経済", "新聞", "モバゲ", "記事", "読む"});
+
+        assertAnalyzesTo(analyzer, "Java, Scala, Groovy, Clojure", new String[] {"java", "scala", "groovy", "clojure"});
+
+        assertAnalyzesTo(analyzer, "ＬＵＣＥＮＥ、ＳＯＬＲ、Lucene, Solr", new String[] {"lucene", "solr", "lucene", "solr"});
+
+        // User dictionary fixed: さしすせそ
+        assertAnalyzesTo(
+                analyzer, "ｱｲｳｴｵカキクケコさしすせそABCＸＹＺ123４５６", new String[] {"アイウエオカキクケコ", "さしすせそ", "abcxyz", "123456"});
     }
 }

@@ -11,7 +11,7 @@ import org.apache.solr.client.solrj.embedded.JettySolrRunner;
 import org.apache.solr.client.solrj.request.CoreAdminRequest;
 import org.junit.Test;
 
-public class TestJettySolrRunner extends SolrTestCaseJ4 {
+public class JettySolrRunnerTest extends SolrTestCaseJ4 {
 
     @Test
     public void testPassSolrHomeToRunner() throws Exception {
