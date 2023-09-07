@@ -18,12 +18,10 @@
 package io.github.azagniotov.lucene.analysis.ja.sudachi.analyzer;
 
 import com.worksap.nlp.sudachi.Config;
-import com.worksap.nlp.sudachi.JapaneseDictionary;
 import com.worksap.nlp.sudachi.PartialPOS;
-import com.worksap.nlp.sudachi.PosMatcher;
-import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiAttribute;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilter;
-import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilter;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilterFactory;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilterFactory;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizer;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.util.StopTags;
@@ -108,15 +106,8 @@ public class SudachiAnalyzer extends StopwordAnalyzerBase {
         Tokenizer tokenizer = createTokenizer(new HashMap<>());
         TokenStream stream = tokenizer;
 
-        stream = new SudachiBaseFormFilter(stream);
-
-        if (!this.stoptags.isEmpty()) {
-            final SudachiAttribute sudachiAttribute = stream.getAttribute(SudachiAttribute.class);
-            final JapaneseDictionary japaneseDictionary = (JapaneseDictionary) sudachiAttribute.getDictionary();
-            final PosMatcher posMatcher = japaneseDictionary.posMatcher(this.stoptags);
-            stream = new SudachiPartOfSpeechStopFilter(stream, posMatcher);
-        }
-
+        stream = new SudachiBaseFormFilterFactory(new HashMap<>()).create(stream);
+        stream = new SudachiPartOfSpeechStopFilterFactory(new HashMap<>()).create(stream);
         stream = new StopFilter(stream, this.stopwords);
         stream = new JapaneseKatakanaStemFilter(stream);
         stream = new LowerCaseFilter(stream);
