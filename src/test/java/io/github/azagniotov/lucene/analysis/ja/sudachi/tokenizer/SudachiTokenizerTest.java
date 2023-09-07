@@ -123,6 +123,21 @@ public class SudachiTokenizerTest {
         assertThat(tokens(sudachiTokenizer.tokenize(stringReader))).containsExactly(expected);
     }
 
+    @Test
+    public void testLongKatakana() throws Exception {
+        final int limit = 5;
+        final String katakanaWord = "テスト";
+
+        final StringBuilder sb = new StringBuilder();
+        sb.append(new String(new char[limit]).replace("\0", katakanaWord));
+
+        final Reader stringReader = new StringReader(sb.toString());
+        final List<String> tokens = tokens(sudachiTokenizer.tokenize(stringReader));
+
+        assertThat(tokens.size()).isEqualTo(limit);
+        assertThat(tokens).containsExactly("テスト", "テスト", "テスト", "テスト", "テスト");
+    }
+
     private List<String> tokens(final Iterator<MorphemeList> morphemeList) {
         final List<Morpheme> result = new ArrayList<>();
 
