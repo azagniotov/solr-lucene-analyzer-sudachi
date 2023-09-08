@@ -71,11 +71,7 @@ public class SudachiTokenizerFactory extends TokenizerFactory implements Resourc
             final String csv = new Scanner(userLexiconCsvStream, StandardCharsets.UTF_8.name())
                     .useDelimiter("\\A")
                     .next();
-            Files.write(
-                    Paths.get(userLexiconCsvPath),
-                    csv.getBytes(StandardCharsets.UTF_8),
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.WRITE);
+            Files.write(Paths.get(userLexiconCsvPath), csv.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
 
             final String currentDirectory =
                     Paths.get(System.getProperty("user.dir")).toAbsolutePath().toString();
