@@ -18,7 +18,6 @@ package io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer;
 import static com.google.common.truth.Truth.assertThat;
 import static org.apache.lucene.analysis.TokenStream.DEFAULT_TOKEN_ATTRIBUTE_FACTORY;
 
-import com.worksap.nlp.sudachi.Config;
 import com.worksap.nlp.sudachi.Morpheme;
 import com.worksap.nlp.sudachi.MorphemeList;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.util.Strings;
@@ -47,8 +46,7 @@ public class SudachiTokenizerTest {
                 put("discardPunctuation", String.valueOf(DISCARD_PUNCTUATION));
             }
         };
-        final SudachiTokenizerFactory sudachiTokenizerFactory =
-                new SudachiTokenizerFactory(args, Config.defaultConfig());
+        final SudachiTokenizerFactory sudachiTokenizerFactory = new SudachiTokenizerFactory(args);
         sudachiTokenizer = (SudachiTokenizer) sudachiTokenizerFactory.create(DEFAULT_TOKEN_ATTRIBUTE_FACTORY);
     }
 
