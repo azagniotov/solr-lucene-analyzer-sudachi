@@ -14,19 +14,46 @@
 # See: https://github.com/apache/lucene/pull/12517
 #
 
+########################################################################################
+# Stage 1 : Solr Lucene Analyzer Sudachi JAR
+ ########################################################################################
+FROM gradle:8.1.1-jdk8@sha256:d8fafc7e609e448356880e74642debf8be212121e5f97b1eacb9f5a0cba020f5 AS BUILD_JAR_STAGE
+
+ARG REVISION=master
+
+ENV GRADLE_USER_HOME=/home/gradle
+WORKDIR $GRADLE_USER_HOME
+
+RUN git clone https://github.com/azagniotov/solr-lucene-analyzer-sudachi.git --branch $REVISION --depth 1 && \
+    git config --global user.name "Alexander Zagniotov" && \
+    git config --global user.email "azagniotov@gmail.com"
+
+# Download the dictionary and assemble the JAR to be placed under Solr /opt/solr/server/solr-webapp/webapp/WEB-INF/lib/
+RUN cd solr-lucene-analyzer-sudachi && \
+    ./gradlew downloadSystemDict && \
+    ./gradlew assemble && \
+    ls -al ./build/libs/
+
+
+########################################################################################
+# Stage 2 : Run Solr
+########################################################################################
 FROM solr:8.11.1
 
 MAINTAINER Alexander Zagniotov <azagniotov@gmail.com>
 
 ENV SOLR_JAVA_MEM="-Xms2g -Xmx2g"
-ENV SOLR_WEB_INF_LIB_HOME=/opt/solr/server/solr-webapp/webapp/WEB-INF/lib
-ENV SOLR_CONFIG_HOME=/opt/solr/server/solr/conf
+ENV SOLR_SERVER_HOME=/opt/solr/server
+ENV SOLR_WEB_INF_LIB_HOME=$SOLR_SERVER_HOME/solr-webapp/webapp/WEB-INF/lib
 
 USER root
-RUN mkdir -p $SOLR_CONFIG_HOME
-RUN rm $SOLR_WEB_INF_LIB_HOME/lucene-analysis-kuromoji-*.jar
-# COPY ./lucene/analysis/kuromoji/build/libs/lucene-analysis-kuromoji-9.7.0-SNAPSHOT.jar $SOLR_WEB_INF_LIB_HOME/
-COPY schema.xml $SOLR_CONFIG_HOME/
-# RUN ls -al $SOLR_WEB_INF_LIB_HOME/
+
+# Removing existing Lucene Kuromoji JAR to avoid polluting the classpath with
+# Japanese analysis-related classes. Also, Lucene team has renamed the packages
+# from analyzers => analysis at some point, thus using a wildcard.
+# RUN rm $SOLR_WEB_INF_LIB_HOME/lucene-*-kuromoji-*.jar
+
+COPY --from=BUILD_JAR_STAGE /home/gradle/solr-lucene-analyzer-sudachi/build/libs/solr-lucene-analyzer-sudachi*.jar $SOLR_WEB_INF_LIB_HOME/
+COPY schema.xml $SOLR_SERVER_HOME/solr/configsets/_default/conf/managed-schema
 
 USER solr
