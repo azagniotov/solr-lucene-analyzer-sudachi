@@ -22,7 +22,7 @@ apply plugin: "de.undercouch.download"
 
 plugins.withType(JavaPlugin) {
     ext {
-        targetDir = file("src/main/resources")
+        targetDir = file("/tmp/sudachi")
         dictionaryName = "sudachi-dictionary-20230711-core"
     }
     task deleteDictionaryData() {
