@@ -16,18 +16,18 @@
 package io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer;
 
 import static com.worksap.nlp.sudachi.Tokenizer.SplitMode;
+import static io.github.azagniotov.lucene.analysis.ja.sudachi.cache.DictionaryCache.SYSTEM_DICT_LOCAL_PATH;
+import static io.github.azagniotov.lucene.analysis.ja.sudachi.cache.DictionaryCache.USER_DICT_LOCAL_PATH;
 
 import com.worksap.nlp.sudachi.Config;
-import com.worksap.nlp.sudachi.dictionary.UserDictionaryBuilder;
+import com.worksap.nlp.sudachi.Dictionary;
+import com.worksap.nlp.sudachi.DictionaryFactory;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.cache.DictionaryCache;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Scanner;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.util.ResourceLoader;
 import org.apache.lucene.analysis.util.ResourceLoaderAware;
@@ -35,6 +35,8 @@ import org.apache.lucene.analysis.util.TokenizerFactory;
 import org.apache.lucene.util.AttributeFactory;
 
 public class SudachiTokenizerFactory extends TokenizerFactory implements ResourceLoaderAware {
+
+    private static final Logger LOGGER = LogManager.getLogger(SudachiTokenizerFactory.class.getName());
 
     private static final String MODE = "mode";
     private static final String MODE_SEARCH = "search";
@@ -62,35 +64,21 @@ public class SudachiTokenizerFactory extends TokenizerFactory implements Resourc
     @Override
     public Tokenizer create(final AttributeFactory factory) {
         try {
-            final String systemDictPath = "/tmp/sudachi/system-dict/system_core.dic";
-            final String userLexiconCsvPath = "/tmp/sudachi/user_lexicon.csv";
+            DictionaryCache.INSTANCE.warmup();
 
-            final InputStream userLexiconCsvStream = Objects.requireNonNull(
-                    SudachiTokenizerFactory.class.getResourceAsStream("/user-dict/user_lexicon.csv"));
+            final Config currentConfig = this.config == null ? Config.defaultConfig() : this.config;
+            final Config config = currentConfig
+                    .systemDictionary(Paths.get(SYSTEM_DICT_LOCAL_PATH))
+                    .addUserDictionary(Paths.get(USER_DICT_LOCAL_PATH));
+            LOGGER.info(" ### Created Sudachi config ###");
 
-            final String csv = new Scanner(userLexiconCsvStream, StandardCharsets.UTF_8.name())
-                    .useDelimiter("\\A")
-                    .next();
-            Files.write(
-                    Paths.get(userLexiconCsvPath),
-                    csv.getBytes(StandardCharsets.UTF_8),
-                    StandardOpenOption.WRITE,
-                    StandardOpenOption.CREATE,
-                    StandardOpenOption.TRUNCATE_EXISTING);
+            final Dictionary dictionary = new DictionaryFactory().create(config);
+            DictionaryCache.INSTANCE.cache(dictionary);
+            LOGGER.info(" ### Created Sudachi Dictionary using the factory ###");
 
-            final String currentDirectory =
-                    Paths.get(System.getProperty("user.dir")).toAbsolutePath().toString();
-            final String userDictFilename = String.join("/", "/tmp/sudachi", "user_lexicon.dic");
-            UserDictionaryBuilder.main(new String[] {"-o", userDictFilename, "-s", systemDictPath, userLexiconCsvPath});
-
-            final SudachiTokenizer sudachiTokenizer = new SudachiTokenizer(
-                    discardPunctuation, mode, Paths.get(systemDictPath), Paths.get(userDictFilename));
-
-            if (this.config == null) {
-                sudachiTokenizer.createDict(Config.defaultConfig());
-            } else {
-                sudachiTokenizer.createDict(this.config);
-            }
+            final com.worksap.nlp.sudachi.Tokenizer internalTokenizer = dictionary.create();
+            final SudachiTokenizer sudachiTokenizer = new SudachiTokenizer(internalTokenizer, discardPunctuation, mode);
+            LOGGER.info(" ### Created Sudachi Tokenizer using the Dictionary ###");
 
             return sudachiTokenizer;
         } catch (IOException e) {

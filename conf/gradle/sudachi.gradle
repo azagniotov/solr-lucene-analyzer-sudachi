@@ -34,7 +34,7 @@ plugins.withType(JavaPlugin) {
     }
 
     task downloadFile(type: Download) {
-        description "Recompile dictionaries from UniDic data from https://clrd.ninjal.ac.jp/unidic_archive"
+        description "Downloads a Sudachi dictionary from AWS"
 
         dependsOn deleteDictionaryData
         dependsOn sourceSets.main.runtimeClasspath
@@ -54,10 +54,12 @@ plugins.withType(JavaPlugin) {
             ant.unzip(src: dictionaryFile, dest: unpackedDir) {
                 ant.cutdirsmapper(dirs: "1")
             }
+
+            ant.copy file: "${rootDir}/user-dictionary/user_lexicon.csv", todir: targetDir
         }
     }
 
-    task downloadSystemDict(type: Verify, dependsOn: downloadFile) {
+    task configureDictionariesLocally(type: Verify, dependsOn: downloadFile) {
         src layout.buildDirectory.file("downloaded/${dictionaryName}.zip")
         algorithm "MD5"
         checksum "806bd34246704cfcacc51829df42c505"

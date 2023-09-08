@@ -17,7 +17,7 @@ runs:
           ${{ runner.os }}-
 
     - name: Download Sudachi default dictionary
-      run: ./gradlew downloadSystemDict
+      run: ./gradlew configureDictionariesLocally
       shell: bash
 
     # https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#usage-limits-and-eviction-policy

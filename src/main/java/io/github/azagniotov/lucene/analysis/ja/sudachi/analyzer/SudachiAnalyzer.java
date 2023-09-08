@@ -18,6 +18,7 @@
 package io.github.azagniotov.lucene.analysis.ja.sudachi.analyzer;
 
 import com.worksap.nlp.sudachi.PartialPOS;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.cache.DictionaryCache;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilter;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilterFactory;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilterFactory;
@@ -126,6 +127,12 @@ public class SudachiAnalyzer extends StopwordAnalyzerBase {
     @Override
     protected Reader initReaderForNormalization(final String fieldName, final Reader reader) {
         return new CJKWidthCharFilter(reader);
+    }
+
+    @Override
+    public void close() {
+        super.close();
+        DictionaryCache.INSTANCE.invalidate();
     }
 
     private Tokenizer createTokenizer(final Map<String, String> args) {

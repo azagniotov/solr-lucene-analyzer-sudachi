@@ -20,6 +20,8 @@ import static com.worksap.nlp.sudachi.Tokenizer.*;
 import static org.apache.lucene.analysis.TokenStream.DEFAULT_TOKEN_ATTRIBUTE_FACTORY;
 
 import com.worksap.nlp.sudachi.Config;
+import com.worksap.nlp.sudachi.JapaneseDictionary;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.cache.DictionaryCache;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory;
 import java.io.StringReader;
 import java.util.HashMap;
@@ -38,10 +40,6 @@ public class TestUtils {
         return tokenize(input, true, SplitMode.A);
     }
 
-    public TokenStream tokenize(final String input, final boolean discardPunctuation) {
-        return tokenize(input, discardPunctuation, SplitMode.A);
-    }
-
     public TokenStream tokenize(final String input, final boolean discardPunctuation, final SplitMode splitMode) {
         final Tokenizer tokenizer = makeTokenizer(discardPunctuation, splitMode);
         tokenizer.setReader(new StringReader(input));
@@ -57,7 +55,13 @@ public class TestUtils {
                 put("discardPunctuation", String.valueOf(discardPunctuation));
             }
         };
+        DictionaryCache.INSTANCE.invalidate();
         final SudachiTokenizerFactory sudachiTokenizerFactory = new SudachiTokenizerFactory(args, this.config);
-        return sudachiTokenizerFactory.create(DEFAULT_TOKEN_ATTRIBUTE_FACTORY);
+        final Tokenizer tokenizer = sudachiTokenizerFactory.create(DEFAULT_TOKEN_ATTRIBUTE_FACTORY);
+
+        assert DictionaryCache.INSTANCE.get() != null;
+        assert DictionaryCache.INSTANCE.get().getClass().isAssignableFrom(JapaneseDictionary.class);
+
+        return tokenizer;
     }
 }

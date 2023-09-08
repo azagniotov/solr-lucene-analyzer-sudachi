@@ -18,17 +18,12 @@ package io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer;
 
 import static com.worksap.nlp.sudachi.Tokenizer.SplitMode;
 
-import com.worksap.nlp.sudachi.Config;
-import com.worksap.nlp.sudachi.Dictionary;
-import com.worksap.nlp.sudachi.DictionaryFactory;
 import com.worksap.nlp.sudachi.Morpheme;
 import com.worksap.nlp.sudachi.MorphemeList;
 import com.worksap.nlp.sudachi.Tokenizer;
-import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiAttribute;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiMorphemeAttribute;
 import java.io.IOException;
 import java.io.Reader;
-import java.nio.file.Path;
 import java.util.Iterator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,59 +43,31 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
     private final PositionLengthAttribute posLengthAtt;
     private final PositionIncrementAttribute posIncAtt;
     private final SudachiMorphemeAttribute morphemeAtt;
-
-    private final SudachiAttribute sudachiAttribute;
     private Tokenizer sudachiTokenizer;
     private final boolean discardPunctuation;
     private final SplitMode mode;
-    private final Path systemDictPath;
-    private final Path userDictPath;
-    private Dictionary dictionary;
 
-    public SudachiTokenizer(
-            final boolean discardPunctuation,
-            final SplitMode mode,
-            final Path systemDictPath,
-            final Path userDictPath) {
-        this(DEFAULT_TOKEN_ATTRIBUTE_FACTORY, discardPunctuation, mode, systemDictPath, userDictPath);
+    public SudachiTokenizer(final Tokenizer sudachiTokenizer, final boolean discardPunctuation, final SplitMode mode) {
+        this(DEFAULT_TOKEN_ATTRIBUTE_FACTORY, sudachiTokenizer, discardPunctuation, mode);
     }
 
     public SudachiTokenizer(
             final AttributeFactory factory,
+            final Tokenizer sudachiTokenizer,
             final boolean discardPunctuation,
-            final SplitMode mode,
-            final Path systemDictPath,
-            final Path userDictPath) {
+            final SplitMode mode) {
         super(factory);
+        this.sudachiTokenizer = sudachiTokenizer;
         this.discardPunctuation = discardPunctuation;
         this.mode = mode;
-        this.systemDictPath = systemDictPath;
-        this.userDictPath = userDictPath;
 
         this.termAtt = addAttribute(CharTermAttribute.class);
         this.offsetAtt = addAttribute(OffsetAttribute.class);
         this.posLengthAtt = addAttribute(PositionLengthAttribute.class);
         this.posIncAtt = addAttribute(PositionIncrementAttribute.class);
         this.morphemeAtt = addAttribute(SudachiMorphemeAttribute.class);
-        this.sudachiAttribute = addAttribute(SudachiAttribute.class);
 
         this.morphemeIterator = MorphemeIterator.EMPTY;
-    }
-
-    public void createDict(final Config defaultConfig) throws IOException {
-        final Config config =
-                defaultConfig.systemDictionary(this.systemDictPath).addUserDictionary(this.userDictPath);
-        LOGGER.info(" ### Created Sudachi config ###");
-
-        this.dictionary = new DictionaryFactory().create(config);
-        LOGGER.info(" ### Created Sudachi Dictionary using the factory ###");
-
-        this.sudachiTokenizer = this.dictionary.create();
-        LOGGER.info(" ### Created Sudachi Tokenizer using the Dictionary ###");
-
-        this.sudachiAttribute.setDictionary(this.dictionary);
-
-        LOGGER.info(" ### Sudachi Dictionary is null: " + (this.dictionary == null ? "true" : "false") + " ###");
     }
 
     @Override
@@ -111,7 +78,6 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
             sentenceMorphemeIterator = new NonPunctuationMorphemes(sentenceMorphemeIterator);
         }
         this.morphemeIterator = sentenceMorphemeIterator;
-        this.sudachiAttribute.setDictionary(this.dictionary);
     }
 
     @Override

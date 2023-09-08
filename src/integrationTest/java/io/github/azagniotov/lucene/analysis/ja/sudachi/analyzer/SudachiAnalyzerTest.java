@@ -18,11 +18,23 @@
  */
 package io.github.azagniotov.lucene.analysis.ja.sudachi.analyzer;
 
+import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilterFactory;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilterFactory;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.BaseTokenStreamTestCase;
+import org.apache.lucene.analysis.CharArraySet;
+import org.apache.lucene.analysis.LowerCaseFilter;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.core.StopFilter;
+import org.apache.lucene.analysis.ja.JapaneseKatakanaStemFilter;
+import org.apache.lucene.util.AttributeFactory;
 import org.junit.Test;
 
 public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
@@ -40,6 +52,29 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
     public void tearDown() throws Exception {
         analyzer.close();
         super.tearDown();
+    }
+
+    @Test
+    public void testSimulateSolrAnalyzerCreation() throws Exception {
+        final Analyzer analyzer = new Analyzer() {
+            @Override
+            protected TokenStreamComponents createComponents(final String fieldName) {
+                Tokenizer tokenizer = createTokenizer(new HashMap<>());
+                TokenStream stream = tokenizer;
+
+                stream = new SudachiBaseFormFilterFactory(new HashMap<>()).create(stream);
+                stream = new SudachiPartOfSpeechStopFilterFactory(new HashMap<>()).create(stream);
+                stream = new StopFilter(stream, new CharArraySet(16, true));
+                stream = new JapaneseKatakanaStemFilter(stream);
+                stream = new LowerCaseFilter(stream);
+                return new TokenStreamComponents(tokenizer, stream);
+            }
+        };
+
+        assertNotNull(analyzer);
+
+        final TokenStream tokenStream = analyzer.tokenStream("any", "すもももももももものうち。");
+        assertTokenStreamContents(tokenStream, new String[] {"すもも", "もも", "もも", "うち"});
     }
 
     @Test
@@ -111,5 +146,15 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
         //    the auxiliary verb (助動詞) it is uncommented in the stoptags.txt,
         //    thus the token is removed from the token stream.
         assertAnalyzesTo(analyzer, "ももたろう", new String[] {"もも"});
+    }
+
+    private Tokenizer createTokenizer(final Map<String, String> args) {
+
+        final Map<String, String> map = new HashMap<>(args);
+        map.put("mode", "search");
+        map.put("discardPunctuation", "true");
+        final SudachiTokenizerFactory factory = new SudachiTokenizerFactory(map);
+
+        return factory.create(AttributeFactory.DEFAULT_ATTRIBUTE_FACTORY);
     }
 }
