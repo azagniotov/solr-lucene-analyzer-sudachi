@@ -38,8 +38,12 @@ In terms of the filter configuration parity with the Lucene's built-n Kuromoji a
 The plugin needs a dictionary in order to run the tests, thus, it needs to be downloaded using the following command:
 
 ```bash
-./gradlew downloadSystemDict
+./gradlew configureDictionariesLocally
 ```
+
+The above command does the following:
+1. Downloads a system dictionary `sudachi-dictionary-20230711-core` from AWS under the `/tmp/sudachi/`
+2. Copies the [user-dictionary/user_lexicon.csv](user-dictionary/user_lexicon.csv) under the `/tmp/sudachi/`. The CSV is used to create a User dictionary. It a rather small file, but it sets an example how to add user entries to a dictionary.
 
 [`Back to top`](#table-of-contents)
 

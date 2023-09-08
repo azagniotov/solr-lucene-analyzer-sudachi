@@ -21,7 +21,7 @@ import com.worksap.nlp.sudachi.JapaneseDictionary;
 import com.worksap.nlp.sudachi.PartialPOS;
 import com.worksap.nlp.sudachi.PosMatcher;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.analyzer.SudachiAnalyzer;
-import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiAttribute;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.cache.DictionaryCache;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.util.StopTags;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -54,8 +54,7 @@ public class SudachiPartOfSpeechStopFilterFactory extends TokenFilterFactory imp
     public TokenStream create(final TokenStream tokenStream) {
 
         if (!this.stopTags.isEmpty()) {
-            final SudachiAttribute sudachiAttribute = tokenStream.getAttribute(SudachiAttribute.class);
-            final JapaneseDictionary japaneseDictionary = (JapaneseDictionary) sudachiAttribute.getDictionary();
+            final JapaneseDictionary japaneseDictionary = (JapaneseDictionary) DictionaryCache.INSTANCE.get();
             if (japaneseDictionary == null) {
                 throw new IllegalStateException("SudachiAttribute returned null JapaneseDictionary, how so??");
             }

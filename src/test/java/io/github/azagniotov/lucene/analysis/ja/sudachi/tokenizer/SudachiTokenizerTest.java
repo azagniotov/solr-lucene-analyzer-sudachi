@@ -18,8 +18,10 @@ package io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer;
 import static com.google.common.truth.Truth.assertThat;
 import static org.apache.lucene.analysis.TokenStream.DEFAULT_TOKEN_ATTRIBUTE_FACTORY;
 
+import com.worksap.nlp.sudachi.JapaneseDictionary;
 import com.worksap.nlp.sudachi.Morpheme;
 import com.worksap.nlp.sudachi.MorphemeList;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.cache.DictionaryCache;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.util.Strings;
 import java.io.Reader;
 import java.io.StringReader;
@@ -53,6 +55,8 @@ public class SudachiTokenizerTest {
     @Test
     public void sanityCheck() {
         assertThat(sudachiTokenizer).isNotNull();
+        assertThat(DictionaryCache.INSTANCE.get()).isNotNull();
+        assertThat(DictionaryCache.INSTANCE.get()).isInstanceOf(JapaneseDictionary.class);
     }
 
     @DataProvider(name = "querySurfaces")
@@ -116,7 +120,7 @@ public class SudachiTokenizerTest {
     }
 
     @Test(dataProvider = "querySurfaces")
-    public void testTokenizeSurfaces(final Object query, final Object... expected) throws Exception {
+    public void testBasicTokenization(final Object query, final Object... expected) throws Exception {
         final Reader stringReader = new StringReader(query.toString());
         assertThat(tokens(sudachiTokenizer.tokenize(stringReader))).containsExactly(expected);
     }

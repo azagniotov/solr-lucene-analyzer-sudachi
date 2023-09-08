@@ -20,6 +20,7 @@ package io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer;
 import static com.worksap.nlp.sudachi.Tokenizer.SplitMode;
 
 import com.worksap.nlp.sudachi.Config;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.cache.DictionaryCache;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.test.TestUtils;
 import java.io.StringReader;
 import java.nio.charset.Charset;
@@ -30,6 +31,7 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.charfilter.MappingCharFilter;
 import org.apache.lucene.analysis.charfilter.NormalizeCharMap;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,6 +44,12 @@ public class SudachiTokenizerTest extends BaseTokenStreamTestCase {
         super.setUp();
         final Config config = Config.fromClasspath("sudachi_test_config.json");
         this.testUtils = new TestUtils(config);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
+        DictionaryCache.INSTANCE.invalidate();
     }
 
     @Test

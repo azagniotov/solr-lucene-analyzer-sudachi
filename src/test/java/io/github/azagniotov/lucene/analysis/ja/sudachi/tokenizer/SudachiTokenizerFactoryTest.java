@@ -19,6 +19,8 @@ package io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer;
 import static com.google.common.truth.Truth.assertThat;
 import static org.apache.lucene.analysis.TokenStream.DEFAULT_TOKEN_ATTRIBUTE_FACTORY;
 
+import com.worksap.nlp.sudachi.JapaneseDictionary;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.cache.DictionaryCache;
 import java.util.HashMap;
 import java.util.Map;
 import org.testng.annotations.Test;
@@ -39,5 +41,7 @@ public class SudachiTokenizerFactoryTest {
                 (SudachiTokenizer) sudachiTokenizerFactory.create(DEFAULT_TOKEN_ATTRIBUTE_FACTORY);
 
         assertThat(sudachiTokenizer).isNotNull();
+        assertThat(DictionaryCache.INSTANCE.get()).isNotNull();
+        assertThat(DictionaryCache.INSTANCE.get()).isInstanceOf(JapaneseDictionary.class);
     }
 }
