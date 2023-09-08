@@ -30,8 +30,8 @@ RUN git clone https://github.com/azagniotov/solr-lucene-analyzer-sudachi.git --b
 
 # Download the dictionary and assemble the JAR to be placed under Solr /opt/solr/server/solr-webapp/webapp/WEB-INF/lib/
 RUN cd solr-lucene-analyzer-sudachi && \
-    ./gradlew downloadSystemDict && \
-    ./gradlew assemble && \
+    gradle downloadSystemDict && \
+    gradle assemble && \
     ls -al ./build/libs/
 
 
@@ -53,7 +53,10 @@ USER root
 # from analyzers => analysis at some point, thus using a wildcard.
 # RUN rm $SOLR_WEB_INF_LIB_HOME/lucene-*-kuromoji-*.jar
 
+COPY --from=BUILD_JAR_STAGE /tmp/sudachi/system-dict/system_core.dic /tmp/sudachi/system-dict/system_core.dic
 COPY --from=BUILD_JAR_STAGE /home/gradle/solr-lucene-analyzer-sudachi/build/libs/solr-lucene-analyzer-sudachi*.jar $SOLR_WEB_INF_LIB_HOME/
 COPY schema.xml $SOLR_SERVER_HOME/solr/configsets/_default/conf/managed-schema
+
+RUN chown -R solr:solr /tmp/sudachi
 
 USER solr
