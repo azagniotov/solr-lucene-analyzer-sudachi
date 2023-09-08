@@ -20,10 +20,14 @@ import static com.worksap.nlp.sudachi.Tokenizer.SplitMode;
 import com.worksap.nlp.sudachi.Config;
 import com.worksap.nlp.sudachi.dictionary.UserDictionaryBuilder;
 import java.io.IOException;
-import java.nio.file.Path;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Scanner;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.util.ResourceLoader;
 import org.apache.lucene.analysis.util.ResourceLoaderAware;
@@ -58,25 +62,28 @@ public class SudachiTokenizerFactory extends TokenizerFactory implements Resourc
     @Override
     public Tokenizer create(final AttributeFactory factory) {
         try {
-            final String systemDictPathStr = Objects.requireNonNull(
-                            SudachiTokenizerFactory.class.getResource("/system-dict/system_core.dic"))
-                    .getPath();
-            final Path systemDictPath = Paths.get(systemDictPathStr);
+            final String systemDictPath = "/tmp/sudachi/system-dict/system_core.dic";
+            final String userLexiconCsvPath = "/tmp/sudachi/user_lexicon.csv";
 
-            final String userLexiconCsvPathStr = Objects.requireNonNull(
-                            SudachiTokenizerFactory.class.getResource("/user-dict/user_lexicon.csv"))
-                    .getPath();
-            final Path userLexiconCsvPath = Paths.get(userLexiconCsvPathStr);
+            final InputStream userLexiconCsvStream = Objects.requireNonNull(
+                    SudachiTokenizerFactory.class.getResourceAsStream("/user-dict/user_lexicon.csv"));
+
+            final String csv = new Scanner(userLexiconCsvStream, StandardCharsets.UTF_8.name())
+                    .useDelimiter("\\A")
+                    .next();
+            Files.write(
+                    Paths.get(userLexiconCsvPath),
+                    csv.getBytes(StandardCharsets.UTF_8),
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.WRITE);
 
             final String currentDirectory =
                     Paths.get(System.getProperty("user.dir")).toAbsolutePath().toString();
             final String userDictFilename = String.join("/", currentDirectory, "user_lexicon.dic");
-            UserDictionaryBuilder.main(
-                    new String[] {"-o", userDictFilename, "-s", systemDictPath.toString(), userLexiconCsvPath.toString()
-                    });
+            UserDictionaryBuilder.main(new String[] {"-o", userDictFilename, "-s", systemDictPath, userLexiconCsvPath});
 
-            final SudachiTokenizer sudachiTokenizer =
-                    new SudachiTokenizer(discardPunctuation, mode, systemDictPath, Paths.get(userDictFilename));
+            final SudachiTokenizer sudachiTokenizer = new SudachiTokenizer(
+                    discardPunctuation, mode, Paths.get(systemDictPath), Paths.get(userDictFilename));
 
             if (this.config == null) {
                 sudachiTokenizer.createDict(Config.defaultConfig());
