@@ -71,11 +71,16 @@ public class SudachiTokenizerFactory extends TokenizerFactory implements Resourc
             final String csv = new Scanner(userLexiconCsvStream, StandardCharsets.UTF_8.name())
                     .useDelimiter("\\A")
                     .next();
-            Files.write(Paths.get(userLexiconCsvPath), csv.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
+            Files.write(
+                    Paths.get(userLexiconCsvPath),
+                    csv.getBytes(StandardCharsets.UTF_8),
+                    StandardOpenOption.WRITE,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING);
 
             final String currentDirectory =
                     Paths.get(System.getProperty("user.dir")).toAbsolutePath().toString();
-            final String userDictFilename = String.join("/", currentDirectory, "user_lexicon.dic");
+            final String userDictFilename = String.join("/", "/tmp/sudachi", "user_lexicon.dic");
             UserDictionaryBuilder.main(new String[] {"-o", userDictFilename, "-s", systemDictPath, userLexiconCsvPath});
 
             final SudachiTokenizer sudachiTokenizer = new SudachiTokenizer(
