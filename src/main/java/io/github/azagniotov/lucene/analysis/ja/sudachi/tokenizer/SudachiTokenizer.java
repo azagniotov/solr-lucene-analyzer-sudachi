@@ -48,11 +48,14 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
     private final PositionLengthAttribute posLengthAtt;
     private final PositionIncrementAttribute posIncAtt;
     private final SudachiMorphemeAttribute morphemeAtt;
+
+    private final SudachiAttribute sudachiAttribute;
     private Tokenizer sudachiTokenizer;
     private final boolean discardPunctuation;
     private final SplitMode mode;
     private final Path systemDictPath;
     private final Path userDictPath;
+    private Dictionary dictionary;
 
     public SudachiTokenizer(
             final boolean discardPunctuation,
@@ -79,6 +82,7 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
         this.posLengthAtt = addAttribute(PositionLengthAttribute.class);
         this.posIncAtt = addAttribute(PositionIncrementAttribute.class);
         this.morphemeAtt = addAttribute(SudachiMorphemeAttribute.class);
+        this.sudachiAttribute = addAttribute(SudachiAttribute.class);
 
         this.morphemeIterator = MorphemeIterator.EMPTY;
     }
@@ -88,16 +92,15 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
                 defaultConfig.systemDictionary(this.systemDictPath).addUserDictionary(this.userDictPath);
         LOGGER.info(" ### Created Sudachi config ###");
 
-        final Dictionary dictionary = new DictionaryFactory().create(config);
+        this.dictionary = new DictionaryFactory().create(config);
         LOGGER.info(" ### Created Sudachi Dictionary using the factory ###");
 
-        this.sudachiTokenizer = dictionary.create();
+        this.sudachiTokenizer = this.dictionary.create();
         LOGGER.info(" ### Created Sudachi Tokenizer using the Dictionary ###");
 
-        final SudachiAttribute sudachiAttribute = addAttribute(SudachiAttribute.class);
-        sudachiAttribute.setDictionary(dictionary);
+        this.sudachiAttribute.setDictionary(this.dictionary);
 
-        LOGGER.info(" ### Sudachi Dictionary is null: " + (dictionary == null ? "true" : "false") + " ###");
+        LOGGER.info(" ### Sudachi Dictionary is null: " + (this.dictionary == null ? "true" : "false") + " ###");
     }
 
     @Override
@@ -108,6 +111,7 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
             sentenceMorphemeIterator = new NonPunctuationMorphemes(sentenceMorphemeIterator);
         }
         this.morphemeIterator = sentenceMorphemeIterator;
+        this.sudachiAttribute.setDictionary(this.dictionary);
     }
 
     @Override
