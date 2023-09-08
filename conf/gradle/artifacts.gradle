@@ -7,7 +7,7 @@ final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter
         .withZone(ZoneOffset.systemDefault())
 
 
-project.ext.lucenelessDependencies = configurations.compileClasspath.resolve().findAll { file ->
+project.ext.lucenelessDependencies = configurations.runtimeClasspath.resolve().findAll { file ->
     return !file.name.contains("lucene-") && !file.name.contains("-sources")
 }
 
