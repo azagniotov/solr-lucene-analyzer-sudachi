@@ -56,6 +56,9 @@ public class SudachiPartOfSpeechStopFilterFactory extends TokenFilterFactory imp
         if (!this.stopTags.isEmpty()) {
             final SudachiAttribute sudachiAttribute = tokenStream.getAttribute(SudachiAttribute.class);
             final JapaneseDictionary japaneseDictionary = (JapaneseDictionary) sudachiAttribute.getDictionary();
+            if (japaneseDictionary == null) {
+                throw new IllegalStateException("SudachiAttribute returned null JapaneseDictionary, how so??");
+            }
             final PosMatcher posMatcher = japaneseDictionary.posMatcher(this.stopTags);
             return new SudachiPartOfSpeechStopFilter(tokenStream, posMatcher);
         }

@@ -16,6 +16,7 @@
 
 dependencies {
     api "com.worksap.nlp:sudachi:${sudachiVersion}"
+    api "org.apache.logging.log4j:log4j-core:2.17.2"
 
     api "org.apache.lucene:lucene-core:${solrVersion}"
     api "org.apache.lucene:lucene-analyzers-common:${solrVersion}"

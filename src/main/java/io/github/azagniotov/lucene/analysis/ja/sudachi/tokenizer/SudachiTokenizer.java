@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Path;
 import java.util.Iterator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
@@ -37,6 +39,8 @@ import org.apache.lucene.analysis.tokenattributes.PositionLengthAttribute;
 import org.apache.lucene.util.AttributeFactory;
 
 public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer {
+
+    private static final Logger LOGGER = LogManager.getLogger(SudachiTokenizer.class.getName());
 
     private MorphemeIterator morphemeIterator;
     private final CharTermAttribute termAtt;
@@ -82,12 +86,18 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
     public void createDict(final Config defaultConfig) throws IOException {
         final Config config =
                 defaultConfig.systemDictionary(this.systemDictPath).addUserDictionary(this.userDictPath);
+        LOGGER.info(" ### Created Sudachi config ###");
 
         final Dictionary dictionary = new DictionaryFactory().create(config);
+        LOGGER.info(" ### Created Sudachi Dictionary using the factory ###");
+
         this.sudachiTokenizer = dictionary.create();
+        LOGGER.info(" ### Created Sudachi Tokenizer using the Dictionary ###");
 
         final SudachiAttribute sudachiAttribute = addAttribute(SudachiAttribute.class);
         sudachiAttribute.setDictionary(dictionary);
+
+        LOGGER.info(" ### Sudachi Dictionary is null: " + (dictionary == null ? "true" : "false") + " ###");
     }
 
     @Override
