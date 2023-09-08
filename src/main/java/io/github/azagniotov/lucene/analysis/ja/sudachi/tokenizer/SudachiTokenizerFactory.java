@@ -41,6 +41,12 @@ public class SudachiTokenizerFactory extends TokenizerFactory implements Resourc
     private final boolean discardPunctuation;
     private final Config config;
 
+    public SudachiTokenizerFactory(final Map<String, String> args) {
+        // Config.defaultConfig() throws an IO exception
+        // and I do not want to do this in constructor, as this makes the testing brittle.
+        this(args, null);
+    }
+
     public SudachiTokenizerFactory(final Map<String, String> args, final Config config) {
         super(args);
 
@@ -71,7 +77,12 @@ public class SudachiTokenizerFactory extends TokenizerFactory implements Resourc
 
             final SudachiTokenizer sudachiTokenizer =
                     new SudachiTokenizer(discardPunctuation, mode, systemDictPath, Paths.get(userDictFilename));
-            sudachiTokenizer.createDict(this.config);
+
+            if (this.config == null) {
+                sudachiTokenizer.createDict(Config.defaultConfig());
+            } else {
+                sudachiTokenizer.createDict(this.config);
+            }
 
             return sudachiTokenizer;
         } catch (IOException e) {

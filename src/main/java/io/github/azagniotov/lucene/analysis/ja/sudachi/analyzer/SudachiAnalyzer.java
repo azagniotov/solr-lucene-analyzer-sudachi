@@ -17,7 +17,6 @@
 
 package io.github.azagniotov.lucene.analysis.ja.sudachi.analyzer;
 
-import com.worksap.nlp.sudachi.Config;
 import com.worksap.nlp.sudachi.PartialPOS;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilter;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilterFactory;
@@ -134,13 +133,8 @@ public class SudachiAnalyzer extends StopwordAnalyzerBase {
         final Map<String, String> map = new HashMap<>(args);
         map.put("mode", this.mode);
         map.put("discardPunctuation", String.valueOf(this.discardPunctuation));
-        try {
-            final Config defaultConfig = Config.defaultConfig();
-            final SudachiTokenizerFactory factory = new SudachiTokenizerFactory(map, defaultConfig);
+        final SudachiTokenizerFactory factory = new SudachiTokenizerFactory(map);
 
-            return factory.create(AttributeFactory.DEFAULT_ATTRIBUTE_FACTORY);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return factory.create(AttributeFactory.DEFAULT_ATTRIBUTE_FACTORY);
     }
 }
