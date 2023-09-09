@@ -42,8 +42,9 @@ The plugin needs a dictionary in order to run the tests, thus, it needs to be do
 ```
 
 The above command does the following:
-1. Downloads a system dictionary `sudachi-dictionary-20230711-core` from AWS under the `/tmp/sudachi/`
-2. Copies the [user-dictionary/user_lexicon.csv](user-dictionary/user_lexicon.csv) under the `/tmp/sudachi/`. The CSV is used to create a User dictionary. It a rather small file, but it sets an example how to add user entries to a dictionary.
+1. Downloads a system dictionary `sudachi-dictionary-20230711-core` ZIP from AWS and unpacks it under the `/tmp/sudachi/`
+2. Copies the [user-dictionary/user_lexicon.csv](user-dictionary/user_lexicon.csv) under the `/tmp/sudachi/`. The CSV is used to create a User dictionary. Although user defined dictionary is not really needed here, this sets an example how to add user entries to a dictionary.
+3. Builds a Sudachi user dictionary from the CSV under the `/tmp/sudachi/`
 
 [`Back to top`](#table-of-contents)
 

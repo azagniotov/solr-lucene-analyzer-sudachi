@@ -59,7 +59,20 @@ plugins.withType(JavaPlugin) {
         }
     }
 
-    task configureDictionariesLocally(type: Verify, dependsOn: downloadFile) {
+    task buildUserDictionary(type: JavaExec, dependsOn: downloadFile) {
+        classpath = sourceSets.main.runtimeClasspath
+
+        mainClass = "com.worksap.nlp.sudachi.dictionary.UserDictionaryBuilder"
+
+        // arguments to pass to the application
+        args "-o",
+                "${targetDir}/user_lexicon.dic",
+                "-s",
+                "${targetDir}/system-dict/system_core.dic",
+                "${targetDir}/user_lexicon.csv"
+    }
+
+    task configureDictionariesLocally(type: Verify, dependsOn: buildUserDictionary) {
         src layout.buildDirectory.file("downloaded/${dictionaryName}.zip")
         algorithm "MD5"
         checksum "806bd34246704cfcacc51829df42c505"
