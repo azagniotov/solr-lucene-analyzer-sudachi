@@ -64,25 +64,31 @@ public class SudachiTokenizerFactory extends TokenizerFactory implements Resourc
     @Override
     public Tokenizer create(final AttributeFactory factory) {
         try {
-            DictionaryCache.INSTANCE.warmup();
+            final Dictionary dictionary = buildOrGetCached();
+            final com.worksap.nlp.sudachi.Tokenizer internalTokenizer = dictionary.create();
+            return new SudachiTokenizer(internalTokenizer, discardPunctuation, mode);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Failed to create SudachiTokenizer", e);
+        }
+    }
+
+    private Dictionary buildOrGetCached() throws IOException {
+        if (DictionaryCache.INSTANCE.isEmpty()) {
+            LOGGER.info(" ### Dictionary Cache is empty ###");
 
             final Config currentConfig = this.config == null ? Config.defaultConfig() : this.config;
             final Config config = currentConfig
                     .systemDictionary(Paths.get(SYSTEM_DICT_LOCAL_PATH))
                     .addUserDictionary(Paths.get(USER_DICT_LOCAL_PATH));
-            LOGGER.info(" ### Created Sudachi config ###");
+            LOGGER.info(" ### Created Sudachi config from system and user dictionaries ###");
 
             final Dictionary dictionary = new DictionaryFactory().create(config);
             DictionaryCache.INSTANCE.cache(dictionary);
-            LOGGER.info(" ### Created Sudachi Dictionary using the factory ###");
-
-            final com.worksap.nlp.sudachi.Tokenizer internalTokenizer = dictionary.create();
-            final SudachiTokenizer sudachiTokenizer = new SudachiTokenizer(internalTokenizer, discardPunctuation, mode);
-            LOGGER.info(" ### Created Sudachi Tokenizer using the Dictionary ###");
-
-            return sudachiTokenizer;
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Failed to create SudachiTokenizer", e);
+            LOGGER.info(" ### Created and cached Sudachi Dictionary instance ###");
+            return dictionary;
+        } else {
+            LOGGER.info(" ### Got Sudachi Dictionary instance from the Cache ###");
+            return DictionaryCache.INSTANCE.get();
         }
     }
 

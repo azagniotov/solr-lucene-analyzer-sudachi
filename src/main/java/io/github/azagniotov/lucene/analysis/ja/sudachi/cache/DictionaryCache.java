@@ -9,11 +9,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public enum DictionaryCache {
     INSTANCE;
 
-    private static final String DICTIONARY_KEY = "dictionary";
+    private static final String CACHE_KEY = "dictionary";
     public static final String SYSTEM_DICT_LOCAL_PATH = "/tmp/sudachi/system-dict/system_core.dic";
     public static final String USER_DICT_LOCAL_PATH = "/tmp/sudachi/user_lexicon.dic";
 
     static {
+        // TODO To move to Gradle?
         try {
             final String userLexiconCsvPath = "/tmp/sudachi/user_lexicon.csv";
             UserDictionaryBuilder.main(
@@ -23,27 +24,27 @@ public enum DictionaryCache {
         }
     }
 
-    private final Map<String, Dictionary> japaneseDictionaryCache;
+    private final Map<String, Dictionary> dictionaryCache;
 
     DictionaryCache() {
-        japaneseDictionaryCache = new ConcurrentHashMap<>();
+        dictionaryCache = new ConcurrentHashMap<>(1);
     }
 
-    public void warmup() {
-        // Does nothing but causes the static block to be executed
+    public boolean isEmpty() {
+        return !this.dictionaryCache.containsKey(CACHE_KEY);
     }
 
     public void cache(final Dictionary dictionary) {
-        if (!INSTANCE.japaneseDictionaryCache.containsKey(DICTIONARY_KEY)) {
-            INSTANCE.japaneseDictionaryCache.put(DICTIONARY_KEY, dictionary);
+        if (!this.dictionaryCache.containsKey(CACHE_KEY)) {
+            this.dictionaryCache.put(CACHE_KEY, dictionary);
         }
     }
 
     public Dictionary get() {
-        return INSTANCE.japaneseDictionaryCache.get(DICTIONARY_KEY);
+        return this.dictionaryCache.get(CACHE_KEY);
     }
 
     public void invalidate() {
-        INSTANCE.japaneseDictionaryCache.clear();
+        this.dictionaryCache.clear();
     }
 }

@@ -44,6 +44,7 @@ MAINTAINER Alexander Zagniotov <azagniotov@gmail.com>
 
 ENV SOLR_JAVA_MEM="-Xms2g -Xmx2g"
 ENV SOLR_SERVER_HOME=/opt/solr/server
+ENV SUDACHI_DICT_HOME=/tmp/sudachi
 ENV SOLR_WEB_INF_LIB_HOME=$SOLR_SERVER_HOME/solr-webapp/webapp/WEB-INF/lib
 
 USER root
@@ -53,7 +54,8 @@ USER root
 # from analyzers => analysis at some point, thus using a wildcard.
 # RUN rm $SOLR_WEB_INF_LIB_HOME/lucene-*-kuromoji-*.jar
 
-COPY --from=BUILD_JAR_STAGE /tmp/sudachi/system-dict/system_core.dic /tmp/sudachi/system-dict/system_core.dic
+COPY --from=BUILD_JAR_STAGE $SUDACHI_DICT_HOME/system-dict/system_core.dic $SUDACHI_DICT_HOME/system-dict/system_core.dic
+COPY --from=BUILD_JAR_STAGE $SUDACHI_DICT_HOME/user_lexicon.csv $SUDACHI_DICT_HOME/user_lexicon.csv
 COPY --from=BUILD_JAR_STAGE /home/gradle/solr-lucene-analyzer-sudachi/build/libs/solr-lucene-analyzer-sudachi*.jar $SOLR_WEB_INF_LIB_HOME/
 COPY schema.xml $SOLR_SERVER_HOME/solr/configsets/_default/conf/managed-schema
 
