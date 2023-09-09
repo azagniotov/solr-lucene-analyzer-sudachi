@@ -38,7 +38,7 @@ RUN cd solr-lucene-analyzer-sudachi && \
 ########################################################################################
 # Stage 2 : Run Solr
 ########################################################################################
-FROM solr:8.11.1@sha256:9da258c26ec3cd05bdfd790ee6567bd5db2a161a8a7fdf1694a6a3dce97cdd4e
+FROM solr:8.11.2@sha256:bff7ee4fbb7a3c846a7d603ca0e7d3f1ea25e12ee875e340d2ec2ea95ee87b15
 
 MAINTAINER Alexander Zagniotov <azagniotov@gmail.com>
 
