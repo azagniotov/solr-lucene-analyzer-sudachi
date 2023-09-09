@@ -1,10 +1,10 @@
 # A few useful Docker commands to build an image and run the Solr container.
 #
 # Build (run with '--no-cache' to ensure that Git repo new tags will be pulled down, as Docker caches RUN layers):
-# 'docker build -t solr-8.11.1 . --progress=plain --no-cache'
+# docker build -t solr-sudachi . --progress=plain --no-cache
 #
 # Run:
-# docker run -p 8983:8983 --rm solr-8.11.1:latest solr-precreate example
+# docker run -p 8983:8983 --rm solr-sudachi:latest solr-precreate example
 #
 # cURL requests:
 # 1. curl -sS 'http://localhost:8983/solr/example/analysis/field?analysis.fieldtype=text_ja' --get --data-urlencode 'analysis.fieldvalue=ちいかわ'  | jq '.analysis.field_types.text_ja.index[1][].text'
@@ -55,7 +55,7 @@ USER root
 # RUN rm $SOLR_WEB_INF_LIB_HOME/lucene-*-kuromoji-*.jar
 
 COPY --from=BUILD_JAR_STAGE $SUDACHI_DICT_HOME/system-dict/system_core.dic $SUDACHI_DICT_HOME/system-dict/system_core.dic
-COPY --from=BUILD_JAR_STAGE $SUDACHI_DICT_HOME/user_lexicon.csv $SUDACHI_DICT_HOME/user_lexicon.csv
+COPY --from=BUILD_JAR_STAGE $SUDACHI_DICT_HOME/user_lexicon.dic $SUDACHI_DICT_HOME/user_lexicon.dic
 COPY --from=BUILD_JAR_STAGE /home/gradle/solr-lucene-analyzer-sudachi/build/libs/solr-lucene-analyzer-sudachi*.jar $SOLR_WEB_INF_LIB_HOME/
 COPY schema.xml $SOLR_SERVER_HOME/solr/configsets/_default/conf/managed-schema
 
