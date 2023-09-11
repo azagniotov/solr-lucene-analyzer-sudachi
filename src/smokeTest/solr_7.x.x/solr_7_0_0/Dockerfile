@@ -30,15 +30,15 @@ RUN git clone https://github.com/azagniotov/solr-lucene-analyzer-sudachi.git --b
 
 # Download the dictionary and assemble the JAR to be placed under Solr /opt/solr/server/solr-webapp/webapp/WEB-INF/lib/
 RUN cd solr-lucene-analyzer-sudachi && \
-    ./gradlew configureDictionariesLocally && \
-    ./gradlew assemble && \
+    gradle configureDictionariesLocally && \
+    gradle assemble && \
     ls -al ./build/libs/
 
 
 ########################################################################################
 # Stage 2 : Run Solr
 ########################################################################################
-FROM solr:8.8.2@sha256:1366313f3cdd7f7acd28b497244d00c0a19c0c5556017a55775350f95511703d
+FROM solr:7.0.0@sha256:aa063d4e38f9b1b84db88cce4cd831dc10190e1624222f47d32ae787de655694
 
 MAINTAINER Alexander Zagniotov <azagniotov@gmail.com>
 

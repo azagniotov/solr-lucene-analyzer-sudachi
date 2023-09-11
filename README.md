@@ -5,10 +5,11 @@
 
 ## Table of Contents
 <!-- TOC -->
-* [Plugin philosophy and background](#plugin-philosophy-and-background)
-* [Prerequisites](#prerequisites)
-  * [Downloading a Sudachi dictionary](#downloading-a-sudachi-dictionary)
+* [Plugin philosophy](#plugin-philosophy)
+
 * [Local Development](#local-development)
+  * [Prerequisites](#prerequisites)
+    * [Downloading a Sudachi dictionary](#downloading-a-sudachi-dictionary)
   * [System Requirements](#system-requirements)
   * [Build System](#build-system)
     * [List of Gradle tasks](#list-of-gradle-tasks)
@@ -23,17 +24,86 @@
   * [Solr Lucene Analyzer Sudachi](#solr-lucene-analyzer-sudachi)
 <!-- TOC -->
 
-## Plugin philosophy and background
+## Plugin philosophy
 
-The plugin is largely based on the other good work by the [Sudachi](https://github.com/WorksApplications/Sudachi) owners, the [elasticsearch-sudachi](https://github.com/WorksApplications/elasticsearch-sudachi) plugin. In addition, the current plugin drew inspiration from the past work by Sho Nakamura, the [solr-sudachi](https://github.com/sh0nk/solr-sudachi).
+The plugin strives to where possible:
 
-In terms of the filter configuration parity with the Lucene's built-n Kuromoji analyzer plugin, the Solr Lucene Analyzer plugin filter configuration matches [the current default in the built-in Kuromoji](https://github.com/apache/lucene/blob/305d9ebb86b74dea725ed38f2ae3d8bc1b107ed5/lucene/analysis/kuromoji/src/java/org/apache/lucene/analysis/ja/JapaneseAnalyzer.java#L109-L116)
+- Leverage as much as possible the other good work by the [Sudachi](https://github.com/WorksApplications/Sudachi) owners, the [elasticsearch-sudachi](https://github.com/WorksApplications/elasticsearch-sudachi) plugin.
+- Minimize as much as possible amount of configuration that the user has to do when configuring the plugin in Solr. For example, the Sudachi dictionary will be downloaded behind the scenes and unpacked in the right location for the consumption by the plugin at runtime.
 
 [`Back to top`](#table-of-contents)
 
-## Prerequisites
+## Plugin compatibility with Lucene and Solr
 
-### Downloading a Sudachi dictionary
+Since the plugin tightly coupled with Lucene, being compatible with a given version of Lucene makes the plugin compatible with the same version of Solr.
+
+The plugin repository `master` branch is compatible with the following versions of Lucene, you can also check the Docker files under the [src/smokeTest](src/smokeTest)
+- All version of Lucene and Solr within the [v7.0.0 - v7.7.3 version range](src/smokeTest/solr_7.x.x)
+- All version of Lucene and Solr within the [v8.0.0 - v8.11.2 version range](src/smokeTest/solr_8.x.x)
+
+### Caveat re: Lucene and Solr v9.x.x
+
+If you are running Solr `v9.x.x`, you need to checkout `lucene-v9.x.x` repository branch before plugin installation and configuration. The plugin repository `lucene-v9.x.x` branch is compatible with the Lucene `v9.x.x`
+
+[`Back to top`](#table-of-contents)
+
+## Plugin installation and configuration
+
+Whether you are running Solr in Docker environment or on a bare metal machine, the installation and configuration are the same. The steps that need to happen are pretty much the flow of the Dockerfiles under you can also check the Docker files under the [src/smokeTest](src/smokeTest). Run the following commands:
+
+### Configuring the dictionaries and building a plugin uber jar 
+
+1. Clone the repository
+
+   `git clone https://github.com/azagniotov/solr-lucene-analyzer-sudachi.git --branch master --depth 1`
+
+2. Change to the cloned directory
+
+   `cd solr-lucene-analyzer-sudachi`
+
+3. Download and configure dictionaries locally
+
+   `./gradlew configureDictionariesLocally`
+
+4. Assemble the plugin uber jar
+
+   `./gradlew assemble`
+
+5. Copy the built plugin jar to the Solr home lib directory
+
+   `cp ./build/libs/solr-lucene-analyzer-sudachi*.jar /opt/solr/server/solr-webapp/webapp/WEB-INF/lib`
+
+[`Back to top`](#table-of-contents)
+
+### Solr schema configuration
+
+Configure the `schema.xml` (or a `managed-schema` file) with the following configuration for the `text_ja` field:
+
+```xml
+<fieldType name="text_ja" class="solr.TextField" autoGeneratePhraseQueries="false" positionIncrementGap="100">
+    <analyzer>
+      <tokenizer class="io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory" mode="search" discardPunctuation="true" />
+      <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilterFactory" />
+      <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilterFactory" tags="lang/stoptags_ja.txt" />
+      <filter class="solr.CJKWidthFilterFactory" />
+      <!-- Removes common tokens typically not useful for search, but have a negative effect on ranking -->
+      <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_ja.txt" />
+      <!-- Normalizes common katakana spelling variations by removing any last long sound character (U+30FC) -->
+      <filter class="solr.JapaneseKatakanaStemFilterFactory" minimumLength="4" />
+      <!-- Lower-cases romaji characters -->
+      <filter class="solr.LowerCaseFilterFactory" />
+    </analyzer>
+  </fieldType>
+```
+
+[`Back to top`](#table-of-contents)
+
+
+## Local Development
+
+### Prerequisites
+
+#### Downloading a Sudachi dictionary
 
 The plugin needs a dictionary in order to run the tests, thus, it needs to be downloaded using the following command:
 
@@ -47,8 +117,6 @@ The above command does the following:
 3. Builds a Sudachi user dictionary from the CSV under the `/tmp/sudachi/`
 
 [`Back to top`](#table-of-contents)
-
-## Local Development
 
 ### System Requirements
 
