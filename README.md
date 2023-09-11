@@ -19,6 +19,7 @@
   * [Testing](#testing)
     * [Unit tests](#unit-tests)
     * [Integration tests](#integration-tests)
+    * [Functional tests](#functional-tests)
 * [Licenses](#licenses)
   * [Sudachi and Sudachi Logo](#sudachi-and-sudachi-logo)
   * [Lucene](#lucene)
