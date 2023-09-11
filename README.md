@@ -1,5 +1,3 @@
-# UNDER DEVELOPMENT. THIS IS A WiP [NOT READY FOR PRODUCTION USE]
-
 # Solr Lucene Analyzer Sudachi
 <img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" /> [Sudachi](https://github.com/WorksApplications/Sudachi) を活用した日本語解析のための Lucene プラグイン <img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" /> A Lucene-based plugin on [Sudachi](https://github.com/WorksApplications/Sudachi) <img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" />
 
@@ -46,7 +44,7 @@ The plugin repository `master` branch is compatible with the following versions 
 
 ### Caveat re: Lucene and Solr v9.x.x
 
-If you are running Solr `v9.x.x`, you need to checkout [lucene-v9.x.x](https://github.com/azagniotov/solr-lucene-analyzer-sudachi/tree/lucene-v9.x.x) branch before plugin installation and configuration. The plugin repository `lucene-v9.x.x` branch is compatible with the Lucene `v9.x.x`
+If you are running Solr `v9.x.x`, you need to checkout [lucene-v9.x.x](https://github.com/azagniotov/solr-lucene-analyzer-sudachi/tree/lucene-v9.x.x) branch before plugin installation and configuration. The plugin `lucene-v9.x.x` branch is compatible with the Lucene `v9.x.x`
 
 [`Back to top`](#table-of-contents)
 
@@ -75,6 +73,10 @@ Whether you are running Solr in Docker environment or on a bare metal machine, t
 5. Copy the built plugin jar to the Solr home lib directory
 
    `cp ./build/libs/solr-lucene-analyzer-sudachi*.jar /opt/solr/server/solr-webapp/webapp/WEB-INF/lib`
+
+6. [**When installing on bare metal machines**] Sanity check Unix file permissions
+
+   Check the directory permissions to make sure that Solr can read the files under /tmp/sudachi/
 
 [`Back to top`](#table-of-contents)
 
@@ -124,6 +126,7 @@ The above command does the following:
 ### System Requirements
 
 - The plugin keeps Java 8 source compatibility at the moment
+- JDK 8
 
 ### Build System
 
@@ -177,6 +180,16 @@ To run integration tests, run the following command:
 
 ```bash
 ./gradlew integrationTest
+```
+
+#### Functional tests
+
+The meaning of `functional` is that the test sources extend from `org.apache.lucene.analysis.BaseTokenStreamTestCase` in order to spin-up the Lucene ecosystem and also create a searchable document index in the local filesystem for the purpose of the tests.
+
+To run functional tests, run the following command:
+
+```bash
+./gradlew functionalTest
 ```
 
 [`Back to top`](#table-of-contents)
