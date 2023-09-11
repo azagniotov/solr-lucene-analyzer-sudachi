@@ -19,7 +19,7 @@
  ########################################################################################
 FROM gradle:8.1.1-jdk8@sha256:d8fafc7e609e448356880e74642debf8be212121e5f97b1eacb9f5a0cba020f5 AS BUILD_JAR_STAGE
 
-ARG REVISION=master
+ARG REVISION=lucene-v9.x.x
 
 ENV GRADLE_USER_HOME=/home/gradle
 WORKDIR $GRADLE_USER_HOME
@@ -38,7 +38,7 @@ RUN cd solr-lucene-analyzer-sudachi && \
 ########################################################################################
 # Stage 2 : Run Solr
 ########################################################################################
-FROM solr:8.11.2@sha256:bff7ee4fbb7a3c846a7d603ca0e7d3f1ea25e12ee875e340d2ec2ea95ee87b15
+FROM solr:9.3.0@sha256:35ba29307eefb118f1b5cf690f6a755b11ab97d5644d56ac8fb0f1c653048b80
 
 MAINTAINER Alexander Zagniotov <azagniotov@gmail.com>
 
@@ -57,7 +57,7 @@ USER root
 COPY --from=BUILD_JAR_STAGE $SUDACHI_DICT_HOME/system-dict/system_core.dic $SUDACHI_DICT_HOME/system-dict/system_core.dic
 COPY --from=BUILD_JAR_STAGE $SUDACHI_DICT_HOME/user_lexicon.dic $SUDACHI_DICT_HOME/user_lexicon.dic
 COPY --from=BUILD_JAR_STAGE /home/gradle/solr-lucene-analyzer-sudachi/build/libs/solr-lucene-analyzer-sudachi*.jar $SOLR_WEB_INF_LIB_HOME/
-COPY schema.xml $SOLR_SERVER_HOME/solr/configsets/_default/conf/managed-schema
+COPY schema.xml $SOLR_SERVER_HOME/solr/configsets/_default/conf/managed-schema.xml
 
 RUN chown -R solr:solr /tmp/sudachi
 

@@ -1,12 +1,10 @@
-# UNDER DEVELOPMENT. THIS IS A WiP [NOT READY FOR PRODUCTION USE]
-
 # Solr Lucene Analyzer Sudachi
 <img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" /> [Sudachi](https://github.com/WorksApplications/Sudachi) を活用した日本語解析のための Lucene プラグイン <img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" /> A Lucene-based plugin on [Sudachi](https://github.com/WorksApplications/Sudachi) <img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" />
 
 ## Table of Contents
 * [Plugin philosophy](#plugin-philosophy)
 * [Plugin compatibility with Lucene and Solr](#plugin-compatibility-with-lucene-and-solr)
-  * [Caveat re: Lucene and Solr v9.x.x](#caveat-re-lucene-and-solr-v9xx)
+  * [Caveat re: Lucene and Solr versions below v9.x.x](#caveat-re-lucene-and-solr-versions-below-v9xx)
 * [Plugin installation and configuration](#plugin-installation-and-configuration)
   * [Configuring the dictionaries and building a plugin uber jar](#configuring-the-dictionaries-and-building-a-plugin-uber-jar)
   * [Solr schema configuration](#solr-schema-configuration)
@@ -40,13 +38,12 @@ The plugin strives to where possible:
 
 Since the plugin tightly coupled with Lucene, being compatible with a given version of Lucene makes the plugin compatible with the same version of Solr.
 
-The plugin repository `master` branch is compatible with the following versions of Lucene, you can also check the Docker files under the [src/smokeTest](src/smokeTest)
-- All version of Lucene and Solr within the [v7.0.0 - v7.7.3 version range](src/smokeTest/solr_7.x.x)
-- All version of Lucene and Solr within the [v8.0.0 - v8.11.2 version range](src/smokeTest/solr_8.x.x)
+The plugin repository current `lucene-v9.x.x` branch is compatible with the following versions of Lucene, you can also check the Docker files under the [src/smokeTest](src/smokeTest)
+- All version of Lucene and Solr within the [v9.0.0 - v9.3.0 version range](src/smokeTest/solr_9.x.x)
 
-### Caveat re: Lucene and Solr v9.x.x
+### Caveat re: Lucene and Solr versions below v9.x.x
 
-If you are running Solr `v9.x.x`, you need to checkout [lucene-v9.x.x](https://github.com/azagniotov/solr-lucene-analyzer-sudachi/tree/lucene-v9.x.x) branch before plugin installation and configuration. The plugin repository `lucene-v9.x.x` branch is compatible with the Lucene `v9.x.x`
+If you are running Solr version **below** `v9.x.x`, you need to checkout [master](https://github.com/azagniotov/solr-lucene-analyzer-sudachi/tree/master) branch before plugin installation and configuration. The plugin `master` branch is compatible with the Lucene [v8.x.x](https://github.com/azagniotov/solr-lucene-analyzer-sudachi/tree/master/src/smokeTest/solr_8.x.x) and [v7.x.x](https://github.com/azagniotov/solr-lucene-analyzer-sudachi/tree/master/src/smokeTest/solr_7.x.x)
 
 [`Back to top`](#table-of-contents)
 
@@ -75,6 +72,11 @@ Whether you are running Solr in Docker environment or on a bare metal machine, t
 5. Copy the built plugin jar to the Solr home lib directory
 
    `cp ./build/libs/solr-lucene-analyzer-sudachi*.jar /opt/solr/server/solr-webapp/webapp/WEB-INF/lib`
+
+6. [**When installing on bear metal machines**] Sanity check Unix file permissions
+
+   Check the directory permissions to make sure that Solr can read the files under `/tmp/sudachi/`
+
 
 [`Back to top`](#table-of-contents)
 
