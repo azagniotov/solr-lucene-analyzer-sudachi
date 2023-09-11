@@ -26,17 +26,17 @@ import io.github.azagniotov.lucene.analysis.ja.sudachi.cache.DictionaryCache;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Map;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.util.ResourceLoader;
 import org.apache.lucene.analysis.util.ResourceLoaderAware;
 import org.apache.lucene.analysis.util.TokenizerFactory;
 import org.apache.lucene.util.AttributeFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SudachiTokenizerFactory extends TokenizerFactory implements ResourceLoaderAware {
 
-    private static final Logger LOGGER = LogManager.getLogger(SudachiTokenizerFactory.class.getName());
+    private static final Logger LOGGER = LoggerFactory.getLogger(SudachiTokenizerFactory.class);
 
     private static final String MODE = "mode";
     private static final String MODE_SEARCH = "search";
@@ -74,20 +74,19 @@ public class SudachiTokenizerFactory extends TokenizerFactory implements Resourc
 
     private Dictionary buildOrGetCached() throws IOException {
         if (DictionaryCache.INSTANCE.isEmpty()) {
-            LOGGER.info(" ### Dictionary Cache is empty ###");
+            LOGGER.info("Sudachi: Dictionary Cache is empty");
 
             final Config currentConfig = this.config == null ? Config.defaultConfig() : this.config;
             final Config config = currentConfig
                     .systemDictionary(Paths.get(SYSTEM_DICT_LOCAL_PATH))
                     .addUserDictionary(Paths.get(USER_DICT_LOCAL_PATH));
-            LOGGER.info(" ### Created Sudachi config from system and user dictionaries ###");
+            LOGGER.info("Sudachi: Created config from system and user dictionaries");
 
             final Dictionary dictionary = new DictionaryFactory().create(config);
             DictionaryCache.INSTANCE.cache(dictionary);
-            LOGGER.info(" ### Created and cached Sudachi Dictionary instance ###");
+            LOGGER.info("Sudachi: Created and cached Sudachi Dictionary instance");
             return dictionary;
         } else {
-            LOGGER.info(" ### Got Sudachi Dictionary instance from the Cache ###");
             return DictionaryCache.INSTANCE.get();
         }
     }

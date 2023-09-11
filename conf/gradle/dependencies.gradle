@@ -16,20 +16,13 @@
 
 dependencies {
     api "com.worksap.nlp:sudachi:${sudachiVersion}"
-    api "org.apache.logging.log4j:log4j-core:2.17.2"
+
+    api "org.slf4j:slf4j-api:2.0.9"
+    api "org.apache.logging.log4j:log4j-slf4j2-impl:${log4j2Version}"
+    api "org.apache.logging.log4j:log4j-api:${log4j2Version}"
 
     api "org.apache.lucene:lucene-core:${solrVersion}"
     api "org.apache.lucene:lucene-analyzers-common:${solrVersion}"
     api "org.apache.lucene:lucene-analyzers-kuromoji:${solrVersion}"
     // See conf/tests.gradle for test related dependencies
-}
-
-configurations.api {
-    // Default Japanese tokenizer
-    exclude group: "org.apache.lucene", module: "lucene-analysis-kuromoji"
-    // Default Korean tokenizer
-    // exclude group: "org.apache.lucene", module: "lucene-analysis-nori"
-
-    exclude group: "org.apache.solr", module: "solr-solrj-zookeeper"
-    exclude group: "org.apache.solr", module: "solr-solrj-streaming"
 }
