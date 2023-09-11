@@ -73,7 +73,7 @@ Whether you are running Solr in Docker environment or on a bare metal machine, t
 
    `cp ./build/libs/solr-lucene-analyzer-sudachi*.jar /opt/solr/server/solr-webapp/webapp/WEB-INF/lib`
 
-6. [**When installing on bear metal machines**] Sanity check Unix file permissions
+6. [**When installing on bare metal machines**] Sanity check Unix file permissions
 
    Check the directory permissions to make sure that Solr can read the files under `/tmp/sudachi/`
 
