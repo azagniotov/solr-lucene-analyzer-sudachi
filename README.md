@@ -46,7 +46,7 @@ The plugin repository `master` branch is compatible with the following versions 
 
 ### Caveat re: Lucene and Solr v9.x.x
 
-If you are running Solr `v9.x.x`, you need to checkout `lucene-v9.x.x` repository branch before plugin installation and configuration. The plugin repository `lucene-v9.x.x` branch is compatible with the Lucene `v9.x.x`
+If you are running Solr `v9.x.x`, you need to checkout [lucene-v9.x.x](https://github.com/azagniotov/solr-lucene-analyzer-sudachi/tree/lucene-v9.x.x) branch before plugin installation and configuration. The plugin repository `lucene-v9.x.x` branch is compatible with the Lucene `v9.x.x`
 
 [`Back to top`](#table-of-contents)
 

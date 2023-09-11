@@ -81,6 +81,7 @@ public class SudachiPartOfSpeechStopFilterFactory extends TokenFilterFactory imp
                     char[] chars = (char[]) element;
                     tags.add(StopTags.parse(new String(chars)));
                 }
+                LOGGER.info("Sudachi: Loaded {} stop tags from the provided files {}", tags.size(), this.stopTagFiles);
                 this.stopTags = tags;
             } else {
                 LOGGER.info("Sudachi: Could not load stop tags from the provided files {}", this.stopTagFiles);
