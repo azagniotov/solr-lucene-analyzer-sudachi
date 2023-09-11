@@ -82,7 +82,7 @@ Whether you are running Solr in Docker environment or on a bare metal machine, t
 
 ### Solr schema configuration
 
-Configure the `schema.xml` (or a `managed-schema` file) with the following configuration for the `text_ja` field:
+Configure the `schema.xml` (or a `managed-schema.xml` file) with the following configuration for the `text_ja` field:
 
 ```xml
 <fieldType name="text_ja" class="solr.TextField" autoGeneratePhraseQueries="false" positionIncrementGap="100">
@@ -126,6 +126,7 @@ The above command does the following:
 ### System Requirements
 
 - The plugin keeps Java 8 source compatibility at the moment
+- JDK 11 (See [https://issues.apache.org/jira/browse/LUCENE-8738](https://issues.apache.org/jira/browse/LUCENE-8738))
 
 ### Build System
 
