@@ -22,6 +22,7 @@ import com.worksap.nlp.sudachi.PartialPOS;
 import com.worksap.nlp.sudachi.PosMatcher;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.analyzer.SudachiAnalyzer;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.cache.DictionaryCache;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.util.StopTags;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,8 +34,12 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.util.ResourceLoader;
 import org.apache.lucene.analysis.util.ResourceLoaderAware;
 import org.apache.lucene.analysis.util.TokenFilterFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SudachiPartOfSpeechStopFilterFactory extends TokenFilterFactory implements ResourceLoaderAware {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SudachiTokenizerFactory.class);
 
     private final String stopTagFiles;
     private List<PartialPOS> stopTags;
@@ -43,6 +48,7 @@ public class SudachiPartOfSpeechStopFilterFactory extends TokenFilterFactory imp
         super(args);
         this.stopTagFiles = get(args, "tags");
         if (stopTagFiles == null) {
+            LOGGER.info("Sudachi: empty 'tags' parameter given. Loading default stop tags instead");
             this.stopTags = SudachiAnalyzer.getDefaultStopTags();
         }
         if (!args.isEmpty()) {
@@ -77,6 +83,7 @@ public class SudachiPartOfSpeechStopFilterFactory extends TokenFilterFactory imp
                 }
                 this.stopTags = tags;
             } else {
+                LOGGER.info("Sudachi: Could not load stop tags from the provided files {}", this.stopTagFiles);
                 this.stopTags = Collections.emptyList();
             }
         }

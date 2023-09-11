@@ -25,8 +25,6 @@ import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiMorphem
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Iterator;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
@@ -34,8 +32,6 @@ import org.apache.lucene.analysis.tokenattributes.PositionLengthAttribute;
 import org.apache.lucene.util.AttributeFactory;
 
 public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer {
-
-    private static final Logger LOGGER = LogManager.getLogger(SudachiTokenizer.class.getName());
 
     private MorphemeIterator morphemeIterator;
     private final CharTermAttribute termAtt;

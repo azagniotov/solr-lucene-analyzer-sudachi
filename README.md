@@ -4,9 +4,12 @@
 <img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" /> [Sudachi](https://github.com/WorksApplications/Sudachi) を活用した日本語解析のための Lucene プラグイン <img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" /> A Lucene-based plugin on [Sudachi](https://github.com/WorksApplications/Sudachi) <img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" />
 
 ## Table of Contents
-<!-- TOC -->
 * [Plugin philosophy](#plugin-philosophy)
-
+* [Plugin compatibility with Lucene and Solr](#plugin-compatibility-with-lucene-and-solr)
+  * [Caveat re: Lucene and Solr v9.x.x](#caveat-re-lucene-and-solr-v9xx)
+* [Plugin installation and configuration](#plugin-installation-and-configuration)
+  * [Configuring the dictionaries and building a plugin uber jar](#configuring-the-dictionaries-and-building-a-plugin-uber-jar)
+  * [Solr schema configuration](#solr-schema-configuration)
 * [Local Development](#local-development)
   * [Prerequisites](#prerequisites)
     * [Downloading a Sudachi dictionary](#downloading-a-sudachi-dictionary)
@@ -61,7 +64,7 @@ Whether you are running Solr in Docker environment or on a bare metal machine, t
 
    `cd solr-lucene-analyzer-sudachi`
 
-3. Download and configure dictionaries locally
+3. Download and configure dictionaries locally (see [Downloading a Sudachi dictionary](#downloading-a-sudachi-dictionary) for more information about the behavior of this command)
 
    `./gradlew configureDictionariesLocally`
 
