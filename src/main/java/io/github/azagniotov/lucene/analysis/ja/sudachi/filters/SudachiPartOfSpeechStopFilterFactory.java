@@ -30,10 +30,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.lucene.analysis.CharArraySet;
+import org.apache.lucene.analysis.TokenFilterFactory;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.util.ResourceLoader;
-import org.apache.lucene.analysis.util.ResourceLoaderAware;
-import org.apache.lucene.analysis.util.TokenFilterFactory;
+import org.apache.lucene.util.ResourceLoader;
+import org.apache.lucene.util.ResourceLoaderAware;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

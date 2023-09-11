@@ -19,8 +19,8 @@ import com.worksap.nlp.sudachi.Config;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.test.TestUtils;
 import java.io.IOException;
 import java.util.Collections;
-import org.apache.lucene.analysis.BaseTokenStreamTestCase;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.tests.analysis.BaseTokenStreamTestCase;
 import org.junit.Test;
 
 public class SudachiBaseFormFilterTest extends BaseTokenStreamTestCase {

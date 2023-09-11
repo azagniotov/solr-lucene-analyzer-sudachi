@@ -4,7 +4,6 @@ import io.github.azagniotov.lucene.analysis.ja.sudachi.analyzer.SudachiAnalyzer;
 import java.io.File;
 import java.nio.file.Files;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.BaseTokenStreamTestCase;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -22,6 +21,7 @@ import org.apache.lucene.search.TopFieldCollector;
 import org.apache.lucene.search.TotalHitCountCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
+import org.apache.lucene.tests.analysis.BaseTokenStreamTestCase;
 import org.junit.Test;
 
 public class LuceneQueryIndexTest extends BaseTokenStreamTestCase {

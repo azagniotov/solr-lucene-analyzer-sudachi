@@ -23,9 +23,9 @@ import io.github.azagniotov.lucene.analysis.ja.sudachi.test.TestUtils;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.util.StringResourceLoader;
 import java.io.IOException;
 import java.util.HashMap;
-import org.apache.lucene.analysis.BaseTokenStreamTestCase;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.util.ClasspathResourceLoader;
+import org.apache.lucene.tests.analysis.BaseTokenStreamTestCase;
+import org.apache.lucene.util.ClasspathResourceLoader;
 import org.junit.Test;
 
 public class SudachiPartOfSpeechStopFilterTest extends BaseTokenStreamTestCase {
