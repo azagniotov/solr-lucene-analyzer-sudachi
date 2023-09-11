@@ -17,7 +17,7 @@
 ########################################################################################
 # Stage 1 : Solr Lucene Analyzer Sudachi JAR
  ########################################################################################
-FROM gradle:8.1.1-jdk8@sha256:d8fafc7e609e448356880e74642debf8be212121e5f97b1eacb9f5a0cba020f5 AS BUILD_JAR_STAGE
+FROM gradle:8.1.1-jdk11@sha256:681c18e70745546bf66949861d18019b979810ac151a5e0933d4ff83c76b4f5f AS BUILD_JAR_STAGE
 
 ARG REVISION=lucene-v9.x.x
 

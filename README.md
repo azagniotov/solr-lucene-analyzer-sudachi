@@ -55,7 +55,7 @@ Whether you are running Solr in Docker environment or on a bare metal machine, t
 
 1. Clone the repository
 
-   `git clone https://github.com/azagniotov/solr-lucene-analyzer-sudachi.git --branch master --depth 1`
+   `git clone https://github.com/azagniotov/solr-lucene-analyzer-sudachi.git --branch lucene-v9.x.x --depth 1`
 
 2. Change to the cloned directory
 
