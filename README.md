@@ -1,5 +1,5 @@
 # Solr Lucene Analyzer Sudachi
-<img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" /> [Sudachi](https://github.com/WorksApplications/Sudachi) を活用した日本語解析のための Lucene プラグイン <img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" /> A Lucene-based plugin on [Sudachi](https://github.com/WorksApplications/Sudachi) <img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" />
+<img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" /> [Sudachi](https://github.com/WorksApplications/Sudachi) を活用してる日本語解析 Lucene プラグイン <img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" /> A Lucene-based plugin on [Sudachi](https://github.com/WorksApplications/Sudachi) <img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" /> for Japanese morphological analysis
 
 ## Table of Contents
 * [Plugin philosophy](#plugin-philosophy)
@@ -23,21 +23,21 @@
 * [Licenses](#licenses)
   * [Sudachi and Sudachi Logo](#sudachi-and-sudachi-logo)
   * [Lucene](#lucene)
-  * [Solr Lucene Analyzer Sudachi](#solr-lucene-analyzer-sudachi)
+  * [Current work](#current-work)
 <!-- TOC -->
 
 ## Plugin philosophy
 
 The plugin strives to where possible:
 
-- Leverage as much as possible the other good work by the [Sudachi](https://github.com/WorksApplications/Sudachi) owners, the [elasticsearch-sudachi](https://github.com/WorksApplications/elasticsearch-sudachi) plugin.
-- Minimize as much as possible amount of configuration that the user has to do when configuring the plugin in Solr. For example, the Sudachi dictionary will be downloaded behind the scenes and unpacked in the right location for the consumption by the plugin at runtime.
+- Leverage as much as possible the other good work by the [Sudachi](https://github.com/WorksApplications/Sudachi) owners, in particular the [elasticsearch-sudachi](https://github.com/WorksApplications/elasticsearch-sudachi) plugin.
+- Minimize as much as possible the amount of configuration that the user has to do when configuring the plugin in Solr. For example, the Sudachi dictionary will be downloaded behind the scenes and unpacked in the right location for the consumption by the plugin at runtime.
 
 [`Back to top`](#table-of-contents)
 
 ## Plugin compatibility with Lucene and Solr
 
-Since the plugin tightly coupled with Lucene, being compatible with a given version of Lucene makes the plugin compatible with the same version of Solr.
+Since the plugin is tightly coupled with Lucene, being compatible with a given version of Lucene makes the plugin compatible with the same version of Solr.
 
 The plugin repository current `lucene-v9.x.x` branch is compatible with the following versions of Lucene, you can also check the Docker files under the [src/smokeTest](src/smokeTest)
 - All version of Lucene and Solr within the [v9.0.0 - v9.3.0 version range](src/smokeTest/solr_9.x.x)
@@ -50,9 +50,9 @@ If you are running Solr version **below** `v9.x.x`, you need to checkout [master
 
 ## Plugin installation and configuration
 
-Whether you are running Solr in Docker environment or on a bare metal machine, the installation and configuration are the same. The steps that need to happen are pretty much the flow of the Dockerfiles under you can also check the Docker files under the [src/smokeTest](src/smokeTest). Run the following commands:
+Whether you are running Solr in Docker environment or on a bare metal machine, the installation and configuration are the same. The steps that need to happen are pretty much those that are taken in the Dockerfiles under the [src/smokeTest](src/smokeTest). Run the following commands:
 
-### Configuring the dictionaries and building a plugin uber jar 
+### Configuring the dictionaries and building the plugin uber jar
 
 1. Clone the repository
 
@@ -111,7 +111,7 @@ Configure the `schema.xml` (or a `managed-schema.xml` file) with the following c
 
 #### Downloading a Sudachi dictionary
 
-The plugin needs a dictionary in order to run the tests, thus, it needs to be downloaded using the following command:
+The plugin needs a dictionary in order to run the tests. Thus, it needs to be downloaded using the following command:
 
 ```bash
 ./gradlew configureDictionariesLocally
@@ -208,7 +208,7 @@ Sudachi logo by Works Applications Co., Ltd. is licensed under the [Apache Licen
 Lucene, a high-performance, full-featured text search engine library written in Java is licensed under the [Apache License, Version2.0](http://www.apache.org/licenses/LICENSE-2.0.html). See [https://lucene.apache.org/core/documentation.html](https://lucene.apache.org/core/documentation.html)
 
 
-### Solr Lucene Analyzer Sudachi
+### Current work
 
 The Lucene-based Solr plugin leveraging [Sudachi](https://github.com/WorksApplications/Sudachi) by Alexander Zagniotov is licensed under the [Apache License, Version2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
 
