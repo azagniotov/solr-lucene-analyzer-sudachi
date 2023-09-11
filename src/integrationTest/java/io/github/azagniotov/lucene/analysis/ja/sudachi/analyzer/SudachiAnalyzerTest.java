@@ -92,6 +92,9 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
 
     @Test
     public void testRepeatedKatakanaWord() throws Exception {
+        // When MeCabOovProviderPlugin is in use, a repeated Katakana word string does not get tokenized
+        // https://github.com/WorksApplications/Sudachi/issues/216
+
         final int limit = 8;
         final String katakanaWord = "テスト";
 
