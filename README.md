@@ -19,6 +19,7 @@
   * [Testing](#testing)
     * [Unit tests](#unit-tests)
     * [Integration tests](#integration-tests)
+    * [Functional tests](#functional-tests)
 * [Licenses](#licenses)
   * [Sudachi and Sudachi Logo](#sudachi-and-sudachi-logo)
   * [Lucene](#lucene)
@@ -174,12 +175,22 @@ To run unit tests, run the following command:
 
 #### Integration tests
 
-The meaning of `integration` is that the test sources extend from `org.apache.lucene.analysis.BaseTokenStreamTestCase` in order to spin-up the Lucene ecosystem.
+The meaning of `integration` is that the test sources extend from `org.apache.lucene.tests.analysis.BaseTokenStreamTestCase` in order to spin-up the Lucene ecosystem.
 
 To run integration tests, run the following command:
 
 ```bash
 ./gradlew integrationTest
+```
+
+#### Functional tests
+
+The meaning of `functional` is that the test sources extend from `org.apache.lucene.tests.analysis.BaseTokenStreamTestCase` in order to spin-up the Lucene ecosystem and also create a searchable document index in the local filesystem for the purpose of the tests.
+
+To run functional tests, run the following command:
+
+```bash
+./gradlew functionalTest
 ```
 
 [`Back to top`](#table-of-contents)
