@@ -22,7 +22,6 @@ dependencies {
     api "org.apache.logging.log4j:log4j-api:${log4j2Version}"
 
     api "org.apache.lucene:lucene-core:${solrVersion}"
-    api "org.apache.lucene:lucene-queryparser:${solrVersion}"
     api "org.apache.lucene:lucene-analysis-common:${solrVersion}"
     api "org.apache.lucene:lucene-analysis-kuromoji:${solrVersion}"
     // See conf/tests.gradle for test related dependencies
