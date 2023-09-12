@@ -21,6 +21,7 @@ import static org.apache.lucene.analysis.TokenStream.DEFAULT_TOKEN_ATTRIBUTE_FAC
 
 import com.worksap.nlp.sudachi.JapaneseDictionary;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.cache.DictionaryCache;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.util.NoOpResourceLoader;
 import java.util.HashMap;
 import java.util.Map;
 import org.testng.annotations.Test;
@@ -37,6 +38,7 @@ public class SudachiTokenizerFactoryTest {
             }
         };
         final SudachiTokenizerFactory sudachiTokenizerFactory = new SudachiTokenizerFactory(args);
+        sudachiTokenizerFactory.inform(new NoOpResourceLoader());
         final SudachiTokenizer sudachiTokenizer =
                 (SudachiTokenizer) sudachiTokenizerFactory.create(DEFAULT_TOKEN_ATTRIBUTE_FACTORY);
 

@@ -21,7 +21,9 @@ package io.github.azagniotov.lucene.analysis.ja.sudachi.analyzer;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilterFactory;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilterFactory;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.util.NoOpResourceLoader;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -59,15 +61,19 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
         final Analyzer analyzer = new Analyzer() {
             @Override
             protected TokenStreamComponents createComponents(final String fieldName) {
-                Tokenizer tokenizer = createTokenizer(new HashMap<>());
-                TokenStream stream = tokenizer;
+                try {
+                    Tokenizer tokenizer = createTokenizer(new HashMap<>());
+                    TokenStream stream = tokenizer;
 
-                stream = new SudachiBaseFormFilterFactory(new HashMap<>()).create(stream);
-                stream = new SudachiPartOfSpeechStopFilterFactory(new HashMap<>()).create(stream);
-                stream = new StopFilter(stream, new CharArraySet(16, true));
-                stream = new JapaneseKatakanaStemFilter(stream);
-                stream = new LowerCaseFilter(stream);
-                return new TokenStreamComponents(tokenizer, stream);
+                    stream = new SudachiBaseFormFilterFactory(new HashMap<>()).create(stream);
+                    stream = new SudachiPartOfSpeechStopFilterFactory(new HashMap<>()).create(stream);
+                    stream = new StopFilter(stream, new CharArraySet(16, true));
+                    stream = new JapaneseKatakanaStemFilter(stream);
+                    stream = new LowerCaseFilter(stream);
+                    return new TokenStreamComponents(tokenizer, stream);
+                } catch (IOException iox) {
+                    throw new UncheckedIOException(iox);
+                }
             }
         };
 
@@ -151,12 +157,13 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
         assertAnalyzesTo(analyzer, "ももたろう", new String[] {"もも"});
     }
 
-    private Tokenizer createTokenizer(final Map<String, String> args) {
+    private Tokenizer createTokenizer(final Map<String, String> args) throws IOException {
 
         final Map<String, String> map = new HashMap<>(args);
         map.put("mode", "search");
         map.put("discardPunctuation", "true");
         final SudachiTokenizerFactory factory = new SudachiTokenizerFactory(map);
+        factory.inform(new NoOpResourceLoader());
 
         return factory.create(AttributeFactory.DEFAULT_ATTRIBUTE_FACTORY);
     }

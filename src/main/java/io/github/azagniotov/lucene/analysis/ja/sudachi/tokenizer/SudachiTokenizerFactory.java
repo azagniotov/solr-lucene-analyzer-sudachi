@@ -63,16 +63,14 @@ public class SudachiTokenizerFactory extends TokenizerFactory implements Resourc
 
     @Override
     public Tokenizer create(final AttributeFactory factory) {
-        try {
-            final Dictionary dictionary = buildOrGetCached();
-            final com.worksap.nlp.sudachi.Tokenizer internalTokenizer = dictionary.create();
-            return new SudachiTokenizer(internalTokenizer, discardPunctuation, mode);
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Failed to create SudachiTokenizer", e);
-        }
+        final Dictionary dictionary = DictionaryCache.INSTANCE.get();
+        final com.worksap.nlp.sudachi.Tokenizer internalTokenizer = dictionary.create();
+
+        return new SudachiTokenizer(internalTokenizer, discardPunctuation, mode);
     }
 
-    private Dictionary buildOrGetCached() throws IOException {
+    @Override
+    public void inform(ResourceLoader loader) throws IOException {
         if (DictionaryCache.INSTANCE.isEmpty()) {
             LOGGER.info("Sudachi: Dictionary Cache is empty");
 
@@ -85,14 +83,8 @@ public class SudachiTokenizerFactory extends TokenizerFactory implements Resourc
             final Dictionary dictionary = new DictionaryFactory().create(config);
             DictionaryCache.INSTANCE.cache(dictionary);
             LOGGER.info("Sudachi: Created and cached Sudachi Dictionary instance");
-            return dictionary;
-        } else {
-            return DictionaryCache.INSTANCE.get();
         }
     }
-
-    @Override
-    public void inform(ResourceLoader loader) throws IOException {}
 
     private SplitMode getMode(final String input) {
         if (input != null) {

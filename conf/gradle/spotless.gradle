@@ -21,9 +21,5 @@ spotless {
         licenseHeaderFile(rootProject.file(".spotless/works.apps-apache-2.0-license.txt")).
                 named("works.apps").
                 onlyIfContentMatches("^(?!Alexander Zagniotov)(Works Applications)\$")
-
-        licenseHeaderFile(rootProject.file(".spotless/sh0nk-apache-2.0-license.txt")).
-                named("sh0nk").
-                onlyIfContentMatches("Sho Nakamura")
     }
 }
