@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2017-2023 Works Applications Co., Ltd.
- * Modifications copyright (c) 2023 Alexander Zagniotov
+ * Copyright (c) 2023 Alexander Zagniotov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,23 +16,14 @@
 
 package io.github.azagniotov.lucene.analysis.ja.sudachi.util;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import org.apache.lucene.analysis.util.ResourceLoader;
 
-public final class StringResourceLoader implements ResourceLoader {
-
-    private final String text;
-
-    public StringResourceLoader(final String text) {
-        this.text = text;
-    }
+public final class NoOpResourceLoader implements ResourceLoader {
 
     @Override
     public InputStream openResource(final String resource) {
-        // Disregarding the given parameter resource
-        return new ByteArrayInputStream(this.text.getBytes(StandardCharsets.UTF_8));
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override

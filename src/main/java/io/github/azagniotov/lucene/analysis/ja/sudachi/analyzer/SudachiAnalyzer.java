@@ -24,6 +24,7 @@ import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFi
 import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilterFactory;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizer;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.util.NoOpResourceLoader;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.util.StopTags;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.util.StopWords;
 import java.io.IOException;
@@ -103,15 +104,19 @@ public class SudachiAnalyzer extends StopwordAnalyzerBase {
 
     @Override
     protected TokenStreamComponents createComponents(final String fieldName) {
-        Tokenizer tokenizer = createTokenizer(new HashMap<>());
-        TokenStream stream = tokenizer;
+        try {
+            Tokenizer tokenizer = createTokenizer(new HashMap<>());
+            TokenStream stream = tokenizer;
 
-        stream = new SudachiBaseFormFilterFactory(new HashMap<>()).create(stream);
-        stream = new SudachiPartOfSpeechStopFilterFactory(new HashMap<>()).create(stream);
-        stream = new StopFilter(stream, this.stopwords);
-        stream = new JapaneseKatakanaStemFilter(stream);
-        stream = new LowerCaseFilter(stream);
-        return new TokenStreamComponents(tokenizer, stream);
+            stream = new SudachiBaseFormFilterFactory(new HashMap<>()).create(stream);
+            stream = new SudachiPartOfSpeechStopFilterFactory(new HashMap<>()).create(stream);
+            stream = new StopFilter(stream, this.stopwords);
+            stream = new JapaneseKatakanaStemFilter(stream);
+            stream = new LowerCaseFilter(stream);
+            return new TokenStreamComponents(tokenizer, stream);
+        } catch (IOException iox) {
+            throw new UncheckedIOException(iox);
+        }
     }
 
     @Override
@@ -135,12 +140,13 @@ public class SudachiAnalyzer extends StopwordAnalyzerBase {
         DictionaryCache.INSTANCE.invalidate();
     }
 
-    private Tokenizer createTokenizer(final Map<String, String> args) {
+    private Tokenizer createTokenizer(final Map<String, String> args) throws IOException {
 
         final Map<String, String> map = new HashMap<>(args);
         map.put("mode", this.mode);
         map.put("discardPunctuation", String.valueOf(this.discardPunctuation));
         final SudachiTokenizerFactory factory = new SudachiTokenizerFactory(map);
+        factory.inform(new NoOpResourceLoader());
 
         return factory.create(AttributeFactory.DEFAULT_ATTRIBUTE_FACTORY);
     }
