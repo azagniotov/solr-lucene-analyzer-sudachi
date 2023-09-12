@@ -105,11 +105,12 @@ public class SudachiAnalyzer extends StopwordAnalyzerBase {
     @Override
     protected TokenStreamComponents createComponents(final String fieldName) {
         try {
-            Tokenizer tokenizer = createTokenizer(new HashMap<>());
+            final Map<String, String> emptyArgs = new HashMap<>();
+            Tokenizer tokenizer = createTokenizer(emptyArgs);
             TokenStream stream = tokenizer;
 
-            stream = new SudachiBaseFormFilterFactory(new HashMap<>()).create(stream);
-            stream = new SudachiPartOfSpeechStopFilterFactory(new HashMap<>()).create(stream);
+            stream = new SudachiBaseFormFilterFactory(emptyArgs).create(stream);
+            stream = new SudachiPartOfSpeechStopFilterFactory(emptyArgs).create(stream);
             stream = new StopFilter(stream, this.stopwords);
             stream = new JapaneseKatakanaStemFilter(stream);
             stream = new LowerCaseFilter(stream);
