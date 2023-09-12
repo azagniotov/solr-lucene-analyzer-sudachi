@@ -39,8 +39,8 @@ class SentenceMorphemeIterator implements MorphemeIterator {
             this.sentencesTotalLength = morpheme.end();
             return morpheme;
         } else {
-            // The base offset is incremented again last time, since we need to add
-            // the length of the current sentence that we just processed.
+            // The base offset is incremented again for the last time, since we
+            // need to add the length of the current sentence that we just processed.
             // This value is used as final offset by the Tokenizer.end() method
             this.baseOffset += this.sentencesTotalLength;
             if (sentenceIterator.hasNext()) {

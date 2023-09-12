@@ -23,6 +23,8 @@ import com.worksap.nlp.sudachi.Config;
 import com.worksap.nlp.sudachi.JapaneseDictionary;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.cache.DictionaryCache;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.util.NoOpResourceLoader;
+import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,18 +38,19 @@ public class TestUtils {
         this.config = config;
     }
 
-    public TokenStream tokenize(final String input) {
+    public TokenStream tokenize(final String input) throws IOException {
         return tokenize(input, true, SplitMode.A);
     }
 
-    public TokenStream tokenize(final String input, final boolean discardPunctuation, final SplitMode splitMode) {
+    public TokenStream tokenize(final String input, final boolean discardPunctuation, final SplitMode splitMode)
+            throws IOException {
         final Tokenizer tokenizer = makeTokenizer(discardPunctuation, splitMode);
         tokenizer.setReader(new StringReader(input));
 
         return tokenizer;
     }
 
-    public Tokenizer makeTokenizer(final boolean discardPunctuation, final SplitMode splitMode) {
+    public Tokenizer makeTokenizer(final boolean discardPunctuation, final SplitMode splitMode) throws IOException {
         final String mode = splitMode == SplitMode.A ? "search" : (splitMode == SplitMode.B ? "normal" : "extended");
         final Map<String, String> args = new HashMap<String, String>() {
             {
@@ -57,6 +60,7 @@ public class TestUtils {
         };
         DictionaryCache.INSTANCE.invalidate();
         final SudachiTokenizerFactory sudachiTokenizerFactory = new SudachiTokenizerFactory(args, this.config);
+        sudachiTokenizerFactory.inform(new NoOpResourceLoader());
         final Tokenizer tokenizer = sudachiTokenizerFactory.create(DEFAULT_TOKEN_ATTRIBUTE_FACTORY);
 
         assert DictionaryCache.INSTANCE.get() != null;
