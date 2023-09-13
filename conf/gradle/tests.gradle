@@ -61,8 +61,10 @@ testing {
             useJUnit()
             dependencies {
                 implementation project()
+                implementation "commons-io:commons-io:2.8.0"
                 implementation "org.apache.lucene:lucene-queryparser:${solrVersion}"
                 implementation "org.apache.lucene:lucene-test-framework:${solrVersion}"
+                implementation "org.apache.solr:solr-test-framework:${solrVersion}"
                 implementation "junit:junit:4.13.2"
             }
 
