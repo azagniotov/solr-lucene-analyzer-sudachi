@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements. See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License. You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<!--
+
+ This example schema is the recommended starting point for users.
+ It should be kept correct and concise, usable out-of-the-box.
+
+
+ For more information, on how to customize this file, please see
+ http://lucene.apache.org/solr/guide/documents-fields-and-schema-design.html
+
+ PERFORMANCE NOTE: this schema includes many optional features and should not
+ be used for benchmarking. To improve performance one could
+ - set stored="false" for all fields possible (esp large fields) when you
+ only need to search on the field but don't need to return the original
+ value.
+ - set indexed="false" if you don't need to search on the field, but only
+ return the field as a result of searching on other indexed fields.
+ - remove all unneeded copyField statements
+ - for best index size and searching performance, set "index" to false
+ for all general text fields, use copyField to copy them to the
+ catchall "text" field, and use that for searching.
+-->
+<schema name="default-config" version="1.1">
+  <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+  <fieldType name="string" class="solr.StrField" sortMissingLast="true" docValues="true" />
+
+  <field name="terms_ja" type="text_ja" indexed="true" stored="true" required="true" />
+  <fieldType name="text_ja" class="solr.TextField" autoGeneratePhraseQueries="false" positionIncrementGap="100">
+    <analyzer>
+      <tokenizer class="io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory" mode="search" discardPunctuation="true" />
+      <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilterFactory" />
+      <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilterFactory" tags="lang/stoptags_ja.txt" />
+      <filter class="solr.CJKWidthFilterFactory" />
+      <!-- Removes common tokens typically not useful for search, but have a negative effect on ranking -->
+      <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_ja.txt" />
+      <!-- Normalizes common katakana spelling variations by removing any last long sound character (U+30FC) -->
+      <filter class="solr.JapaneseKatakanaStemFilterFactory" minimumLength="4" />
+      <!-- Lower-cases romaji characters -->
+      <filter class="solr.LowerCaseFilterFactory" />
+    </analyzer>
+  </fieldType>
+</schema>
