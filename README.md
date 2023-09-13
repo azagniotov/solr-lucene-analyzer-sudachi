@@ -20,6 +20,7 @@
     * [Unit tests](#unit-tests)
     * [Integration tests](#integration-tests)
     * [Functional tests](#functional-tests)
+    * [Smoke tests](#smoke-tests)
 * [Licenses](#licenses)
   * [Sudachi and Sudachi Logo](#sudachi-and-sudachi-logo)
   * [Lucene](#lucene)
@@ -185,13 +186,19 @@ To run integration tests, run the following command:
 
 #### Functional tests
 
-The meaning of `functional` is that the test sources extend from `org.apache.lucene.tests.analysis.BaseTokenStreamTestCase` in order to spin-up the Lucene ecosystem and also create a searchable document index in the local filesystem for the purpose of the tests.
+The meaning of `functional` is that the test sources may:
+1. Extend from `org.apache.lucene.analysis.BaseTokenStreamTestCase` in order to spin-up the Lucene ecosystem and also create a searchable document index in the local filesystem for the purpose of the tests; OR
+2. Extend from `org.apache.solr.SolrTestCaseJ4` in order to spin-up a Solr server instance using the `org.apache.solr.client.solrj.embedded.EmbeddedSolrServer`
 
 To run functional tests, run the following command:
 
 ```bash
 ./gradlew functionalTest
 ```
+
+#### Smoke tests
+
+Smoke tests utilize Docker Solr images to deploy the built plugin jar into Solr app. These tests are not automated (i.e.: they do not run on Ci) and should be executed manually. You can find the Dockerfiles under the [src/smokeTest](src/smokeTest)
 
 [`Back to top`](#table-of-contents)
 
