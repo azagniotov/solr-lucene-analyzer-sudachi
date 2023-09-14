@@ -48,6 +48,9 @@ java {
 repositories {
     mavenLocal()
     mavenCentral()
+    maven {
+        url "https://maven.restlet.talend.com"
+    }
 }
 
 apply from: "$rootDir/conf/gradle/dependencies.gradle"

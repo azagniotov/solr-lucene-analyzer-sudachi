@@ -8,7 +8,9 @@ final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter
 
 
 project.ext.lucenelessDependencies = configurations.runtimeClasspath.resolve().findAll { file ->
-    return !file.name.contains("lucene-") && !file.name.contains("-sources")
+    return file.name.contains("sudachi-") ||
+            file.name.contains("javax.json-") ||
+            file.name.contains("jdartsclone-")
 }
 
 project.ext.projectManifest = manifest {

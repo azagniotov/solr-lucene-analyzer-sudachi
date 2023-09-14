@@ -21,8 +21,9 @@ dependencies {
     api "org.apache.logging.log4j:log4j-slf4j-impl:${log4j2Version}"
     api "org.apache.logging.log4j:log4j-api:${log4j2Version}"
 
-    api "org.apache.lucene:lucene-core:${solrVersion}"
-    api "org.apache.lucene:lucene-analyzers-common:${solrVersion}"
-    api "org.apache.lucene:lucene-analyzers-kuromoji:${solrVersion}"
+    // Relying on the Solr directly would ensure that the correct Lucene version
+    // is pulled down, instead of trying to guess which Lucene version to use.
+    api "org.apache.solr:solr-core:${solrVersion}"
+
     // See conf/tests.gradle for test related dependencies
 }
