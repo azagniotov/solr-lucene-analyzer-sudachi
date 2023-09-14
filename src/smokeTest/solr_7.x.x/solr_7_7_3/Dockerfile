@@ -19,19 +19,19 @@
  ########################################################################################
 FROM gradle:8.1.1-jdk8@sha256:d8fafc7e609e448356880e74642debf8be212121e5f97b1eacb9f5a0cba020f5 AS BUILD_JAR_STAGE
 
-ARG REVISION=master
+ARG PLUGIN_GIT_TAG=7.7.3
 
 ENV GRADLE_USER_HOME=/home/gradle
 WORKDIR $GRADLE_USER_HOME
 
-RUN git clone https://github.com/azagniotov/solr-lucene-analyzer-sudachi.git --branch $REVISION --depth 1 && \
+RUN git clone -b v$PLUGIN_GIT_TAG https://github.com/azagniotov/solr-lucene-analyzer-sudachi.git --depth 1 && \
     git config --global user.name "Alexander Zagniotov" && \
     git config --global user.email "azagniotov@gmail.com"
 
 # Download the dictionary and assemble the JAR to be placed under Solr /opt/solr/server/solr-webapp/webapp/WEB-INF/lib/
 RUN cd solr-lucene-analyzer-sudachi && \
     gradle configureDictionariesLocally && \
-    gradle assemble && \
+    gradle -PsolrVersion=$PLUGIN_GIT_TAG assemble && \
     ls -al ./build/libs/
 
 
