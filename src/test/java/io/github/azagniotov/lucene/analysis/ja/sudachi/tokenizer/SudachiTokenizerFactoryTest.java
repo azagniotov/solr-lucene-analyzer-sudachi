@@ -31,7 +31,7 @@ public class SudachiTokenizerFactoryTest {
     @Test
     public void sudachiTokenizerCreated() throws Exception {
 
-        final Map<String, String> args = new HashMap<String, String>() {
+        final Map<String, String> args = new HashMap<>() {
             {
                 put("mode", "search");
                 put("discardPunctuation", "true");
