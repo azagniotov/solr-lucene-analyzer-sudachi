@@ -81,7 +81,8 @@ public class LuceneQueryIndexTest extends BaseTokenStreamTestCase {
         final int totalHits = totalHitCountCollector.getTotalHits();
         assertEquals(2, totalHits);
 
-        final TopFieldCollector documentCollector = TopFieldCollector.create(Sort.RELEVANCE, 10, true, false, false);
+        final TopFieldCollector documentCollector =
+                TopFieldCollector.create(Sort.RELEVANCE, 10, true, false, false, false);
         indexSearcher.search(query, documentCollector);
 
         final ScoreDoc[] scoreDocs = documentCollector.topDocs().scoreDocs;
