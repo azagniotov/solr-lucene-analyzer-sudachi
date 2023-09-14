@@ -17,7 +17,7 @@
 package io.github.azagniotov.lucene.analysis.ja.sudachi.util;
 
 import java.io.InputStream;
-import org.apache.lucene.analysis.util.ResourceLoader;
+import org.apache.lucene.util.ResourceLoader;
 
 public final class NoOpResourceLoader implements ResourceLoader {
 

@@ -41,7 +41,8 @@ javadoc {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(8)
+        // https://issues.apache.org/jira/browse/LUCENE-8738 Min version is JDK 11
+        languageVersion = JavaLanguageVersion.of(11)
     }
 }
 

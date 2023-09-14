@@ -16,8 +16,8 @@
 package io.github.azagniotov.lucene.analysis.ja.sudachi.filters;
 
 import java.util.Map;
+import org.apache.lucene.analysis.TokenFilterFactory;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.util.TokenFilterFactory;
 
 public class SudachiBaseFormFilterFactory extends TokenFilterFactory {
 

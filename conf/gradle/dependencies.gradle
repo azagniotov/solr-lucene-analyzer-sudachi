@@ -24,6 +24,7 @@ dependencies {
     // Relying on the Solr directly would ensure that the correct Lucene version
     // is pulled down, instead of trying to guess which Lucene version to use.
     api "org.apache.solr:solr-core:${solrVersion}"
+    api "org.apache.lucene:lucene-analysis-kuromoji:${solrVersion}"
 
     // See conf/tests.gradle for test related dependencies
 }
