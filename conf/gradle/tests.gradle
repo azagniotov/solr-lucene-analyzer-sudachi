@@ -62,7 +62,7 @@ testing {
             dependencies {
                 implementation project()
                 implementation "commons-io:commons-io:2.8.0"
-                implementation "org.apache.lucene:lucene-queryparser:${solrVersion}"
+                implementation "org.apache.lucene:lucene-queryparser:${luceneVersion}"
                 implementation "org.apache.solr:solr-test-framework:${solrVersion}"
                 implementation "junit:junit:4.13.2"
             }
@@ -72,6 +72,7 @@ testing {
                     testTask.configure {
                         systemProperty "test.solr.allowed.securerandom", "NativePRNG"
                         systemProperty "solr.log.dir", "/var/solr/logs"
+                        systemProperty "solr.install.dir", "."
                         shouldRunAfter(test)
                     }
                 }

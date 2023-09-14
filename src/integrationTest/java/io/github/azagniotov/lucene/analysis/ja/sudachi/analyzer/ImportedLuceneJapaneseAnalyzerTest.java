@@ -21,7 +21,7 @@ package io.github.azagniotov.lucene.analysis.ja.sudachi.analyzer;
 import java.io.IOException;
 import java.util.Random;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.BaseTokenStreamTestCase;
+import org.apache.lucene.tests.analysis.BaseTokenStreamTestCase;
 import org.junit.Ignore;
 import org.junit.Test;
 

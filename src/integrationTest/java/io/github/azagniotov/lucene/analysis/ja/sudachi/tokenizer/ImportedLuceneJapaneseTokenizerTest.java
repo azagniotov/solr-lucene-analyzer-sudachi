@@ -21,8 +21,8 @@ import static com.worksap.nlp.sudachi.Tokenizer.SplitMode;
 
 import com.worksap.nlp.sudachi.Config;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.test.TestUtils;
-import org.apache.lucene.analysis.BaseTokenStreamTestCase;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.tests.analysis.BaseTokenStreamTestCase;
 import org.junit.Before;
 
 public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase {
