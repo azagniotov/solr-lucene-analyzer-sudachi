@@ -1,7 +1,26 @@
-# Solr Lucene Analyzer Sudachi
-<img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" /> [Sudachi](https://github.com/WorksApplications/Sudachi) を活用してる日本語解析 Lucene プラグイン <img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" /> A Lucene plugin based on [Sudachi](https://github.com/WorksApplications/Sudachi) tokenizer for the Japanese morphological analysis <img align="center" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png" width="3%" height="3%" />
+<picture>
+  <a href="https://lucene.apache.org/"><img 
+  align="right"
+  width="20%" height="20%"
+  alt="Apache Lucene" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/Apache_Lucene_logo.svg/400px-Apache_Lucene_logo.svg.png"></a>
+</picture>
 
-## Table of Contents
+# Solr Lucene Analyzer Sudachi
+
+<picture>
+  <a href="https://github.com/WorksApplications/Sudachi"><img 
+  align="right"
+  width="12%" height="12%" 
+  alt="Sudachi by WorksApplications" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png"></a>
+</picture>
+
+[Sudachi](https://github.com/WorksApplications/Sudachi) を活用してる日本語解析 Lucene プラグイン
+
+A Lucene plugin based on [Sudachi](https://github.com/WorksApplications/Sudachi) tokenizer for the Japanese morphological analysis
+
+
+
+### Table of Contents
 * [Plugin philosophy](#plugin-philosophy)
 * [Plugin compatibility with Lucene and Solr](#plugin-compatibility-with-lucene-and-solr)
 * [Plugin installation and configuration](#plugin-installation-and-configuration)
@@ -204,9 +223,9 @@ Sudachi by Works Applications Co., Ltd. is licensed under the [Apache License, V
 
 Sudachi logo by Works Applications Co., Ltd. is licensed under the [Apache License, Version2.0](http://www.apache.org/licenses/LICENSE-2.0.html). See [https://github.com/WorksApplications/Sudachi#logo](https://github.com/WorksApplications/Sudachi#logo)
 
-### Lucene
+### Lucene and Lucene Logo
 
-Lucene, a high-performance, full-featured text search engine library written in Java is licensed under the [Apache License, Version2.0](http://www.apache.org/licenses/LICENSE-2.0.html). See [https://lucene.apache.org/core/documentation.html](https://lucene.apache.org/core/documentation.html)
+Lucene, a high-performance, full-featured text search engine library written in Java and its logo are licensed under the [Apache License, Version2.0](http://www.apache.org/licenses/LICENSE-2.0.html). See [https://lucene.apache.org/core/documentation.html](https://lucene.apache.org/core/documentation.html)
 
 
 ### Current work
