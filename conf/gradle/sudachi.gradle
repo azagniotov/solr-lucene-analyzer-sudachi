@@ -23,7 +23,7 @@ apply plugin: "de.undercouch.download"
 plugins.withType(JavaPlugin) {
     ext {
         targetDir = file("/tmp/sudachi")
-        dictionaryName = "sudachi-dictionary-20230711-core"
+        dictionaryName = "sudachi-dictionary-20230927-core"
     }
     task deleteDictionaryData() {
         doFirst {
@@ -75,6 +75,6 @@ plugins.withType(JavaPlugin) {
     task configureDictionariesLocally(type: Verify, dependsOn: buildUserDictionary) {
         src layout.buildDirectory.file("downloaded/${dictionaryName}.zip")
         algorithm "MD5"
-        checksum "806bd34246704cfcacc51829df42c505"
+        checksum "7fdc8eec40911f170d7c53bec35d0a5d"
     }
 }
