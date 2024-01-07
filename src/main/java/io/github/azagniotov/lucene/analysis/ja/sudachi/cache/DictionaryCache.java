@@ -8,7 +8,7 @@ public enum DictionaryCache {
     INSTANCE;
 
     private static final String CACHE_KEY = "dictionary";
-    public static final String SYSTEM_DICT_LOCAL_PATH = "/tmp/sudachi/system-dict/system_core.dic";
+    public static final String SYSTEM_DICT_LOCAL_PATH = "/tmp/sudachi/system-dict/system.dic";
     public static final String USER_DICT_LOCAL_PATH = "/tmp/sudachi/user_lexicon.dic";
 
     private final Map<String, Dictionary> dictionaryCache;
