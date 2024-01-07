@@ -92,7 +92,8 @@ public class LuceneQueryIndexTest extends BaseTokenStreamTestCase {
         assertEquals("ももたろうは日本のおとぎ話の一つ。", foundTwo.get("content"));
 
         final TokenStream tokenStreamOne = foundOne.getField("content").tokenStream(analyzer, null);
-        assertTokenStreamContents(tokenStreamOne, new String[] {"すもも", "もも", "もも"});
+        // 'Full' dictionary by Sudachi does not split this properly to すもも and もも
+        assertTokenStreamContents(tokenStreamOne, new String[] {"すもももももも", "もも"});
 
         final TokenStream tokenStreamTwo = foundTwo.getField("content").tokenStream(analyzer, null);
         // The "たろう" is removed by the Sudachi Analyzer because of:

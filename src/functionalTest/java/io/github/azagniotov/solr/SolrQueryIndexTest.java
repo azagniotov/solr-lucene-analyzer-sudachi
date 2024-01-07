@@ -71,7 +71,9 @@ public class SolrQueryIndexTest extends SolrTestCaseJ4 {
     @Test
     public void testMatchesSingleIndexedDocumentByTerm() throws Exception {
         final SolrQuery solrQuery = new SolrQuery();
-        solrQuery.setQuery("terms_ja:すもも");
+
+        // 'Full' dictionary by Sudachi does not split this properly to すもも and もも, thus, must pass in 'すもももももも'
+        solrQuery.setQuery("terms_ja:すもももももも");
 
         final QueryRequest queryRequest = new QueryRequest(solrQuery);
         final QueryResponse queryResponse = queryRequest.process(getSolrCore());
