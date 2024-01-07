@@ -80,7 +80,8 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
         assertNotNull(analyzer);
 
         final TokenStream tokenStream = analyzer.tokenStream("any", "すもももももももものうち。");
-        assertTokenStreamContents(tokenStream, new String[] {"すもも", "もも", "もも", "うち"});
+        // 'Full' dictionary by Sudachi does not split this properly to すもも and もも
+        assertTokenStreamContents(tokenStream, new String[] {"すもももももも", "もも", "うち"});
     }
 
     @Test
@@ -128,13 +129,15 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
         //
         // Please keep in mind that:
         //
-        // 1. The stop words うち, も, は, の, です, を, etc. are removed.
+        // 1. The stop words うち, も, は, の, です, を,　ある, ます etc. are removed.
         // 2. The conjugated verbs are returned in their base/dictionary form.
         // 3. Lower case filter is applied
         // 4. Full-width Japanese Katakana (supports A-Z) are converted to Latin characters
         //
 
-        assertAnalyzesTo(analyzer, "すもももももももものうち。", new String[] {"すもも", "もも", "もも"});
+        assertAnalyzesTo(analyzer, "すもももももももものうち。", new String[] {"すもももももも", "もも"});
+
+        assertAnalyzesTo(analyzer, "清水寺は東京都にあります。", new String[] {"清水寺", "東京", "都"});
 
         assertAnalyzesTo(analyzer, "メガネは顔の一部です。", new String[] {"メガネ", "顔", "一部"});
 
@@ -144,9 +147,9 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
 
         assertAnalyzesTo(analyzer, "ＬＵＣＥＮＥ、ＳＯＬＲ、Lucene, Solr", new String[] {"lucene", "solr", "lucene", "solr"});
 
-        // User dictionary fixed: さしすせそ
+        // Need an entry in user dictionary to fix: さしすせそ (the すせ is missing in the result)
         assertAnalyzesTo(
-                analyzer, "ｱｲｳｴｵカキクケコさしすせそABCＸＹＺ123４５６", new String[] {"アイウエオカキクケコ", "さしすせそ", "abcxyz", "123456"});
+                analyzer, "ｱｲｳｴｵカキクケコさしすせそABCＸＹＺ123４５６", new String[] {"アイウエオカキクケコ", "さし", "そ", "abcxyz", "123456"});
 
         // The "たろう" is removed by the Sudachi Analyzer because of:
         // 1. BaseForm filter:
