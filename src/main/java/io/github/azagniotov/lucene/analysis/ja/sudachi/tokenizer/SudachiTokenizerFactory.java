@@ -39,9 +39,6 @@ public class SudachiTokenizerFactory extends TokenizerFactory implements Resourc
     private static final Logger LOGGER = LoggerFactory.getLogger(SudachiTokenizerFactory.class);
 
     private static final String MODE = "mode";
-    private static final String MODE_SEARCH = "search";
-    private static final String MODE_NORMAL = "normal";
-    private static final String MODE_EXTENDED = "extended";
     private static final String DISCARD_PUNCTUATION = "discardPunctuation";
     private final SplitMode mode;
     private final boolean discardPunctuation;
@@ -88,11 +85,11 @@ public class SudachiTokenizerFactory extends TokenizerFactory implements Resourc
 
     private SplitMode getMode(final String input) {
         if (input != null) {
-            if (MODE_SEARCH.equalsIgnoreCase(input)) {
+            if (TokenizerMode.SEARCH.desc().equalsIgnoreCase(input)) {
                 return SplitMode.A;
-            } else if (MODE_NORMAL.equalsIgnoreCase(input)) {
+            } else if (TokenizerMode.NORMAL.desc().equalsIgnoreCase(input)) {
                 return SplitMode.B;
-            } else if (MODE_EXTENDED.equalsIgnoreCase(input)) {
+            } else if (TokenizerMode.EXTENDED.desc().equalsIgnoreCase(input)) {
                 return SplitMode.C;
             }
         }

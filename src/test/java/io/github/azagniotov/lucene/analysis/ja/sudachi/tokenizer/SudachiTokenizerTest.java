@@ -44,7 +44,7 @@ public class SudachiTokenizerTest {
     public static void beforeClass() throws Exception {
         final Map<String, String> args = new HashMap<String, String>() {
             {
-                put("mode", TokenizerMode.A.getMode());
+                put("mode", TokenizerMode.SEARCH.desc());
                 put("discardPunctuation", String.valueOf(DISCARD_PUNCTUATION));
             }
         };
