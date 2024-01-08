@@ -54,7 +54,7 @@ USER root
 # from analyzers => analysis at some point, thus using a wildcard.
 # RUN rm $SOLR_WEB_INF_LIB_HOME/lucene-*-kuromoji-*.jar
 
-COPY --from=BUILD_JAR_STAGE $SUDACHI_DICT_HOME/system-dict/system_core.dic $SUDACHI_DICT_HOME/system-dict/system_core.dic
+COPY --from=BUILD_JAR_STAGE $SUDACHI_DICT_HOME/system-dict/system.dic $SUDACHI_DICT_HOME/system-dict/system.dic
 COPY --from=BUILD_JAR_STAGE $SUDACHI_DICT_HOME/user_lexicon.dic $SUDACHI_DICT_HOME/user_lexicon.dic
 COPY --from=BUILD_JAR_STAGE /home/gradle/solr-lucene-analyzer-sudachi/build/libs/solr-lucene-analyzer-sudachi*.jar $SOLR_WEB_INF_LIB_HOME/
 COPY schema.xml $SOLR_SERVER_HOME/solr/configsets/_default/conf/managed-schema.xml
