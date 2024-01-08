@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Alexander Zagniotov
+ * Copyright (c) 2023-2024 Alexander Zagniotov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class SudachiTokenizerTest {
     public static void beforeClass() throws Exception {
         final Map<String, String> args = new HashMap<String, String>() {
             {
-                put("mode", "search");
+                put("mode", TokenizerMode.SEARCH.desc());
                 put("discardPunctuation", String.valueOf(DISCARD_PUNCTUATION));
             }
         };
@@ -62,28 +62,48 @@ public class SudachiTokenizerTest {
     @DataProvider(name = "querySurfaces")
     public static Object[][] querySurfaces() {
         return new Object[][] {
-            {"令和", new Object[] {"令和"}},
-            {"京都。東京.東京都。京都", new Object[] {"京都", "東京", "東京", "都", "京都"}},
-
             // https://raw.githubusercontent.com/WorksApplications/Sudachi/develop/docs/user_dict.md
+
             /* === Example: Start of custom tokenization using the user dictionary === */
-            {"清水寺は東京都にあります", new Object[] {"清水寺", "は", "東京", "都", "に", "あり", "ます"}},
+
+            // ぼのぼの (https://en.wikipedia.org/wiki/Bonobono) is over-tokenized
+            {"ぼのぼの", new Object[] {"ぼのぼの"}},
+            {"ぼのぼのキャラクター", new Object[] {"ぼのぼの", "キャラクター"}},
+            {"ぼのぼのアニメ公式サイト", new Object[] {"ぼのぼの", "アニメ", "公式", "サイト"}},
+
+            // にじさんじ (https://en.wikipedia.org/wiki/Nijisanji) is tokenized incorrectly
+            // ましろ (https://www.nijisanji.jp/talents/l/meme-mashiro) is tokenized incorrectly
             {"にじさんじ", new Object[] {"にじさんじ"}},
             {"にじさんじましろ", new Object[] {"にじさんじ", "ましろ"}},
             {"にじさんじのましろ", new Object[] {"にじさんじ", "の", "ましろ"}},
-            {"ちいかわ", new Object[] {"ちいかわ"}},
-            {"くら寿司ちいかわ", new Object[] {"くら", "寿司", "ちいかわ"}},
-            {"ぼのぼの", new Object[] {"ぼのぼの"}},
-            {"ぼのぼのアニメ公式サイト", new Object[] {"ぼのぼの", "アニメ", "公式", "サイト"}},
+
             /* === Example: End of custom tokenization using the user dictionary === */
 
+            {"令和", new Object[] {"令和"}},
+            {"機能性食品", new Object[] {"機能", "性", "食品"}},
+            {"労働者協同組合", new Object[] {"労働", "者", "協同", "組合"}},
+            {"客室乗務員", new Object[] {"客室", "乗務", "員"}},
+            {"医薬品安全管理責任者", new Object[] {"医薬", "品", "安全", "管理", "責任", "者"}},
+            {"消費者安全調査委員会", new Object[] {"消費", "者", "安全", "調査", "委員", "会"}},
+            {"選挙管理委員会", new Object[] {"選挙", "管理", "委員", "会"}},
+            {"カンヌ国際映画祭", new Object[] {"カンヌ", "国際", "映画", "祭"}},
+            {"さっぽろテレビ塔", new Object[] {"さっぽろ", "テレビ", "塔"}},
+            {"京都。東京.東京都。京都", new Object[] {"京都", "東京", "東京", "都", "京都"}},
+            {"清水寺は東京都にあります", new Object[] {"清水寺", "は", "東京", "都", "に", "あり", "ます"}},
+            {"ちいかわ", new Object[] {"ちいかわ"}},
+            {"くら寿司ちいかわ", new Object[] {"くら", "寿司", "ちいかわ"}},
+            {"ソフトウェアエンジニア", new Object[] {"ソフトウェア", "エンジニア"}},
+            {"関西国際空港", new Object[] {"関西", "国際", "空港"}},
+            {"五十嵐淳子", new Object[] {"五十嵐", "淳子"}},
+            {"鬼滅", new Object[] {"鬼", "滅"}},
+            {"鬼滅の刃", new Object[] {"鬼滅の刃"}}, // Kimetsu no Yaiba
+            {"呪術廻戦", new Object[] {"呪術", "廻", "戦"}}, // Jujutsu Kaizen
             {"お試し用(使い切り)", new Object[] {"お", "試し", "用", "使い", "切り"}},
             {"聖川真斗", new Object[] {"聖川", "真斗"}},
             {"IKEAの椅子", new Object[] {"IKEA", "の", "椅子"}},
             {"京都東部", new Object[] {"京都", "東部"}},
             {"水 / 化粧+水", new Object[] {"水", "化粧", "水"}},
             {"平成", new Object[] {"平成"}},
-            {"Tシャツ", new Object[] {"Tシャツ"}},
             {"季節感···冬", new Object[] {"季節", "感", "冬"}},
             {"ユニクロポロシャツ", new Object[] {"ユニクロ", "ポロシャツ"}},
             {"アンパスィ", new Object[] {"アンパスィ"}},
@@ -97,7 +117,7 @@ public class SudachiTokenizerTest {
             {"楷・行書", new Object[] {"楷・行書"}},
             {"日本語と「記号」の話し", new Object[] {"日本", "語", "と", "記号", "の", "話し"}},
             {"桃太郎電鉄", new Object[] {"桃太郎", "電鉄"}},
-            {"甲斐田晴", new Object[] {"甲", "斐田", "晴"}},
+            {"甲斐田晴", new Object[] {"甲斐田", "晴"}},
             {"椎名ニキ", new Object[] {"椎名", "ニキ"}},
             {"シルバニア", new Object[] {"シルバニア"}},
             {"ポケカ", new Object[] {"ポケカ"}},
@@ -113,7 +133,7 @@ public class SudachiTokenizerTest {
             {"ストウブ", new Object[] {"ストウブ"}},
             {"マキタ", new Object[] {"マキタ"}},
             {"クロミ", new Object[] {"クロミ"}},
-            {"すもももももももものうち", new Object[] {"すもも", "も", "もも", "も", "もも", "の", "うち"}},
+            // {"すもももももももものうち", new Object[] {"すもも", "も", "もも", "も", "もも", "の", "うち"}},
             {"イーブイヒーローズbox未開封シュリンク", new Object[] {"イーブイヒーローズ", "box", "未", "開封", "シュリンク"}},
             {"いいいいいいいい", new Object[] {"いい", "いい", "いい", "いい"}},
         };

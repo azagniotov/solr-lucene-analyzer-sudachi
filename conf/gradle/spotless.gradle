@@ -16,7 +16,8 @@ spotless {
 
         licenseHeaderFile(rootProject.file(".spotless/alexander.zagniotov-apache-2.0-license.txt")).
                 named("alexander.zagniotov").
-                onlyIfContentMatches("Copyright (c) \\.* Alexander Zagniotov")
+                onlyIfContentMatches("Copyright (c) (\\.*) Alexander Zagniotov").
+                updateYearWithLatest(true)
 
         licenseHeaderFile(rootProject.file(".spotless/works.apps-apache-2.0-license.txt")).
                 named("works.apps").

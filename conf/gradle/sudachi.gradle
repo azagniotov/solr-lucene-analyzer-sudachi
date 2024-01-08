@@ -23,7 +23,9 @@ apply plugin: "de.undercouch.download"
 plugins.withType(JavaPlugin) {
     ext {
         targetDir = file("/tmp/sudachi")
-        dictionaryName = "sudachi-dictionary-20230927-core"
+        dictionarySuffix = "full"
+        dictionaryName = "sudachi-dictionary-20230927-${dictionarySuffix}"
+        dictChecksum = "85d90c6c2235690f07fe859d737b2cb9"
     }
     task deleteDictionaryData() {
         doFirst {
@@ -56,6 +58,7 @@ plugins.withType(JavaPlugin) {
             }
 
             ant.copy file: "${rootDir}/user-dictionary/user_lexicon.csv", todir: targetDir
+            ant.move file: "${unpackedDir}/system_${dictionarySuffix}.dic", tofile: "${unpackedDir}/system.dic"
         }
     }
 
@@ -68,13 +71,13 @@ plugins.withType(JavaPlugin) {
         args "-o",
                 "${targetDir}/user_lexicon.dic",
                 "-s",
-                "${targetDir}/system-dict/system_core.dic",
+                "${targetDir}/system-dict/system.dic",
                 "${targetDir}/user_lexicon.csv"
     }
 
     task configureDictionariesLocally(type: Verify, dependsOn: buildUserDictionary) {
         src layout.buildDirectory.file("downloaded/${dictionaryName}.zip")
         algorithm "MD5"
-        checksum "7fdc8eec40911f170d7c53bec35d0a5d"
+        checksum dictChecksum
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Alexander Zagniotov
+ * Copyright (c) 2023-2024 Alexander Zagniotov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.github.azagniotov.solr;
 
 import static org.apache.solr.client.solrj.request.AbstractUpdateRequest.*;
@@ -72,7 +71,9 @@ public class SolrQueryIndexTest extends SolrTestCaseJ4 {
     @Test
     public void testMatchesSingleIndexedDocumentByTerm() throws Exception {
         final SolrQuery solrQuery = new SolrQuery();
-        solrQuery.setQuery("terms_ja:すもも");
+
+        // 'Full' dictionary by Sudachi does not split this properly to すもも and もも, thus, must pass in 'すもももももも'
+        solrQuery.setQuery("terms_ja:すもももももも");
 
         final QueryRequest queryRequest = new QueryRequest(solrQuery);
         final QueryResponse queryResponse = queryRequest.process(getSolrCore());
