@@ -84,6 +84,17 @@ public class SudachiTokenizerTest {
             {"労働者協同組合", new Object[] {"労働", "者", "協同", "組合"}},
             {"客室乗務員", new Object[] {"客室", "乗務", "員"}},
             {"医薬品安全管理責任者", new Object[] {"医薬", "品", "安全", "管理", "責任", "者"}},
+            {
+                "The quick brown fox jumps over the lazy dog",
+                new Object[] {"The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"}
+            },
+            {
+                "The quick 客室乗務員 brown fox jumps over the lazy dog 医薬品安全管理責任者",
+                new Object[] {
+                    "The", "quick", "客室", "乗務", "員", "brown", "fox", "jumps", "over", "the", "lazy", "dog", "医薬", "品",
+                    "安全", "管理", "責任", "者"
+                }
+            },
             {"消費者安全調査委員会", new Object[] {"消費", "者", "安全", "調査", "委員", "会"}},
             {"選挙管理委員会", new Object[] {"選挙", "管理", "委員", "会"}},
             {"カンヌ国際映画祭", new Object[] {"カンヌ", "国際", "映画", "祭"}},

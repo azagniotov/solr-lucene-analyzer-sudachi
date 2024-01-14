@@ -135,7 +135,34 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
         // 4. Full-width Japanese Katakana (supports A-Z) are converted to Latin characters
         //
 
+        // 'Full' dictionary by Sudachi does not split this properly to すもも and もも
         assertAnalyzesTo(analyzer, "すもももももももものうち。", new String[] {"すもももももも", "もも"});
+
+        assertAnalyzesTo(
+                analyzer,
+                "The quick 客室乗務員 brown FOXes jumps over the lazy dogs and computers 医薬品安全管理責任者",
+                new String[] {
+                    "the",
+                    "quick",
+                    "客室",
+                    "乗務",
+                    "員",
+                    "brown",
+                    "foxes",
+                    "jumps",
+                    "over",
+                    "the",
+                    "lazy",
+                    "dogs",
+                    "and",
+                    "computers",
+                    "医薬",
+                    "品",
+                    "安全",
+                    "管理",
+                    "責任",
+                    "者"
+                });
 
         assertAnalyzesTo(analyzer, "清水寺は東京都にあります。", new String[] {"清水寺", "東京", "都"});
 
