@@ -47,8 +47,10 @@ plugins.withType(JavaPlugin) {
 
         src dictionarySource
         dest dictionaryFile
-        onlyIfModified true
+
         quiet false
+        overwrite false
+        onlyIfModified true
 
         doLast {
             // Unpack the downloaded archive.
