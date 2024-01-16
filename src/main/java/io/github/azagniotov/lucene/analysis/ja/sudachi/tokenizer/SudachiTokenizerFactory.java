@@ -16,14 +16,13 @@
 package io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer;
 
 import static com.worksap.nlp.sudachi.Tokenizer.SplitMode;
-import static io.github.azagniotov.lucene.analysis.ja.sudachi.cache.DictionaryCache.SYSTEM_DICT_LOCAL_PATH;
-import static io.github.azagniotov.lucene.analysis.ja.sudachi.cache.DictionaryCache.USER_DICT_LOCAL_PATH;
 
 import com.worksap.nlp.sudachi.Config;
 import com.worksap.nlp.sudachi.Dictionary;
 import com.worksap.nlp.sudachi.DictionaryFactory;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.cache.DictionaryCache;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import org.apache.lucene.analysis.Tokenizer;
@@ -37,6 +36,11 @@ import org.slf4j.LoggerFactory;
 public class SudachiTokenizerFactory extends TokenizerFactory implements ResourceLoaderAware {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SudachiTokenizerFactory.class);
+
+    private static final String SYSTEM_DICT_ENV_VAR = "SUDACHI_SYSTEM_DICT";
+    private static final String USER_DICT_ENV_VAR = "SUDACHI_USER_DICT";
+    private static final String SYSTEM_DICT_LOCAL_PATH = "/tmp/sudachi/system-dict/system.dict";
+    private static final String USER_DICT_LOCAL_PATH = "/tmp/sudachi/user_lexicon.dict";
 
     private static final String MODE = "mode";
     private static final String DISCARD_PUNCTUATION = "discardPunctuation";
@@ -73,8 +77,8 @@ public class SudachiTokenizerFactory extends TokenizerFactory implements Resourc
 
             final Config currentConfig = this.config == null ? Config.defaultConfig() : this.config;
             final Config config = currentConfig
-                    .systemDictionary(Paths.get(SYSTEM_DICT_LOCAL_PATH))
-                    .addUserDictionary(Paths.get(USER_DICT_LOCAL_PATH));
+                    .systemDictionary(getEnv(SYSTEM_DICT_ENV_VAR, SYSTEM_DICT_LOCAL_PATH))
+                    .addUserDictionary(getEnv(USER_DICT_ENV_VAR, USER_DICT_LOCAL_PATH));
             LOGGER.info("Sudachi: Created config from system and user dictionaries");
 
             final Dictionary dictionary = new DictionaryFactory().create(config);
@@ -94,5 +98,16 @@ public class SudachiTokenizerFactory extends TokenizerFactory implements Resourc
             }
         }
         throw new IllegalArgumentException("Tokenization input mode is null");
+    }
+
+    private static Path getEnv(final String name, final String defaultValue) {
+        final Path defaultValuePath = Paths.get(defaultValue);
+        try {
+            final String value = System.getenv(name);
+            return (value == null || value.trim().isEmpty()) ? defaultValuePath : Paths.get(value);
+        } catch (final SecurityException ex) {
+            // System.err.println("SecurityException when reading the env variable: " + name);
+            return defaultValuePath;
+        }
     }
 }
