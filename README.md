@@ -29,6 +29,7 @@ A Lucene plugin based on [Sudachi](https://github.com/WorksApplications/Sudachi)
 * [Local Development](#local-development)
     * [Prerequisites](#prerequisites)
         * [Downloading a Sudachi dictionary](#downloading-a-sudachi-dictionary)
+        * [Changing local Sudachi dictionary location for runtime](#changing-local-sudachi-dictionary-location-for-runtime)
     * [System Requirements](#system-requirements)
     * [Build System](#build-system)
         * [List of Gradle tasks](#list-of-gradle-tasks)
@@ -131,9 +132,17 @@ The plugin needs a dictionary in order to run the tests. Thus, it needs to be do
 ```
 
 The above command does the following:
-1. Downloads a system dictionary `sudachi-dictionary-20230711-core` ZIP from AWS and unpacks it under the `/tmp/sudachi/`
-2. Copies the [user-dictionary/user_lexicon.csv](user-dictionary/user_lexicon.csv) under the `/tmp/sudachi/`. The CSV is used to create a User dictionary. Although user defined dictionary is not really needed here, this sets an example how to add user entries to a dictionary.
-3. Builds a Sudachi user dictionary from the CSV under the `/tmp/sudachi/`
+1. Downloads a system dictionary `sudachi-dictionary-<YYYYMMDD>-full.zip` (The `YYYYMMDD` is `20230927` as of Jan 15th, 2024) ZIP from AWS and unpacks it under the `<PROJECT_ROOT>/.sudachi/downloaded/` (if the ZIP has been downloaded earlier, the downloaded file will be reused)
+2. Unzips the content under the `/tmp/sudachi/system-dict/`
+3. Renames the downloaded `system_full.dic` to `system.dict`
+4. Copies the [user-dictionary/user_lexicon.csv](user-dictionary/user_lexicon.csv) under the `/tmp/sudachi/`. The CSV is used to create a User dictionary. Although user defined dictionary contains only two entries, this sets an example how to add user dictionary metadata entries.
+5. Builds a Sudachi user dictionary `user_lexicon.dict` from the CSV and places it under the `/tmp/sudachi/system-dict`
+
+#### Changing local Sudachi dictionary location for runtime
+
+At runtime, the plugin expects the system and user dictionaries to be located at `/tmp/sudachi/system-dict/system.dict` and `/tmp/sudachi/user_lexicon.dict` respectively.
+
+But, their location in the local file system can be controlled via the ENV variables `SUDACHI_SYSTEM_DICT` and `SUDACHI_USER_DICT` respectively.
 
 [`Back to top`](#table-of-contents)
 
@@ -161,8 +170,6 @@ Building and packaging can be done with the following command:
 ```bash
 ./gradlew build
 ```
-
-As per [https://github.com/WorksApplications/Sudachi#dictionaries](https://github.com/WorksApplications/Sudachi#dictionaries), the above command will download a `system_core.dic` and will place it under [src/main/resources/system-dict/](src/main/resources/system-dict)
 
 #### Formatting
 

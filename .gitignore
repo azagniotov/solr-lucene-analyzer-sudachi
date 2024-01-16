@@ -55,7 +55,7 @@ Thumbs.db
 build
 
 # Sudachi
+.sudachi/
 *.dic*
 system-dict
 !resources/user-dict/user_lexicon.csv
-
