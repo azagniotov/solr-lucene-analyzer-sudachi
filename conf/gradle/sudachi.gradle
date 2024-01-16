@@ -25,24 +25,25 @@ plugins.withType(JavaPlugin) {
         targetDir = file("/tmp/sudachi")
         dictionarySuffix = "full"
         dictionaryName = "sudachi-dictionary-20230927-${dictionarySuffix}"
+        downloadDestination = "${rootDir}/.sudachi/downloaded/${dictionaryName}.zip"
         dictChecksum = "85d90c6c2235690f07fe859d737b2cb9"
     }
+
     task deleteDictionaryData() {
         doFirst {
-            sourceSets.main.resources.srcDirs.each { location ->
-                delete fileTree(dir: location, include: "**/*.dic")
-            }
+            delete fileTree(dir: targetDir, include: "**/*.dict")
+            delete fileTree(dir: targetDir, include: "**/*.csv")
         }
     }
 
     task downloadFile(type: Download) {
-        description "Downloads a Sudachi dictionary from AWS"
+        description "Downloads a Sudachi dictionary from AWS or uses rpeviously downloaded"
 
         dependsOn deleteDictionaryData
         dependsOn sourceSets.main.runtimeClasspath
 
         def dictionarySource = "http://sudachi.s3-website-ap-northeast-1.amazonaws.com/sudachidict/${dictionaryName}.zip"
-        def dictionaryFile = file("${buildDir}/downloaded/${dictionaryName}.zip")
+        def dictionaryFile = file("${downloadDestination}")
         def unpackedDir = file("${targetDir}/system-dict")
 
         src dictionarySource
@@ -60,7 +61,7 @@ plugins.withType(JavaPlugin) {
             }
 
             ant.copy file: "${rootDir}/user-dictionary/user_lexicon.csv", todir: targetDir
-            ant.move file: "${unpackedDir}/system_${dictionarySuffix}.dic", tofile: "${unpackedDir}/system.dic"
+            ant.move file: "${unpackedDir}/system_${dictionarySuffix}.dic", tofile: "${unpackedDir}/system.dict"
         }
     }
 
@@ -71,14 +72,14 @@ plugins.withType(JavaPlugin) {
 
         // arguments to pass to the application
         args "-o",
-                "${targetDir}/user_lexicon.dic",
+                "${targetDir}/user_lexicon.dict",
                 "-s",
-                "${targetDir}/system-dict/system.dic",
+                "${targetDir}/system-dict/system.dict",
                 "${targetDir}/user_lexicon.csv"
     }
 
     task configureDictionariesLocally(type: Verify, dependsOn: buildUserDictionary) {
-        src layout.buildDirectory.file("downloaded/${dictionaryName}.zip")
+        src "${downloadDestination}"
         algorithm "MD5"
         checksum dictChecksum
     }
