@@ -43,9 +43,13 @@ FROM solr:9.3.0@sha256:a83d6d6a70b1b9fa437cf8cf77a3a9319a1e586433a0c99295b25cc55
 MAINTAINER Alexander Zagniotov <azagniotov@gmail.com>
 
 ENV SOLR_JAVA_MEM="-Xms4g -Xmx4g"
-ENV SOLR_SERVER_HOME=/opt/solr/server
+ENV SOLR_OPT_DIR=/opt/solr
+ENV SOLR_SERVER_HOME=$SOLR_OPT_DIR/server
 ENV SUDACHI_DICT_HOME=/tmp/sudachi
 ENV SOLR_WEB_INF_LIB_HOME=$SOLR_SERVER_HOME/solr-webapp/webapp/WEB-INF/lib
+
+ENV SUDACHI_SYSTEM_DICT=$SOLR_OPT_DIR/system.dict
+ENV SUDACHI_USER_DICT=$SOLR_OPT_DIR/user_lexicon.dict
 
 USER root
 
@@ -54,11 +58,11 @@ USER root
 # from analyzers => analysis at some point, thus using a wildcard.
 # RUN rm $SOLR_WEB_INF_LIB_HOME/lucene-*-kuromoji-*.jar
 
-COPY --from=BUILD_JAR_STAGE $SUDACHI_DICT_HOME/system-dict/system.dic $SUDACHI_DICT_HOME/system-dict/system.dic
-COPY --from=BUILD_JAR_STAGE $SUDACHI_DICT_HOME/user_lexicon.dic $SUDACHI_DICT_HOME/user_lexicon.dic
+# Copy dictionaries to /opt/solr
+# See https://github.com/apache/solr-docker/blob/7e3be2fce98be1fe9c80be0727b4600d4b52fd0f/9.3/Dockerfile#L129
+COPY --from=BUILD_JAR_STAGE $SUDACHI_DICT_HOME/system-dict/system.dict $SOLR_OPT_DIR/system.dict
+COPY --from=BUILD_JAR_STAGE $SUDACHI_DICT_HOME/user_lexicon.dict $SOLR_OPT_DIR/user_lexicon.dict
 COPY --from=BUILD_JAR_STAGE /home/gradle/solr-lucene-analyzer-sudachi/build/libs/solr-lucene-analyzer-sudachi*.jar $SOLR_WEB_INF_LIB_HOME/
 COPY schema.xml $SOLR_SERVER_HOME/solr/configsets/_default/conf/managed-schema.xml
-
-RUN chown -R solr:solr /tmp/sudachi
 
 USER solr
