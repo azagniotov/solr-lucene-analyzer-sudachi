@@ -24,9 +24,9 @@ plugins.withType(JavaPlugin) {
     ext {
         targetDir = file("/tmp/sudachi")
         dictionarySuffix = "full"
-        dictionaryName = "sudachi-dictionary-20230927-${dictionarySuffix}"
+        dictionaryName = "sudachi-dictionary-20240109-${dictionarySuffix}"
         downloadDestination = "${rootDir}/.sudachi/downloaded/${dictionaryName}.zip"
-        dictChecksum = "85d90c6c2235690f07fe859d737b2cb9"
+        dictChecksum = "0d6de3b5a9eb8548189b8b1596ae421d"
     }
 
     task deleteDictionaryData() {
