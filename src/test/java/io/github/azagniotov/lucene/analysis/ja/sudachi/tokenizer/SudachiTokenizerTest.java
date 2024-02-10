@@ -114,7 +114,8 @@ public class SudachiTokenizerTest {
             {"鬼滅", new Object[] {"鬼", "滅"}},
             // MeCab IPAdic: 鬼, 滅, の, 刃
             {"鬼滅の刃", new Object[] {"鬼滅の刃"}}, // Kimetsu no Yaiba
-            {"呪術廻戦", new Object[] {"呪術", "廻", "戦"}}, // Jujutsu Kaizen
+            // MeCab IPAdic: 呪術, 廻, 戦
+            {"呪術廻戦", new Object[] {"呪術廻戦"}}, // Jujutsu Kaizen
             // MeCab IPAdic: お, 試し, 用, 使い切り
             {"お試し用(使い切り)", new Object[] {"お", "試し", "用", "使い", "切り"}},
             // MeCab IPAdic: 聖川, 真, 斗
