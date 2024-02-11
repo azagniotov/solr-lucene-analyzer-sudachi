@@ -41,7 +41,21 @@ public class SudachiMorphemeAttributeImpl extends AttributeImpl implements Sudac
 
     @Override
     public void reflectWith(AttributeReflector attributeReflector) {
-        attributeReflector.reflect(SudachiAttribute.class, "morpheme", getMorpheme());
+        // AttributeReflector is used by Solr and Elasticsearch to provide analysis output.
+        //
+        // The following code is commented out because of:
+        // attributeReflector.reflect(SudachiMorphemeAttribute.class, "morpheme", getMorpheme());
+        //
+        // 1. We do not need to reflect on Morpheme object implementation, it is not needed for the above.
+        // 2. The com.worksap.nlp.sudachi.MorphemeImpl has package default visibility. Solr throws because of that:
+        //    Caused by: java.lang.IllegalAccessException: access violation: class com.worksap.nlp.sudachi.MorphemeImpl,
+        // from public Lookup
+        //      at java.lang.invoke.MethodHandles$Lookup.makeAccessException(Unknown Source) ~[?:?]
+        //      at java.lang.invoke.MethodHandles$Lookup.accessClass(Unknown Source) ~[?:?]
+        //      at org.apache.solr.common.util.Utils.addTraditionalFieldWriters(Utils.java:953) ~[?:?]
+        //      at org.apache.solr.common.util.Utils.getReflectData(Utils.java:912) ~[?:?]
+        //      at org.apache.solr.common.util.Utils.getReflectWriter(Utils.java:847) ~[?:?]
+        //      ... 81 more
     }
 
     @Override
