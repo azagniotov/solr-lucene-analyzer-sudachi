@@ -21,7 +21,7 @@ import java.util.List;
 
 /**
  * Recreated {@link com.worksap.nlp.sudachi.MorphemeImpl} as-is locally but with a public access modifer,
- * because Solr (for some reason unknown to me as of v9.4.0 incl.) tries to apply reflection on to the original MorphemeImpl from the WebApplications,
+ * because Solr (for some reason unknown to me as of v9.4.0 incl.) tries to apply reflection on to the original MorphemeImpl from the Works Applications Co., Ltd,
  * which has package default visibility. In other words, the issue is not the package default visibility, but why Solr tries to reflect on MorphemeImpl?!
  *
  * See https://github.com/WorksApplications/Sudachi/issues/220 for the stacktrace example.
