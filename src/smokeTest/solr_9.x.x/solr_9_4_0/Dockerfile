@@ -42,23 +42,22 @@ FROM solr:9.4.0@sha256:4e9b6794895f1f6685a61d587b63e2f0caa2b6f9a5a2c0e67613d4f16
 
 MAINTAINER Alexander Zagniotov <azagniotov@gmail.com>
 
-ENV SOLR_JAVA_MEM="-Xms4g -Xmx4g"
-ENV SOLR_INSTALL_DIR=/opt/solr
-ENV SOLR_SERVER_HOME=$SOLR_INSTALL_DIR/server
-
-# https://solr.apache.org/guide/solr/9_4/configuration-guide/libs.html#lib-directories
-ENV SOLR_INSTALL_LIB_DIR=$SOLR_INSTALL_DIR/lib
-
+ENV SOLR_JAVA_MEM="-Xms2g -Xmx2g"
+ENV SOLR_OPT_DIR=/opt/solr
+ENV SOLR_SERVER_HOME=$SOLR_OPT_DIR/server
 ENV SUDACHI_DICT_HOME=/tmp/sudachi
-ENV SUDACHI_SYSTEM_DICT=$SOLR_INSTALL_DIR/system.dict
-ENV SUDACHI_USER_DICT=$SOLR_INSTALL_DIR/user_lexicon.dict
+ENV SOLR_WEB_INF_LIB_HOME=$SOLR_SERVER_HOME/solr-webapp/webapp/WEB-INF/lib
+
+ENV SUDACHI_SYSTEM_DICT=$SOLR_OPT_DIR/system.dict
+ENV SUDACHI_USER_DICT=$SOLR_OPT_DIR/user_lexicon.dict
 
 USER root
 
-# https://solr.apache.org/guide/solr/9_4/configuration-guide/libs.html#lib-directories
-COPY --from=BUILD_JAR_STAGE /home/gradle/solr-lucene-analyzer-sudachi/build/libs/solr-lucene-analyzer-sudachi*.jar $SOLR_INSTALL_LIB_DIR/
-COPY --from=BUILD_JAR_STAGE $SUDACHI_DICT_HOME/system-dict/system.dict $SOLR_INSTALL_DIR/system.dict
-COPY --from=BUILD_JAR_STAGE $SUDACHI_DICT_HOME/user_lexicon.dict $SOLR_INSTALL_DIR/user_lexicon.dict
+# Copy dictionaries to /opt/solr
+# See https://github.com/apache/solr-docker/blob/7e3be2fce98be1fe9c80be0727b4600d4b52fd0f/9.3/Dockerfile#L129
+COPY --from=BUILD_JAR_STAGE $SUDACHI_DICT_HOME/system-dict/system.dict $SOLR_OPT_DIR/system.dict
+COPY --from=BUILD_JAR_STAGE $SUDACHI_DICT_HOME/user_lexicon.dict $SOLR_OPT_DIR/user_lexicon.dict
+COPY --from=BUILD_JAR_STAGE /home/gradle/solr-lucene-analyzer-sudachi/build/libs/solr-lucene-analyzer-sudachi*.jar $SOLR_WEB_INF_LIB_HOME/
 COPY schema.xml $SOLR_SERVER_HOME/solr/configsets/_default/conf/managed-schema.xml
 
 USER solr
