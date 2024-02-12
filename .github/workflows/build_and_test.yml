@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java-version: [ "8.0.392+8", "11.0.4", "17.0" ]
+        java-version: [ "8.0.392+8", "11.0.4", "17.0", "21.32.17" ]
 
     steps:
       - name: Checkout project sources
@@ -17,8 +17,8 @@ jobs:
           # https://github.com/diffplug/spotless/issues/1242
           fetch-depth: 0
 
-      - name: Set up JDK Using Matrix
-        uses: actions/setup-java@v3
+      - name: Set up Azul Zulu OpenJDK Using Matrix
+        uses: actions/setup-java@v4
         with:
           java-version: ${{ matrix.java-version }}
           distribution: "zulu"
