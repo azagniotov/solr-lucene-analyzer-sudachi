@@ -41,7 +41,12 @@ public class SudachiAttributeImpl extends AttributeImpl implements SudachiAttrib
 
     @Override
     public void reflectWith(AttributeReflector attributeReflector) {
-        attributeReflector.reflect(SudachiAttribute.class, "dictionary", getDictionary());
+        // AttributeReflector is used by Solr and Elasticsearch to provide analysis output.
+        //
+        // The following code:
+        // attributeReflector.reflect(SudachiAttribute.class, "dictionary", getDictionary());
+        //
+        // is commented out because we do not need to reflect on the Dictionary, it is not needed for the above.
     }
 
     @Override
