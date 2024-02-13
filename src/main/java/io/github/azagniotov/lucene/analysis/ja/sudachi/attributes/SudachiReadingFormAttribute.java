@@ -13,26 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package io.github.azagniotov.lucene.analysis.ja.sudachi.attributes;
 
-import com.worksap.nlp.sudachi.Dictionary;
+import com.worksap.nlp.sudachi.Morpheme;
 import org.apache.lucene.util.Attribute;
 
-public interface SudachiAttribute extends Attribute {
-    /**
-     * Get current dictionary instance
-     *
-     * @return reloadable facade for the current dictionary
-     */
-    Dictionary getDictionary();
+/**
+ * Attribute for {@link Morpheme#readingForm()}
+ */
+public interface SudachiReadingFormAttribute extends Attribute {
+    String getReadingForm();
 
-    /**
-     * Set the current dictionary for the token stream. Use this method only if you
-     * really know what you are doing.
-     *
-     * @param dictionary
-     *            new instance of the dictionary
-     */
-    void setDictionary(Dictionary dictionary);
+    void setMorpheme(final Morpheme morpheme);
 }

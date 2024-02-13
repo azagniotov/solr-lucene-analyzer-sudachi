@@ -15,42 +15,39 @@
  */
 package io.github.azagniotov.lucene.analysis.ja.sudachi.attributes;
 
-import com.worksap.nlp.sudachi.Dictionary;
+import com.worksap.nlp.sudachi.Morpheme;
 import org.apache.lucene.util.AttributeImpl;
 import org.apache.lucene.util.AttributeReflector;
 
-public class SudachiAttributeImpl extends AttributeImpl implements SudachiAttribute {
+public class SudachiBaseFormAttributeImpl extends AttributeImpl implements SudachiBaseFormAttribute {
 
-    private Dictionary dictionary;
+    private Morpheme morpheme;
 
     @Override
-    public Dictionary getDictionary() {
-        return dictionary == null ? null : dictionary;
+    public String getBaseForm() {
+        return morpheme.dictionaryForm();
     }
 
     @Override
-    public void setDictionary(final Dictionary dictionary) {
-        this.dictionary = dictionary;
+    public void setMorpheme(final Morpheme morpheme) {
+        this.morpheme = morpheme;
     }
 
     @Override
     public void clear() {
-        dictionary = null;
+        morpheme = null;
     }
 
     @Override
     public void reflectWith(AttributeReflector attributeReflector) {
         // AttributeReflector is used by Solr and Elasticsearch to provide analysis output.
-        //
-        // The following code:
-        // attributeReflector.reflect(SudachiAttribute.class, "dictionary", getDictionary());
-        //
-        // is commented out because we do not need to reflect on the Dictionary, it is not needed for the above.
+
+        attributeReflector.reflect(SudachiBaseFormAttribute.class, "baseForm", getBaseForm());
     }
 
     @Override
     public void copyTo(AttributeImpl attribute) {
-        final SudachiAttribute at = (SudachiAttribute) attribute;
-        at.setDictionary(dictionary);
+        final SudachiBaseFormAttribute at = (SudachiBaseFormAttribute) attribute;
+        at.setMorpheme(morpheme);
     }
 }
