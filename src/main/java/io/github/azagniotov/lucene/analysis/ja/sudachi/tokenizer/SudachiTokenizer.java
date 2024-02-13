@@ -21,7 +21,11 @@ import static com.worksap.nlp.sudachi.Tokenizer.SplitMode;
 import com.worksap.nlp.sudachi.Morpheme;
 import com.worksap.nlp.sudachi.MorphemeList;
 import com.worksap.nlp.sudachi.Tokenizer;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiBaseFormAttribute;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiMorphemeAttribute;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiNormalizedFormAttribute;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiPartOfSpeechAttribute;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiReadingFormAttribute;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Iterator;
@@ -39,6 +43,10 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
     private final PositionLengthAttribute posLengthAtt;
     private final PositionIncrementAttribute posIncAtt;
     private final SudachiMorphemeAttribute morphemeAtt;
+    private final SudachiPartOfSpeechAttribute posAtt;
+    private final SudachiBaseFormAttribute baseFormAtt;
+    private final SudachiNormalizedFormAttribute normalizedFormAtt;
+    private final SudachiReadingFormAttribute readingFormAtt;
     private Tokenizer sudachiTokenizer;
     private final boolean discardPunctuation;
     private final SplitMode mode;
@@ -59,9 +67,15 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
 
         this.termAtt = addAttribute(CharTermAttribute.class);
         this.offsetAtt = addAttribute(OffsetAttribute.class);
-        this.posLengthAtt = addAttribute(PositionLengthAttribute.class);
-        this.posIncAtt = addAttribute(PositionIncrementAttribute.class);
         this.morphemeAtt = addAttribute(SudachiMorphemeAttribute.class);
+        // Start: attributes holding the morphological values for the field analysis screen/API
+        this.posIncAtt = addAttribute(PositionIncrementAttribute.class);
+        this.posLengthAtt = addAttribute(PositionLengthAttribute.class);
+        this.baseFormAtt = addAttribute(SudachiBaseFormAttribute.class);
+        this.normalizedFormAtt = addAttribute(SudachiNormalizedFormAttribute.class);
+        this.readingFormAtt = addAttribute(SudachiReadingFormAttribute.class);
+        this.posAtt = addAttribute(SudachiPartOfSpeechAttribute.class);
+        // End: attributes holding the morphological values for the field analysis screen/API
 
         this.morphemeIterator = MorphemeIterator.EMPTY;
     }
@@ -96,9 +110,17 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
             return false;
         }
 
+        this.morphemeAtt.setMorpheme(morpheme);
+
+        // Start: setting the values for the field analysis screen/API
         this.posIncAtt.setPositionIncrement(1);
         this.posLengthAtt.setPositionLength(1);
-        this.morphemeAtt.setMorpheme(morpheme);
+        this.baseFormAtt.setMorpheme(morpheme);
+        this.normalizedFormAtt.setMorpheme(morpheme);
+        this.readingFormAtt.setMorpheme(morpheme);
+        this.posAtt.setMorpheme(morpheme);
+        // End: setting the values for the field analysis screen/API
+
         final int baseOffset = morphemeIterator.getBaseOffset();
         final int startOffset = correctOffset(baseOffset + morpheme.begin());
         final int endOffset = correctOffset(baseOffset + morpheme.end());
