@@ -16,8 +16,12 @@
  */
 package io.github.azagniotov.lucene.analysis.ja.sudachi.filters;
 
-import com.worksap.nlp.sudachi.Morpheme;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiNormalizedFormAttribute;
+import java.io.IOException;
+import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.KeywordAttribute;
 
 /**
  * Replaces term text with the value of {@link com.worksap.nlp.sudachi.Morpheme#normalizedForm()}.
@@ -28,14 +32,31 @@ import org.apache.lucene.analysis.TokenStream;
  * or a custom {@link org.apache.lucene.analysis.TokenFilter} that sets the {@link org.apache.lucene.analysis.tokenattributes.KeywordAttribute}
  * before this {@link org.apache.lucene.analysis.TokenStream}.
  */
-public final class SudachiNormalizedFormFilter extends AbstractMorphemeTermFilter {
+public final class SudachiNormalizedFormFilter extends TokenFilter {
+
+    private final CharTermAttribute termAtt;
+    private final SudachiNormalizedFormAttribute normalizedFormAtt;
+    private final KeywordAttribute keywordAtt;
 
     public SudachiNormalizedFormFilter(TokenStream input) {
         super(input);
+        this.termAtt = addAttribute(CharTermAttribute.class);
+        this.normalizedFormAtt = addAttribute(SudachiNormalizedFormAttribute.class);
+        this.keywordAtt = addAttribute(KeywordAttribute.class);
     }
 
     @Override
-    public String value(final Morpheme morpheme) {
-        return morpheme.normalizedForm();
+    public boolean incrementToken() throws IOException {
+        if (input.incrementToken()) {
+            if (!keywordAtt.isKeyword()) {
+                final String normalizedForm = normalizedFormAtt.getNormalizedForm();
+                if (normalizedForm != null) {
+                    termAtt.setEmpty().append(normalizedForm);
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 }

@@ -104,11 +104,18 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
 
     @Override
     public boolean incrementToken() throws IOException {
-        clearAttributes();
         final Morpheme morpheme = this.morphemeIterator.next();
         if (morpheme == null) {
             return false;
         }
+
+        clearAttributes();
+        this.termAtt.append(morpheme.surface());
+
+        final int baseOffset = morphemeIterator.getBaseOffset();
+        final int startOffset = correctOffset(baseOffset + morpheme.begin());
+        final int endOffset = correctOffset(baseOffset + morpheme.end());
+        this.offsetAtt.setOffset(startOffset, endOffset);
 
         this.morphemeAtt.setMorpheme(morpheme);
 
@@ -120,13 +127,6 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
         this.readingFormAtt.setMorpheme(morpheme);
         this.posAtt.setMorpheme(morpheme);
         // End: setting the values for the field analysis screen/API
-
-        final int baseOffset = morphemeIterator.getBaseOffset();
-        final int startOffset = correctOffset(baseOffset + morpheme.begin());
-        final int endOffset = correctOffset(baseOffset + morpheme.end());
-        this.offsetAtt.setOffset(startOffset, endOffset);
-
-        this.termAtt.append(morpheme.surface());
 
         return true;
     }

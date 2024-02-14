@@ -16,9 +16,11 @@
  */
 package io.github.azagniotov.lucene.analysis.ja.sudachi.filters;
 
-import com.worksap.nlp.sudachi.Morpheme;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiBaseFormAttribute;
+import java.io.IOException;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.KeywordAttribute;
 
 /**
@@ -29,14 +31,31 @@ import org.apache.lucene.analysis.tokenattributes.KeywordAttribute;
  * <p>To prevent terms from being stemmed use an instance of {@link org.apache.lucene.analysis.miscellaneous.SetKeywordMarkerFilter}
  * or a custom {@link TokenFilter} that sets the {@link KeywordAttribute} before this {@link TokenStream}.
  */
-public final class SudachiBaseFormFilter extends AbstractMorphemeTermFilter {
+public final class SudachiBaseFormFilter extends TokenFilter {
+
+    private final CharTermAttribute termAtt;
+    private final SudachiBaseFormAttribute baseFormAtt;
+    private final KeywordAttribute keywordAtt;
 
     public SudachiBaseFormFilter(TokenStream input) {
         super(input);
+        this.termAtt = addAttribute(CharTermAttribute.class);
+        this.baseFormAtt = addAttribute(SudachiBaseFormAttribute.class);
+        this.keywordAtt = addAttribute(KeywordAttribute.class);
     }
 
     @Override
-    public String value(final Morpheme morpheme) {
-        return morpheme.dictionaryForm();
+    public boolean incrementToken() throws IOException {
+        if (input.incrementToken()) {
+            if (!keywordAtt.isKeyword()) {
+                final String baseForm = baseFormAtt.getBaseForm();
+                if (baseForm != null) {
+                    termAtt.setEmpty().append(baseForm);
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 }

@@ -16,7 +16,7 @@
 package io.github.azagniotov.lucene.analysis.ja.sudachi.attributes;
 
 import com.worksap.nlp.sudachi.Morpheme;
-import io.github.azagniotov.lucene.analysis.ja.sudachi.util.LuceneKuromojiStringUtils;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.util.Translations;
 import org.apache.lucene.util.AttributeImpl;
 import org.apache.lucene.util.AttributeReflector;
 
@@ -45,11 +45,12 @@ public class SudachiReadingFormAttributeImpl extends AttributeImpl implements Su
 
         final String readingFormJA = getReadingForm();
         if (readingFormJA != null && !readingFormJA.trim().isEmpty()) {
-            final String readingFormEN = LuceneKuromojiStringUtils.getRomanization(readingFormJA);
+            final String readingFormEN = Translations.toRomaji(readingFormJA);
             attributeReflector.reflect(SudachiReadingFormAttribute.class, "reading (ja)", readingFormJA);
             attributeReflector.reflect(SudachiReadingFormAttribute.class, "reading (en)", readingFormEN);
         } else {
             attributeReflector.reflect(SudachiReadingFormAttribute.class, "reading (ja)", "OOV");
+            attributeReflector.reflect(SudachiReadingFormAttribute.class, "reading (en)", "OOV");
         }
     }
 

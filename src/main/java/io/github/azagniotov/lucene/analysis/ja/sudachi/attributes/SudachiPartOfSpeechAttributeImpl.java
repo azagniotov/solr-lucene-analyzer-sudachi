@@ -16,7 +16,7 @@
 package io.github.azagniotov.lucene.analysis.ja.sudachi.attributes;
 
 import com.worksap.nlp.sudachi.Morpheme;
-import io.github.azagniotov.lucene.analysis.ja.sudachi.util.LuceneKuromojiStringUtils;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.util.Translations;
 import org.apache.lucene.util.AttributeImpl;
 import org.apache.lucene.util.AttributeReflector;
 
@@ -59,13 +59,14 @@ public class SudachiPartOfSpeechAttributeImpl extends AttributeImpl implements S
 
         final String partOfSpeech = getPartOfSpeech();
         if (partOfSpeech != null) {
-            final String translation = LuceneKuromojiStringUtils.getPOSTranslation(partOfSpeech);
+            final String translation = Translations.forPos(partOfSpeech);
             final String partOfSpeechEN = translation == null ? "n/a" : translation;
 
             attributeReflector.reflect(SudachiPartOfSpeechAttribute.class, "partOfSpeech (ja)", partOfSpeech);
             attributeReflector.reflect(SudachiPartOfSpeechAttribute.class, "partOfSpeech (en)", partOfSpeechEN);
         } else {
             attributeReflector.reflect(SudachiPartOfSpeechAttribute.class, "partOfSpeech (ja)", "n/a");
+            attributeReflector.reflect(SudachiPartOfSpeechAttribute.class, "partOfSpeech (en)", "n/a");
         }
     }
 

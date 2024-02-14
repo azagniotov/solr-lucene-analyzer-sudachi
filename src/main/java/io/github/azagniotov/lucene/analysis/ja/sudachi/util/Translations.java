@@ -16,8 +16,10 @@
  */
 package io.github.azagniotov.lucene.analysis.ja.sudachi.util;
 
+import static java.util.Map.entry;
+
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -25,224 +27,124 @@ import java.util.HashMap;
  * Borrowed from:
  * <a href="https://github.com/apache/lucene/blob/2a3e5ca07f5df1f5080b5cb54ff104b7924e99f3/lucene/analysis/kuromoji/src/java/org/apache/lucene/analysis/ja/dict/ToStringUtil.java">apache/lucene/analysis/ja/dict/ToStringUtil.java</a>
  * */
-public class LuceneKuromojiStringUtils {
+public class Translations {
     // a translation map for parts of speech, only used for reflectWith
-    private static final HashMap<String, String> posTranslations = new HashMap<>();
+    private static final Map<String, String> POS_TRANSLATIONS;
 
     static {
-        posTranslations.put("名詞", "noun");
-        posTranslations.put("名詞-一般", "noun-general");
-        posTranslations.put("名詞-普通名詞", "noun-common");
-        posTranslations.put("名詞-固有名詞", "noun-proper");
-        posTranslations.put("名詞-固有名詞-一般", "noun-proper-general");
-        posTranslations.put("名詞-固有名詞-人名", "noun-proper-person");
-        posTranslations.put("名詞-固有名詞-人名-一般", "noun-proper-person-general");
-        posTranslations.put("名詞-固有名詞-人名-姓", "noun-proper-person-surname");
-        posTranslations.put("名詞-固有名詞-人名-名", "noun-proper-person-given_name");
-        posTranslations.put("名詞-固有名詞-組織", "noun-proper-organization");
-        posTranslations.put("名詞-固有名詞-地域", "noun-proper-place");
-        posTranslations.put("名詞-固有名詞-地域-一般", "noun-proper-place-general");
-        posTranslations.put("名詞-固有名詞-地域-国", "noun-proper-place-country");
-        posTranslations.put("名詞-代名詞", "noun-pronoun");
-        posTranslations.put("名詞-代名詞-一般", "noun-pronoun-general");
-        posTranslations.put("名詞-代名詞-縮約", "noun-pronoun-contraction");
-        posTranslations.put("名詞-副詞可能", "noun-adverbial");
-        posTranslations.put("名詞-サ変接続", "noun-verbal");
-        posTranslations.put("名詞-形容動詞語幹", "noun-adjective-base");
-        posTranslations.put("名詞-数", "noun-numeric");
-        posTranslations.put("名詞-数詞", "noun-numeric");
-        posTranslations.put("名詞-非自立", "noun-affix");
-        posTranslations.put("名詞-非自立-一般", "noun-affix-general");
-        posTranslations.put("名詞-非自立-副詞可能", "noun-affix-adverbial");
-        posTranslations.put("名詞-非自立-助動詞語幹", "noun-affix-aux");
-        posTranslations.put("名詞-非自立-形容動詞語幹", "noun-affix-adjective-base");
-        posTranslations.put("名詞-特殊", "noun-special");
-        posTranslations.put("名詞-特殊-助動詞語幹", "noun-special-aux");
-        posTranslations.put("接尾辞", "suffix");
-        posTranslations.put("接尾辞-名詞的", "noun-suffix");
-        posTranslations.put("名詞-接尾", "noun-suffix");
-        posTranslations.put("名詞-接尾-一般", "noun-suffix-general");
-        posTranslations.put("名詞-接尾-人名", "noun-suffix-person");
-        posTranslations.put("名詞-接尾-地域", "noun-suffix-place");
-        posTranslations.put("名詞-接尾-サ変接続", "noun-suffix-verbal");
-        posTranslations.put("名詞-接尾-助動詞語幹", "noun-suffix-aux");
-        posTranslations.put("名詞-接尾-形容動詞語幹", "noun-suffix-adjective-base");
-        posTranslations.put("名詞-接尾-副詞可能", "noun-suffix-adverbial");
-        posTranslations.put("名詞-接尾-助数詞", "noun-suffix-classifier");
-        posTranslations.put("名詞-接尾-特殊", "noun-suffix-special");
-        posTranslations.put("名詞-接続詞的", "noun-suffix-conjunctive");
-        posTranslations.put("名詞-動詞非自立的", "noun-verbal_aux");
-        posTranslations.put("名詞-引用文字列", "noun-quotation");
-        posTranslations.put("名詞-ナイ形容詞語幹", "noun-nai_adjective");
-        posTranslations.put("接頭詞", "prefix");
-        posTranslations.put("接頭詞-名詞接続", "prefix-nominal");
-        posTranslations.put("接頭詞-動詞接続", "prefix-verbal");
-        posTranslations.put("接頭詞-形容詞接続", "prefix-adjectival");
-        posTranslations.put("接頭詞-数接続", "prefix-numerical");
-        posTranslations.put("動詞", "verb");
-        posTranslations.put("動詞-自立", "verb-main");
-        posTranslations.put("動詞-非自立", "verb-auxiliary");
-        posTranslations.put("動詞-接尾", "verb-suffix");
-        posTranslations.put("形容詞", "adjective");
-        posTranslations.put("形容詞-自立", "adjective-main");
-        posTranslations.put("形容詞-非自立", "adjective-auxiliary");
-        posTranslations.put("形容詞-接尾", "adjective-suffix");
-        posTranslations.put("副詞", "adverb");
-        posTranslations.put("副詞-一般", "adverb-general");
-        posTranslations.put("副詞-助詞類接続", "adverb-particle_conjunction");
-        posTranslations.put("連体詞", "adnominal");
-        posTranslations.put("接続詞", "conjunction");
-        posTranslations.put("助詞", "particle");
-        posTranslations.put("助詞-格助詞", "particle-case");
-        posTranslations.put("助詞-格助詞-一般", "particle-case-general");
-        posTranslations.put("助詞-格助詞-引用", "particle-case-quote");
-        posTranslations.put("助詞-格助詞-連語", "particle-case-compound");
-        posTranslations.put("助詞-接続助詞", "particle-conjunctive");
-        posTranslations.put("助詞-係助詞", "particle-dependency");
-        posTranslations.put("助詞-副助詞", "particle-adverbial");
-        posTranslations.put("助詞-間投助詞", "particle-interjective");
-        posTranslations.put("助詞-並立助詞", "particle-coordinate");
-        posTranslations.put("助詞-終助詞", "particle-final");
-        posTranslations.put("助詞-副助詞／並立助詞／終助詞", "particle-adverbial/conjunctive/final");
-        posTranslations.put("助詞-連体化", "particle-adnominalizer");
-        posTranslations.put("助詞-副詞化", "particle-adnominalizer");
-        posTranslations.put("助詞-特殊", "particle-special");
-        posTranslations.put("助動詞", "auxiliary-verb");
-        posTranslations.put("感動詞", "interjection");
-        posTranslations.put("記号", "symbol");
-        posTranslations.put("記号-一般", "symbol-general");
-        posTranslations.put("記号-句点", "symbol-period");
-        posTranslations.put("記号-読点", "symbol-comma");
-        posTranslations.put("記号-空白", "symbol-space");
-        posTranslations.put("記号-括弧開", "symbol-open_bracket");
-        posTranslations.put("記号-括弧閉", "symbol-close_bracket");
-        posTranslations.put("記号-アルファベット", "symbol-alphabetic");
-        posTranslations.put("その他", "other");
-        posTranslations.put("その他-間投", "other-interjection");
-        posTranslations.put("フィラー", "filler");
-        posTranslations.put("非言語音", "non-verbal");
-        posTranslations.put("語断片", "fragment");
-        posTranslations.put("未知語", "unknown");
+        POS_TRANSLATIONS = Map.<String, String>ofEntries(
+                entry("名詞", "noun"),
+                entry("名詞-一般", "noun-general"),
+                entry("名詞-普通名詞", "noun-common"),
+                entry("名詞-固有名詞", "noun-proper"),
+                entry("名詞-固有名詞-一般", "noun-proper-general"),
+                entry("名詞-固有名詞-人名", "noun-proper-person"),
+                entry("名詞-固有名詞-人名-一般", "noun-proper-person-general"),
+                entry("名詞-固有名詞-人名-姓", "noun-proper-person-surname"),
+                entry("名詞-固有名詞-人名-名", "noun-proper-person-given_name"),
+                entry("名詞-固有名詞-組織", "noun-proper-organization"),
+                entry("名詞-固有名詞-地域", "noun-proper-place"),
+                entry("名詞-固有名詞-地域-一般", "noun-proper-place-general"),
+                entry("名詞-固有名詞-地域-国", "noun-proper-place-country"),
+                entry("代名詞", "pronoun"),
+                entry("名詞-代名詞", "noun-pronoun"),
+                entry("名詞-代名詞-一般", "noun-pronoun-general"),
+                entry("名詞-代名詞-縮約", "noun-pronoun-contraction"),
+                entry("名詞-副詞可能", "noun-adverbial"),
+                entry("名詞-サ変接続", "noun-verbal"),
+                entry("名詞-形容動詞語幹", "noun-adjective-base"),
+                entry("名詞-数", "noun-numeric"),
+                entry("名詞-数詞", "noun-numeric"),
+                entry("名詞-非自立", "noun-affix"),
+                entry("名詞-非自立-一般", "noun-affix-general"),
+                entry("名詞-非自立-副詞可能", "noun-affix-adverbial"),
+                entry("名詞-非自立-助動詞語幹", "noun-affix-aux"),
+                entry("名詞-非自立-形容動詞語幹", "noun-affix-adjective-base"),
+                entry("名詞-特殊", "noun-special"),
+                entry("名詞-特殊-助動詞語幹", "noun-special-aux"),
+                entry("接尾辞", "suffix"),
+                entry("接尾辞-名詞的", "noun-suffix"),
+                entry("名詞-接尾", "noun-suffix"),
+                entry("名詞-接尾-一般", "noun-suffix-general"),
+                entry("名詞-接尾-人名", "noun-suffix-person"),
+                entry("名詞-接尾-地域", "noun-suffix-place"),
+                entry("名詞-接尾-サ変接続", "noun-suffix-verbal"),
+                entry("名詞-接尾-助動詞語幹", "noun-suffix-aux"),
+                entry("名詞-接尾-形容動詞語幹", "noun-suffix-adjective-base"),
+                entry("名詞-接尾-副詞可能", "noun-suffix-adverbial"),
+                entry("名詞-接尾-助数詞", "noun-suffix-classifier"),
+                entry("名詞-接尾-特殊", "noun-suffix-special"),
+                entry("名詞-接続詞的", "noun-suffix-conjunctive"),
+                entry("名詞-動詞非自立的", "noun-verbal_aux"),
+                entry("名詞-引用文字列", "noun-quotation"),
+                entry("名詞-ナイ形容詞語幹", "noun-nai_adjective"),
+                entry("接頭詞", "prefix"),
+                entry("接頭辞", "prefix"),
+                entry("接頭詞-名詞接続", "prefix-nominal"),
+                entry("接頭詞-動詞接続", "prefix-verbal"),
+                entry("接頭詞-形容詞接続", "prefix-adjectival"),
+                entry("接頭詞-数接続", "prefix-numerical"),
+                entry("動詞", "verb"),
+                entry("動詞-一般", "verb"),
+                entry("動詞-自立", "verb-main"),
+                entry("動詞-非自立", "verb-auxiliary"),
+                entry("動詞-非自立可能", "verb-auxiliary"),
+                entry("動詞-接尾", "verb-suffix"),
+                entry("形容詞", "adjective"),
+                entry("形容詞-一般", "adjective"),
+                entry("形容詞-自立", "adjective-main"),
+                entry("形容詞-非自立", "adjective-auxiliary"),
+                entry("形容詞-接尾", "adjective-suffix"),
+                entry("副詞", "adverb"),
+                entry("副詞-一般", "adverb-general"),
+                entry("副詞-助詞類接続", "adverb-particle_conjunction"),
+                entry("連体詞", "adnominal"),
+                entry("接続詞", "conjunction"),
+                entry("助詞", "particle"),
+                entry("助詞-格助詞", "particle-case"),
+                entry("助詞-格助詞-一般", "particle-case-general"),
+                entry("助詞-格助詞-引用", "particle-case-quote"),
+                entry("助詞-格助詞-連語", "particle-case-compound"),
+                entry("助詞-接続助詞", "particle-conjunctive"),
+                entry("助詞-係助詞", "particle-dependency"),
+                entry("助詞-副助詞", "particle-adverbial"),
+                entry("助詞-間投助詞", "particle-interjective"),
+                entry("助詞-並立助詞", "particle-coordinate"),
+                entry("助詞-準体助詞", "particle-quasi"),
+                entry("助詞-終助詞", "particle-final"),
+                entry("助詞-副助詞／並立助詞／終助詞", "particle-adverbial/conjunctive/final"),
+                entry("助詞-連体化", "particle-adnominalizer"),
+                entry("助詞-副詞化", "particle-adnominalizer"),
+                entry("助詞-特殊", "particle-special"),
+                entry("助動詞", "auxiliary-verb"),
+                entry("形状詞-助動詞語幹", "auxiliary-verb-stem-form"),
+                entry("感動詞", "interjection"),
+                entry("記号", "symbol"),
+                entry("記号-一般", "symbol-general"),
+                entry("記号-句点", "symbol-period"),
+                entry("記号-読点", "symbol-comma"),
+                entry("記号-空白", "symbol-space"),
+                entry("記号-括弧開", "symbol-open_bracket"),
+                entry("記号-括弧閉", "symbol-close_bracket"),
+                entry("記号-アルファベット", "symbol-alphabetic"),
+                entry("その他", "other"),
+                entry("その他-間投", "other-interjection"),
+                entry("フィラー", "filler"),
+                entry("非言語音", "non-verbal"),
+                entry("語断片", "fragment"),
+                entry("未知語", "unknown"));
     }
 
     /** Get the english form of a POS tag */
-    public static String getPOSTranslation(String s) {
-        return posTranslations.get(s);
+    public static String forPos(final String s) {
+        return POS_TRANSLATIONS.get(s);
     }
 
-    // a translation map for inflection types, only used for reflectWith
-    private static final HashMap<String, String> inflTypeTranslations = new HashMap<>();
-
-    static {
-        inflTypeTranslations.put("*", "*");
-        inflTypeTranslations.put("形容詞・アウオ段", "adj-group-a-o-u");
-        inflTypeTranslations.put("形容詞・イ段", "adj-group-i");
-        inflTypeTranslations.put("形容詞・イイ", "adj-group-ii");
-        inflTypeTranslations.put("不変化型", "non-inflectional");
-        inflTypeTranslations.put("特殊・タ", "special-da");
-        inflTypeTranslations.put("特殊・ダ", "special-ta");
-        inflTypeTranslations.put("文語・ゴトシ", "classical-gotoshi");
-        inflTypeTranslations.put("特殊・ジャ", "special-ja");
-        inflTypeTranslations.put("特殊・ナイ", "special-nai");
-        inflTypeTranslations.put("五段・ラ行特殊", "5-row-cons-r-special");
-        inflTypeTranslations.put("特殊・ヌ", "special-nu");
-        inflTypeTranslations.put("文語・キ", "classical-ki");
-        inflTypeTranslations.put("特殊・タイ", "special-tai");
-        inflTypeTranslations.put("文語・ベシ", "classical-beshi");
-        inflTypeTranslations.put("特殊・ヤ", "special-ya");
-        inflTypeTranslations.put("文語・マジ", "classical-maji");
-        inflTypeTranslations.put("下二・タ行", "2-row-lower-cons-t");
-        inflTypeTranslations.put("特殊・デス", "special-desu");
-        inflTypeTranslations.put("特殊・マス", "special-masu");
-        inflTypeTranslations.put("五段・ラ行アル", "5-row-aru");
-        inflTypeTranslations.put("文語・ナリ", "classical-nari");
-        inflTypeTranslations.put("文語・リ", "classical-ri");
-        inflTypeTranslations.put("文語・ケリ", "classical-keri");
-        inflTypeTranslations.put("文語・ル", "classical-ru");
-        inflTypeTranslations.put("五段・カ行イ音便", "5-row-cons-k-i-onbin");
-        inflTypeTranslations.put("五段・サ行", "5-row-cons-s");
-        inflTypeTranslations.put("一段", "1-row");
-        inflTypeTranslations.put("五段・ワ行促音便", "5-row-cons-w-cons-onbin");
-        inflTypeTranslations.put("五段・マ行", "5-row-cons-m");
-        inflTypeTranslations.put("五段・タ行", "5-row-cons-t");
-        inflTypeTranslations.put("五段・ラ行", "5-row-cons-r");
-        inflTypeTranslations.put("サ変・−スル", "irregular-suffix-suru");
-        inflTypeTranslations.put("五段・ガ行", "5-row-cons-g");
-        inflTypeTranslations.put("サ変・−ズル", "irregular-suffix-zuru");
-        inflTypeTranslations.put("五段・バ行", "5-row-cons-b");
-        inflTypeTranslations.put("五段・ワ行ウ音便", "5-row-cons-w-u-onbin");
-        inflTypeTranslations.put("下二・ダ行", "2-row-lower-cons-d");
-        inflTypeTranslations.put("五段・カ行促音便ユク", "5-row-cons-k-cons-onbin-yuku");
-        inflTypeTranslations.put("上二・ダ行", "2-row-upper-cons-d");
-        inflTypeTranslations.put("五段・カ行促音便", "5-row-cons-k-cons-onbin");
-        inflTypeTranslations.put("一段・得ル", "1-row-eru");
-        inflTypeTranslations.put("四段・タ行", "4-row-cons-t");
-        inflTypeTranslations.put("五段・ナ行", "5-row-cons-n");
-        inflTypeTranslations.put("下二・ハ行", "2-row-lower-cons-h");
-        inflTypeTranslations.put("四段・ハ行", "4-row-cons-h");
-        inflTypeTranslations.put("四段・バ行", "4-row-cons-b");
-        inflTypeTranslations.put("サ変・スル", "irregular-suru");
-        inflTypeTranslations.put("上二・ハ行", "2-row-upper-cons-h");
-        inflTypeTranslations.put("下二・マ行", "2-row-lower-cons-m");
-        inflTypeTranslations.put("四段・サ行", "4-row-cons-s");
-        inflTypeTranslations.put("下二・ガ行", "2-row-lower-cons-g");
-        inflTypeTranslations.put("カ変・来ル", "kuru-kanji");
-        inflTypeTranslations.put("一段・クレル", "1-row-kureru");
-        inflTypeTranslations.put("下二・得", "2-row-lower-u");
-        inflTypeTranslations.put("カ変・クル", "kuru-kana");
-        inflTypeTranslations.put("ラ変", "irregular-cons-r");
-        inflTypeTranslations.put("下二・カ行", "2-row-lower-cons-k");
-    }
-
-    /** Get the english form of inflection type */
-    public static String getInflectionTypeTranslation(String s) {
-        return inflTypeTranslations.get(s);
-    }
-
-    // a translation map for inflection forms, only used for reflectWith
-    private static final HashMap<String, String> inflFormTranslations = new HashMap<>();
-
-    static {
-        inflFormTranslations.put("*", "*");
-        inflFormTranslations.put("基本形", "base");
-        inflFormTranslations.put("文語基本形", "classical-base");
-        inflFormTranslations.put("未然ヌ接続", "imperfective-nu-connection");
-        inflFormTranslations.put("未然ウ接続", "imperfective-u-connection");
-        inflFormTranslations.put("連用タ接続", "conjunctive-ta-connection");
-        inflFormTranslations.put("連用テ接続", "conjunctive-te-connection");
-        inflFormTranslations.put("連用ゴザイ接続", "conjunctive-gozai-connection");
-        inflFormTranslations.put("体言接続", "uninflected-connection");
-        inflFormTranslations.put("仮定形", "subjunctive");
-        inflFormTranslations.put("命令ｅ", "imperative-e");
-        inflFormTranslations.put("仮定縮約１", "conditional-contracted-1");
-        inflFormTranslations.put("仮定縮約２", "conditional-contracted-2");
-        inflFormTranslations.put("ガル接続", "garu-connection");
-        inflFormTranslations.put("未然形", "imperfective");
-        inflFormTranslations.put("連用形", "conjunctive");
-        inflFormTranslations.put("音便基本形", "onbin-base");
-        inflFormTranslations.put("連用デ接続", "conjunctive-de-connection");
-        inflFormTranslations.put("未然特殊", "imperfective-special");
-        inflFormTranslations.put("命令ｉ", "imperative-i");
-        inflFormTranslations.put("連用ニ接続", "conjunctive-ni-connection");
-        inflFormTranslations.put("命令ｙｏ", "imperative-yo");
-        inflFormTranslations.put("体言接続特殊", "adnominal-special");
-        inflFormTranslations.put("命令ｒｏ", "imperative-ro");
-        inflFormTranslations.put("体言接続特殊２", "uninflected-special-connection-2");
-        inflFormTranslations.put("未然レル接続", "imperfective-reru-connection");
-        inflFormTranslations.put("現代基本形", "modern-base");
-        inflFormTranslations.put("基本形-促音便", "base-onbin"); // not sure about this
-    }
-
-    /** Get the english form of inflected form */
-    public static String getInflectedFormTranslation(String s) {
-        return inflFormTranslations.get(s);
-    }
-
-    /** Romanize katakana with modified hepburn */
-    public static String getRomanization(final String s) {
-        StringBuilder out = new StringBuilder();
+    /** Romanize Katakana with modified hepburn */
+    public static String toRomaji(final String s) {
+        final StringBuilder out = new StringBuilder();
         try {
-            getRomanization(out, s);
+            toRomaji(out, s);
         } catch (IOException bogus) {
             throw new RuntimeException(bogus);
         }
@@ -252,7 +154,7 @@ public class LuceneKuromojiStringUtils {
     /** Romanize katakana with modified hepburn */
     // TODO: now that this is used by readingsfilter and not just for
     // debugging, fix this to really be a scheme that works best with IMEs
-    private static void getRomanization(final Appendable builder, final CharSequence s) throws IOException {
+    private static void toRomaji(final Appendable builder, final CharSequence s) throws IOException {
         final int len = s.length();
         for (int i = 0; i < len; i++) {
             // maximum lookahead: 3

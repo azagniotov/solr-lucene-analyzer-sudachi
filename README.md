@@ -106,6 +106,7 @@ Configure the `schema.xml` (or a `managed-schema` file) with the following confi
       <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilterFactory" />
       <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilterFactory" tags="lang/stoptags_ja.txt" />
       <filter class="solr.CJKWidthFilterFactory" />
+      <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiKatakanaStemFilterFactory" minimumLength="4" />
       <!-- Removes common tokens typically not useful for search, but have a negative effect on ranking -->
       <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_ja.txt" />
       <!-- Normalizes common katakana spelling variations by removing any last long sound character (U+30FC) -->

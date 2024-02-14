@@ -21,6 +21,7 @@ import com.worksap.nlp.sudachi.PartialPOS;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.cache.DictionaryCache;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilter;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilterFactory;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiKatakanaStemFilter;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilterFactory;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizer;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory;
@@ -41,8 +42,8 @@ import org.apache.lucene.analysis.StopwordAnalyzerBase;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.cjk.CJKWidthCharFilter;
+import org.apache.lucene.analysis.cjk.CJKWidthFilterFactory;
 import org.apache.lucene.analysis.core.StopFilter;
-import org.apache.lucene.analysis.ja.JapaneseKatakanaStemFilter;
 import org.apache.lucene.util.AttributeFactory;
 
 /**
@@ -111,8 +112,9 @@ public class SudachiAnalyzer extends StopwordAnalyzerBase {
 
             stream = new SudachiBaseFormFilterFactory(emptyArgs).create(stream);
             stream = new SudachiPartOfSpeechStopFilterFactory(emptyArgs).create(stream);
+            stream = new CJKWidthFilterFactory(emptyArgs).create(stream);
             stream = new StopFilter(stream, this.stopwords);
-            stream = new JapaneseKatakanaStemFilter(stream);
+            stream = new SudachiKatakanaStemFilter(stream);
             stream = new LowerCaseFilter(stream);
             return new TokenStreamComponents(tokenizer, stream);
         } catch (IOException iox) {
