@@ -122,6 +122,7 @@ public class Translations {
                 entry("記号", "symbol"),
                 entry("記号-一般", "symbol-general"),
                 entry("記号-句点", "symbol-period"),
+                entry("補助記号-句点", "symbol-period"),
                 entry("記号-読点", "symbol-comma"),
                 entry("記号-空白", "symbol-space"),
                 entry("記号-括弧開", "symbol-open_bracket"),

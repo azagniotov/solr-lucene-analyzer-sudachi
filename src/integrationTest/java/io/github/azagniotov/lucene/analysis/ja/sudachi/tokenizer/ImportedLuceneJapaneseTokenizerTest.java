@@ -20,9 +20,17 @@ package io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer;
 import static com.worksap.nlp.sudachi.Tokenizer.SplitMode;
 
 import com.worksap.nlp.sudachi.Config;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiBaseFormAttribute;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiPartOfSpeechAttribute;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiReadingFormAttribute;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.test.TestUtils;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.tests.analysis.BaseTokenStreamTestCase;
+import org.apache.lucene.tests.util.TestUtil;
+import org.apache.lucene.util.UnicodeUtil;
 import org.junit.Before;
 
 public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase {
@@ -68,6 +76,28 @@ public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase
     }
 
     public void testDecomposition_v3() throws Exception {
+        final String input = "魔女狩大将マシュー・ホプキンス。";
+        final TokenStream tokenStream = this.testUtils.tokenize(input, true, SplitMode.A);
+
+        assertTokenStreamContents(
+                tokenStream, new String[] {"魔女", "狩", "大将", "マシュー", "ホプキンス"}, new int[] {0, 2, 3, 5, 10}, new int[] {
+                    2, 3, 5, 9, 15
+                });
+    }
+
+    // The stop words will be filtered out by the Analyzer anyway
+    public void testDecomposition_v4() throws Exception {
+        final String input = "これは本ではない    ";
+        final TokenStream tokenStream = this.testUtils.tokenize(input, true, SplitMode.A);
+        assertTokenStreamContents(
+                tokenStream,
+                new String[] {"これ", "は", "本", "で", "は", "ない"},
+                new int[] {0, 2, 3, 4, 5, 6, 8},
+                new int[] {2, 3, 4, 5, 6, 8, 9},
+                12);
+    }
+
+    public void testDecomposition_v5() throws Exception {
         final String input = "くよくよくよくよくよくよくよくよくよくよくよくよくよくよくよくよくよくよくよくよ";
         final TokenStream tokenStream = this.testUtils.tokenize(input, true, SplitMode.A);
 
@@ -78,21 +108,213 @@ public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase
                 new int[] {4, 8, 12, 16, 20, 24, 28, 32, 36, 40});
     }
 
+    /**
+     * Tests that sentence offset is incorporated into the resulting offsets
+     */
+    public void testTwoSentences() throws Exception {
+        final String input = "魔女狩大将マシュー・ホプキンス。 魔女狩大将マシュー・ホプキンス。";
+        final TokenStream tokenStream = this.testUtils.tokenize(input, true, SplitMode.A);
+        assertTokenStreamContents(
+                tokenStream,
+                new String[] {"魔女", "狩", "大将", "マシュー", "ホプキンス", "魔女", "狩", "大将", "マシュー", "ホプキンス"},
+                new int[] {0, 2, 3, 5, 10, 17, 19, 20, 22, 27},
+                new int[] {2, 3, 5, 9, 15, 19, 20, 22, 26, 32});
+    }
+
     public void testSurrogates() throws Exception {
         final String input = "𩬅艱鍟䇹愯瀛";
         final TokenStream tokenStream = this.testUtils.tokenize(input, true, SplitMode.A);
         assertTokenStreamContents(tokenStream, new String[] {"𩬅", "艱", "鍟䇹", "愯瀛"});
     }
 
-    // The stop words will be filtered out by the Analyzer anyway
-    public void testStopWords() throws Exception {
-        final String input = "これは本ではない    ";
-        final TokenStream tokenStream = this.testUtils.tokenize(input, true, SplitMode.A);
-        assertTokenStreamContents(
-                tokenStream,
-                new String[] {"これ", "は", "本", "で", "は", "ない"},
-                new int[] {0, 2, 3, 4, 5, 6, 8},
-                new int[] {2, 3, 4, 5, 6, 8, 9},
-                12);
+    public void testSurrogates_v2() throws Exception {
+        final Tokenizer tokenizer = this.testUtils.makeTokenizer(false, SplitMode.A);
+        final Analyzer analyzer = new Analyzer() {
+            @Override
+            protected TokenStreamComponents createComponents(String fieldName) {
+                return new TokenStreamComponents(tokenizer, tokenizer);
+            }
+        };
+
+        final int numIterations = atLeast(500);
+        for (int i = 0; i < numIterations; i++) {
+            final String s = TestUtil.randomUnicodeString(random(), 100);
+            try (TokenStream ts = analyzer.tokenStream("foo", s)) {
+                final CharTermAttribute termAtt = ts.addAttribute(CharTermAttribute.class);
+                ts.reset();
+                while (ts.incrementToken()) {
+                    assertTrue(UnicodeUtil.validUTF16String(termAtt));
+                }
+                ts.end();
+            }
+        }
+    }
+
+    public void testOnlyPunctuation() throws Exception {
+        final Tokenizer tokenizer = this.testUtils.makeTokenizer(true, SplitMode.A);
+        final Analyzer analyzerNoPunct = new Analyzer() {
+            @Override
+            protected TokenStreamComponents createComponents(String fieldName) {
+                return new TokenStreamComponents(tokenizer, tokenizer);
+            }
+        };
+        try (TokenStream ts = analyzerNoPunct.tokenStream("foo", "。、。。")) {
+            ts.reset();
+            assertFalse(ts.incrementToken());
+            ts.end();
+        }
+    }
+
+    public void testOnlyPunctuationExtended() throws Exception {
+        final Tokenizer tokenizer = this.testUtils.makeTokenizer(true, SplitMode.C);
+        final Analyzer analyzerNoPunct = new Analyzer() {
+            @Override
+            protected TokenStreamComponents createComponents(String fieldName) {
+                return new TokenStreamComponents(tokenizer, tokenizer);
+            }
+        };
+        try (TokenStream ts = analyzerNoPunct.tokenStream("foo", "......")) {
+            ts.reset();
+            assertFalse(ts.incrementToken());
+            ts.end();
+        }
+    }
+
+    public void testSegmentation() throws Exception {
+        final String inputOne = "ミシェル・クワンが優勝しました。スペースステーションに行きます。うたがわしい。";
+        final TokenStream tokenStreamOne = this.testUtils.tokenize(inputOne, false, SplitMode.A);
+        final String[] surfaceFormsOne = {
+            "ミシェル", "・", "クワン", "が", "優勝", "し", "まし", "た", "。", "スペース", "ステーション", "に", "行き", "ます", "。", "うたがわしい", "。"
+        };
+        final Analyzer analyzerOne = new Analyzer() {
+            @Override
+            protected TokenStreamComponents createComponents(String fieldName) {
+                return new TokenStreamComponents((Tokenizer) tokenStreamOne, tokenStreamOne);
+            }
+        };
+        assertAnalyzesTo(analyzerOne, inputOne, surfaceFormsOne);
+
+        final String inputTwo = "スペースステーションに行きます。うたがわしい。";
+        final TokenStream tokenStreamTwo = this.testUtils.tokenize(inputTwo, false, SplitMode.A);
+        final String[] surfaceFormsTwo = {"スペース", "ステーション", "に", "行き", "ます", "。", "うたがわしい", "。"};
+
+        final Analyzer analyzerTwo = new Analyzer() {
+            @Override
+            protected TokenStreamComponents createComponents(String fieldName) {
+                return new TokenStreamComponents((Tokenizer) tokenStreamTwo, tokenStreamTwo);
+            }
+        };
+        assertAnalyzesTo(analyzerTwo, inputTwo, surfaceFormsTwo);
+    }
+
+    public void testReadings() throws Exception {
+        final Tokenizer tokenizer = this.testUtils.makeTokenizer(false, SplitMode.A);
+        final Analyzer analyzer = new Analyzer() {
+            @Override
+            protected TokenStreamComponents createComponents(String fieldName) {
+                return new TokenStreamComponents(tokenizer, tokenizer);
+            }
+        };
+        assertReadings(analyzer, "寿司が食べたいです。", "スシ", "ガ", "タベ", "タイ", "デス", "。");
+    }
+
+    public void testReadings_v2() throws Exception {
+        final Tokenizer tokenizer = this.testUtils.makeTokenizer(false, SplitMode.A);
+        final Analyzer analyzer = new Analyzer() {
+            @Override
+            protected TokenStreamComponents createComponents(String fieldName) {
+                return new TokenStreamComponents(tokenizer, tokenizer);
+            }
+        };
+        assertReadings(analyzer, "多くの学生が試験に落ちた。", "オオク", "ノ", "ガクセイ", "ガ", "シケン", "ニ", "オチ", "タ", "。");
+    }
+
+    public void testBasicForms() throws Exception {
+        final Tokenizer tokenizer = this.testUtils.makeTokenizer(false, SplitMode.A);
+        final Analyzer analyzer = new Analyzer() {
+            @Override
+            protected TokenStreamComponents createComponents(String fieldName) {
+                return new TokenStreamComponents(tokenizer, tokenizer);
+            }
+        };
+        assertBaseForms(analyzer, "それはまだ実験段階にあります。", "それ", "は", "まだ", "実験", "段階", "に", "ある", "ます", "。");
+    }
+
+    public void testPartOfSpeech() throws Exception {
+        final Tokenizer tokenizer = this.testUtils.makeTokenizer(false, SplitMode.A);
+        final Analyzer analyzer = new Analyzer() {
+            @Override
+            protected TokenStreamComponents createComponents(String fieldName) {
+                return new TokenStreamComponents(tokenizer, tokenizer);
+            }
+        };
+        assertPartsOfSpeech(
+                analyzer,
+                "それはまだ実験段階にあります。",
+                "代名詞",
+                "助詞-係助詞",
+                "副詞",
+                "名詞-普通名詞",
+                "名詞-普通名詞",
+                "助詞-格助詞",
+                "動詞-非自立可能",
+                "助動詞",
+                "補助記号-句点");
+    }
+
+    public void testCompoundOverPunctuation() throws Exception {
+        final Tokenizer tokenizer = this.testUtils.makeTokenizer(true, SplitMode.A);
+        final Analyzer analyzer = new Analyzer() {
+            @Override
+            protected TokenStreamComponents createComponents(String fieldName) {
+                return new TokenStreamComponents(tokenizer, tokenizer);
+            }
+        };
+        assertAnalyzesToPositions(
+                analyzer,
+                "dεε϶ϢϏΎϷΞͺ羽田",
+                new String[] {"d", "εε϶ϢϏΎϷΞ", "", "羽田"},
+                new int[] {1, 1, 1, 1, 1},
+                new int[] {1, 1, 1, 1, 1});
+    }
+
+    private void assertReadings(final Analyzer analyzer, final String input, String... readings) throws Exception {
+        try (final TokenStream ts = analyzer.tokenStream("ignored", input)) {
+            final SudachiReadingFormAttribute readingAtt = ts.addAttribute(SudachiReadingFormAttribute.class);
+            ts.reset();
+            for (final String reading : readings) {
+                assertTrue(ts.incrementToken());
+                assertEquals(reading, readingAtt.getReadingForm());
+            }
+            assertFalse(ts.incrementToken());
+            ts.end();
+        }
+    }
+
+    private void assertBaseForms(final Analyzer analyzer, final String input, String... baseForms) throws Exception {
+        try (final TokenStream ts = analyzer.tokenStream("ignored", input)) {
+            final SudachiBaseFormAttribute baseFormAtt = ts.addAttribute(SudachiBaseFormAttribute.class);
+            ts.reset();
+            for (final String baseForm : baseForms) {
+                assertTrue(ts.incrementToken());
+                assertEquals(baseForm, baseFormAtt.getBaseForm());
+            }
+            assertFalse(ts.incrementToken());
+            ts.end();
+        }
+    }
+
+    private void assertPartsOfSpeech(final Analyzer analyzer, final String input, String... partsOfSpeech)
+            throws Exception {
+        try (final TokenStream ts = analyzer.tokenStream("ignored", input)) {
+            final SudachiPartOfSpeechAttribute partOfSpeechAtt = ts.addAttribute(SudachiPartOfSpeechAttribute.class);
+            ts.reset();
+            for (final String partOfSpeech : partsOfSpeech) {
+                assertTrue(ts.incrementToken());
+                assertEquals(partOfSpeech, partOfSpeechAtt.getPartOfSpeech());
+            }
+            assertFalse(ts.incrementToken());
+            ts.end();
+        }
     }
 }
