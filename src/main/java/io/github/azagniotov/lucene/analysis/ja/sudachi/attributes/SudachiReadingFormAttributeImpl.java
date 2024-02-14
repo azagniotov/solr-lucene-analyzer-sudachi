@@ -49,8 +49,8 @@ public class SudachiReadingFormAttributeImpl extends AttributeImpl implements Su
             attributeReflector.reflect(SudachiReadingFormAttribute.class, "reading (ja)", readingFormJA);
             attributeReflector.reflect(SudachiReadingFormAttribute.class, "reading (en)", readingFormEN);
         } else {
-            attributeReflector.reflect(SudachiReadingFormAttribute.class, "reading (ja)", "OOV");
-            attributeReflector.reflect(SudachiReadingFormAttribute.class, "reading (en)", "OOV");
+            attributeReflector.reflect(SudachiReadingFormAttribute.class, "reading (ja)", "Out of Vocab");
+            attributeReflector.reflect(SudachiReadingFormAttribute.class, "reading (en)", "Out of Vocab");
         }
     }
 

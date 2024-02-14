@@ -80,6 +80,7 @@ public class SudachiTokenizerTest {
             /* === Example: End of custom tokenization using the user dictionary === */
 
             {"令和", new Object[] {"令和"}},
+            {"令和元年", new Object[] {"令和", "元年"}},
             {"機能性食品", new Object[] {"機能", "性", "食品"}},
             {"労働者協同組合", new Object[] {"労働", "者", "協同", "組合"}},
             {"客室乗務員", new Object[] {"客室", "乗務", "員"}},
@@ -152,6 +153,8 @@ public class SudachiTokenizerTest {
             {"ポケカ", new Object[] {"ポケカ"}},
             // Built-in Lucene's Kuromoji: おそ, 松
             {"おそ松", new Object[] {"おそ松"}},
+            // Built-in Lucene's Kuromoji: Asashōryū (sumo wrestler): 朝, 青龍
+            {"朝青龍", new Object[] {"朝青龍"}},
             {"日本経済新聞", new Object[] {"日本", "経済", "新聞"}},
             // Built-in Lucene's Kuromoji: りん, ご, ジュース, を, 飲ん, だ
             {"りんごジュースを飲んだ", new Object[] {"りんご", "ジュース", "を", "飲ん", "だ"}},
@@ -171,6 +174,7 @@ public class SudachiTokenizerTest {
             {"マキタ", new Object[] {"マキタ"}},
             // Built-in Lucene's Kuromoji: クロ, ミ
             {"クロミ", new Object[] {"クロミ"}},
+            {"ミシェル・クワン", new Object[] {"ミシェル", "クワン"}},
             // {"すもももももももものうち", new Object[] {"すもも", "も", "もも", "も", "もも", "の", "うち"}},
             {"イーブイヒーローズbox未開封シュリンク", new Object[] {"イーブイヒーローズ", "box", "未", "開封", "シュリンク"}},
             {"いいいいいいいい", new Object[] {"いい", "いい", "いい", "いい"}},
