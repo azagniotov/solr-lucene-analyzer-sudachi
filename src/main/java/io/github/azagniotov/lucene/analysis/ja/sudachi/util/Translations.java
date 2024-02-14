@@ -141,7 +141,9 @@ public class Translations {
         return POS_TRANSLATIONS.get(s);
     }
 
-    /** Romanize Katakana with modified hepburn */
+    /**
+     * Romanize Katakana using Kunrei: <a href="https://en.wikipedia.org/wiki/Kunrei-shiki_romanization">Kunrei</a>
+     * */
     public static String toRomaji(final String s) {
         final StringBuilder out = new StringBuilder();
         try {
@@ -152,16 +154,31 @@ public class Translations {
         return out.toString();
     }
 
-    /** Romanize katakana with modified hepburn */
-    // TODO: now that this is used by readingsfilter and not just for
-    // debugging, fix this to really be a scheme that works best with IMEs
+    /**
+     *  Copyright (c) 2018 Works Applications Co., Ltd.
+     *
+     * Licensed under the Apache License, Version 2.0 (the "License");
+     * you may not use this file except in compliance with the License.
+     * You may obtain a copy of the License at
+     * <p>
+     *     http://www.apache.org/licenses/LICENSE-2.0
+     * <p>
+     * Unless required by applicable law or agreed to in writing, software
+     * distributed under the License is distributed on an "AS IS" BASIS,
+     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     * See the License for the specific language governing permissions and
+     * limitations under the License.
+     * <p>
+     * Romanize Katakana using Kunrei: <a href="https://en.wikipedia.org/wiki/Kunrei-shiki_romanization">Kunrei</a>
+     * The code adopted from:
+     * 1. https://github.com/WorksApplications/elasticsearch-sudachi/issues/29
+     * 2. https://github.com/WorksApplications/elasticsearch-sudachi/pull/32
+     * */
     private static void toRomaji(final Appendable builder, final CharSequence s) throws IOException {
         final int len = s.length();
         for (int i = 0; i < len; i++) {
-            // maximum lookahead: 3
             char ch = s.charAt(i);
             char ch2 = (i < len - 1) ? s.charAt(i + 1) : 0;
-            char ch3 = (i < len - 2) ? s.charAt(i + 2) : 0;
 
             main:
             switch (ch) {
@@ -188,6 +205,63 @@ public class Translations {
                         case 'ト':
                             builder.append('t');
                             break main;
+                        case 'ナ':
+                        case 'ニ':
+                        case 'ヌ':
+                        case 'ネ':
+                        case 'ノ':
+                            builder.append('n');
+                            break main;
+                        case 'ハ':
+                        case 'ヒ':
+                        case 'フ':
+                        case 'ヘ':
+                        case 'ホ':
+                            builder.append('h');
+                            break main;
+                        case 'マ':
+                        case 'ミ':
+                        case 'ム':
+                        case 'メ':
+                        case 'モ':
+                            builder.append('m');
+                            break main;
+                        case 'ヤ':
+                        case 'ユ':
+                        case 'ヨ':
+                            builder.append('y');
+                            break main;
+                        case 'ワ':
+                            builder.append('w');
+                            break main;
+                        case 'ガ':
+                        case 'ギ':
+                        case 'グ':
+                        case 'ゲ':
+                        case 'ゴ':
+                            builder.append('g');
+                            break main;
+                        case 'ザ':
+                        case 'ジ':
+                        case 'ズ':
+                        case 'ゼ':
+                        case 'ゾ':
+                            builder.append('z');
+                            break main;
+                        case 'ダ':
+                        case 'ヂ':
+                        case 'ヅ':
+                        case 'デ':
+                        case 'ド':
+                            builder.append('d');
+                            break main;
+                        case 'バ':
+                        case 'ビ':
+                        case 'ブ':
+                        case 'ベ':
+                        case 'ボ':
+                            builder.append('b');
+                            break main;
                         case 'パ':
                         case 'ピ':
                         case 'プ':
@@ -195,46 +269,32 @@ public class Translations {
                         case 'ポ':
                             builder.append('p');
                             break main;
+                        default:
+                            builder.append("ltu");
                     }
                     break;
                 case 'ア':
                     builder.append('a');
                     break;
                 case 'イ':
-                    if (ch2 == 'ィ') {
-                        builder.append("yi");
-                        i++;
-                    } else if (ch2 == 'ェ') {
-                        builder.append("ye");
-                        i++;
-                    } else {
-                        builder.append('i');
-                    }
+                    builder.append('i');
                     break;
                 case 'ウ':
                     switch (ch2) {
                         case 'ァ':
-                            builder.append("wa");
+                            builder.append("wha");
                             i++;
                             break;
                         case 'ィ':
-                            builder.append("wi");
-                            i++;
-                            break;
-                        case 'ゥ':
-                            builder.append("wu");
+                            builder.append("whi");
                             i++;
                             break;
                         case 'ェ':
-                            builder.append("we");
+                            builder.append("whe");
                             i++;
                             break;
                         case 'ォ':
-                            builder.append("wo");
-                            i++;
-                            break;
-                        case 'ュ':
-                            builder.append("wyu");
+                            builder.append("who");
                             i++;
                             break;
                         default:
@@ -246,59 +306,58 @@ public class Translations {
                     builder.append('e');
                     break;
                 case 'オ':
-                    if (ch2 == 'ウ') {
-                        builder.append('ō');
-                        i++;
-                    } else {
-                        builder.append('o');
-                    }
+                    builder.append('o');
                     break;
                 case 'カ':
                     builder.append("ka");
                     break;
                 case 'キ':
-                    if (ch2 == 'ョ' && ch3 == 'ウ') {
-                        builder.append("kyō");
-                        i += 2;
-                    } else if (ch2 == 'ュ' && ch3 == 'ウ') {
-                        builder.append("kyū");
-                        i += 2;
-                    } else if (ch2 == 'ャ') {
-                        builder.append("kya");
-                        i++;
-                    } else if (ch2 == 'ョ') {
-                        builder.append("kyo");
-                        i++;
-                    } else if (ch2 == 'ュ') {
-                        builder.append("kyu");
-                        i++;
-                    } else if (ch2 == 'ェ') {
-                        builder.append("kye");
-                        i++;
-                    } else {
-                        builder.append("ki");
+                    switch (ch2) {
+                        case 'ャ':
+                            builder.append("kya");
+                            i++;
+                            break;
+                        case 'ィ':
+                            builder.append("kyi");
+                            i++;
+                            break;
+                        case 'ュ':
+                            builder.append("kyu");
+                            i++;
+                            break;
+                        case 'ェ':
+                            builder.append("kye");
+                            i++;
+                            break;
+                        case 'ョ':
+                            builder.append("kyo");
+                            i++;
+                            break;
+                        default:
+                            builder.append("ki");
+                            break;
                     }
                     break;
                 case 'ク':
                     switch (ch2) {
                         case 'ァ':
-                            builder.append("kwa");
+                            builder.append("qwa");
                             i++;
                             break;
                         case 'ィ':
-                            builder.append("kwi");
+                            builder.append("qwi");
+                            i++;
+                            break;
+                        case 'ゥ':
+                            builder.append("qwu");
                             i++;
                             break;
                         case 'ェ':
-                            builder.append("kwe");
+                            builder.append("qwe");
                             i++;
                             break;
                         case 'ォ':
-                            builder.append("kwo");
-                            i++;
-                            break;
-                        case 'ヮ':
-                            builder.append("kwa");
+                            builder.append("qwo");
                             i++;
                             break;
                         default:
@@ -310,153 +369,210 @@ public class Translations {
                     builder.append("ke");
                     break;
                 case 'コ':
-                    if (ch2 == 'ウ') {
-                        builder.append("kō");
-                        i++;
-                    } else {
-                        builder.append("ko");
-                    }
+                    builder.append("ko");
                     break;
                 case 'サ':
                     builder.append("sa");
                     break;
                 case 'シ':
-                    if (ch2 == 'ョ' && ch3 == 'ウ') {
-                        builder.append("shō");
-                        i += 2;
-                    } else if (ch2 == 'ュ' && ch3 == 'ウ') {
-                        builder.append("shū");
-                        i += 2;
-                    } else if (ch2 == 'ャ') {
-                        builder.append("sha");
-                        i++;
-                    } else if (ch2 == 'ョ') {
-                        builder.append("sho");
-                        i++;
-                    } else if (ch2 == 'ュ') {
-                        builder.append("shu");
-                        i++;
-                    } else if (ch2 == 'ェ') {
-                        builder.append("she");
-                        i++;
-                    } else {
-                        builder.append("shi");
+                    switch (ch2) {
+                        case 'ャ':
+                            builder.append("sya");
+                            i++;
+                            break;
+                        case 'ィ':
+                            builder.append("syi");
+                            i++;
+                            break;
+                        case 'ュ':
+                            builder.append("syu");
+                            i++;
+                            break;
+                        case 'ェ':
+                            builder.append("sye");
+                            i++;
+                            break;
+                        case 'ョ':
+                            builder.append("syo");
+                            i++;
+                            break;
+                        default:
+                            builder.append("si");
+                            break;
                     }
                     break;
                 case 'ス':
-                    if (ch2 == 'ィ') {
-                        builder.append("si");
-                        i++;
-                    } else {
-                        builder.append("su");
+                    switch (ch2) {
+                        case 'ァ':
+                            builder.append("swa");
+                            i++;
+                            break;
+                        case 'ィ':
+                            builder.append("swi");
+                            i++;
+                            break;
+                        case 'ゥ':
+                            builder.append("swu");
+                            i++;
+                            break;
+                        case 'ェ':
+                            builder.append("swe");
+                            i++;
+                            break;
+                        case 'ォ':
+                            builder.append("swo");
+                            i++;
+                            break;
+                        default:
+                            builder.append("su");
+                            break;
                     }
                     break;
                 case 'セ':
                     builder.append("se");
                     break;
                 case 'ソ':
-                    if (ch2 == 'ウ') {
-                        builder.append("sō");
-                        i++;
-                    } else {
-                        builder.append("so");
-                    }
+                    builder.append("so");
                     break;
                 case 'タ':
                     builder.append("ta");
                     break;
                 case 'チ':
-                    if (ch2 == 'ョ' && ch3 == 'ウ') {
-                        builder.append("chō");
-                        i += 2;
-                    } else if (ch2 == 'ュ' && ch3 == 'ウ') {
-                        builder.append("chū");
-                        i += 2;
-                    } else if (ch2 == 'ャ') {
-                        builder.append("cha");
-                        i++;
-                    } else if (ch2 == 'ョ') {
-                        builder.append("cho");
-                        i++;
-                    } else if (ch2 == 'ュ') {
-                        builder.append("chu");
-                        i++;
-                    } else if (ch2 == 'ェ') {
-                        builder.append("che");
-                        i++;
-                    } else {
-                        builder.append("chi");
+                    switch (ch2) {
+                        case 'ャ':
+                            builder.append("tya");
+                            i++;
+                            break;
+                        case 'ィ':
+                            builder.append("tyi");
+                            i++;
+                            break;
+                        case 'ュ':
+                            builder.append("tyu");
+                            i++;
+                            break;
+                        case 'ェ':
+                            builder.append("tye");
+                            i++;
+                            break;
+                        case 'ョ':
+                            builder.append("tyo");
+                            i++;
+                            break;
+                        default:
+                            builder.append("ti");
+                            break;
                     }
                     break;
                 case 'ツ':
-                    if (ch2 == 'ァ') {
-                        builder.append("tsa");
-                        i++;
-                    } else if (ch2 == 'ィ') {
-                        builder.append("tsi");
-                        i++;
-                    } else if (ch2 == 'ェ') {
-                        builder.append("tse");
-                        i++;
-                    } else if (ch2 == 'ォ') {
-                        builder.append("tso");
-                        i++;
-                    } else if (ch2 == 'ュ') {
-                        builder.append("tsyu");
-                        i++;
-                    } else {
-                        builder.append("tsu");
+                    switch (ch2) {
+                        case 'ァ':
+                            builder.append("tsa");
+                            i++;
+                            break;
+                        case 'ィ':
+                            builder.append("tsi");
+                            i++;
+                            break;
+                        case 'ゥ':
+                            builder.append("tsu");
+                            i++;
+                            break;
+                        case 'ェ':
+                            builder.append("tse");
+                            i++;
+                            break;
+                        case 'ォ':
+                            builder.append("tso");
+                            i++;
+                            break;
+                        default:
+                            builder.append("tu");
+                            break;
                     }
                     break;
                 case 'テ':
-                    if (ch2 == 'ィ') {
-                        builder.append("ti");
-                        i++;
-                    } else if (ch2 == 'ゥ') {
-                        builder.append("tu");
-                        i++;
-                    } else if (ch2 == 'ュ') {
-                        builder.append("tyu");
-                        i++;
-                    } else {
-                        builder.append("te");
+                    switch (ch2) {
+                        case 'ャ':
+                            builder.append("tha");
+                            i++;
+                            break;
+                        case 'ィ':
+                            builder.append("thi");
+                            i++;
+                            break;
+                        case 'ュ':
+                            builder.append("thu");
+                            i++;
+                            break;
+                        case 'ェ':
+                            builder.append("the");
+                            i++;
+                            break;
+                        case 'ョ':
+                            builder.append("tho");
+                            i++;
+                            break;
+                        default:
+                            builder.append("te");
+                            break;
                     }
                     break;
                 case 'ト':
-                    if (ch2 == 'ウ') {
-                        builder.append("tō");
-                        i++;
-                    } else if (ch2 == 'ゥ') {
-                        builder.append("tu");
-                        i++;
-                    } else {
-                        builder.append("to");
+                    switch (ch2) {
+                        case 'ァ':
+                            builder.append("twa");
+                            i++;
+                            break;
+                        case 'ィ':
+                            builder.append("twi");
+                            i++;
+                            break;
+                        case 'ゥ':
+                            builder.append("twu");
+                            i++;
+                            break;
+                        case 'ェ':
+                            builder.append("twe");
+                            i++;
+                            break;
+                        case 'ォ':
+                            builder.append("two");
+                            i++;
+                            break;
+                        default:
+                            builder.append("to");
+                            break;
                     }
                     break;
                 case 'ナ':
                     builder.append("na");
                     break;
                 case 'ニ':
-                    if (ch2 == 'ョ' && ch3 == 'ウ') {
-                        builder.append("nyō");
-                        i += 2;
-                    } else if (ch2 == 'ュ' && ch3 == 'ウ') {
-                        builder.append("nyū");
-                        i += 2;
-                    } else if (ch2 == 'ャ') {
-                        builder.append("nya");
-                        i++;
-                    } else if (ch2 == 'ョ') {
-                        builder.append("nyo");
-                        i++;
-                    } else if (ch2 == 'ュ') {
-                        builder.append("nyu");
-                        i++;
-                    } else if (ch2 == 'ェ') {
-                        builder.append("nye");
-                        i++;
-                    } else {
-                        builder.append("ni");
+                    switch (ch2) {
+                        case 'ャ':
+                            builder.append("nya");
+                            i++;
+                            break;
+                        case 'ィ':
+                            builder.append("nyi");
+                            i++;
+                            break;
+                        case 'ュ':
+                            builder.append("nyu");
+                            i++;
+                            break;
+                        case 'ェ':
+                            builder.append("nye");
+                            i++;
+                            break;
+                        case 'ョ':
+                            builder.append("nyo");
+                            i++;
+                            break;
+                        default:
+                            builder.append("ni");
+                            break;
                     }
                     break;
                 case 'ヌ':
@@ -466,106 +582,111 @@ public class Translations {
                     builder.append("ne");
                     break;
                 case 'ノ':
-                    if (ch2 == 'ウ') {
-                        builder.append("nō");
-                        i++;
-                    } else {
-                        builder.append("no");
-                    }
+                    builder.append("no");
                     break;
                 case 'ハ':
                     builder.append("ha");
                     break;
                 case 'ヒ':
-                    if (ch2 == 'ョ' && ch3 == 'ウ') {
-                        builder.append("hyō");
-                        i += 2;
-                    } else if (ch2 == 'ュ' && ch3 == 'ウ') {
-                        builder.append("hyū");
-                        i += 2;
-                    } else if (ch2 == 'ャ') {
-                        builder.append("hya");
-                        i++;
-                    } else if (ch2 == 'ョ') {
-                        builder.append("hyo");
-                        i++;
-                    } else if (ch2 == 'ュ') {
-                        builder.append("hyu");
-                        i++;
-                    } else if (ch2 == 'ェ') {
-                        builder.append("hye");
-                        i++;
-                    } else {
-                        builder.append("hi");
+                    switch (ch2) {
+                        case 'ャ':
+                            builder.append("hya");
+                            i++;
+                            break;
+                        case 'ィ':
+                            builder.append("hyi");
+                            i++;
+                            break;
+                        case 'ュ':
+                            builder.append("hyu");
+                            i++;
+                            break;
+                        case 'ェ':
+                            builder.append("hye");
+                            i++;
+                            break;
+                        case 'ョ':
+                            builder.append("hyo");
+                            i++;
+                            break;
+                        default:
+                            builder.append("hi");
+                            break;
                     }
                     break;
                 case 'フ':
-                    if (ch2 == 'ャ') {
-                        builder.append("fya");
-                        i++;
-                    } else if (ch2 == 'ュ') {
-                        builder.append("fyu");
-                        i++;
-                    } else if (ch2 == 'ィ' && ch3 == 'ェ') {
-                        builder.append("fye");
-                        i += 2;
-                    } else if (ch2 == 'ョ') {
-                        builder.append("fyo");
-                        i++;
-                    } else if (ch2 == 'ァ') {
-                        builder.append("fa");
-                        i++;
-                    } else if (ch2 == 'ィ') {
-                        builder.append("fi");
-                        i++;
-                    } else if (ch2 == 'ェ') {
-                        builder.append("fe");
-                        i++;
-                    } else if (ch2 == 'ォ') {
-                        builder.append("fo");
-                        i++;
-                    } else {
-                        builder.append("fu");
+                    switch (ch2) {
+                        case 'ァ':
+                            builder.append("fwa");
+                            i++;
+                            break;
+                        case 'ィ':
+                            builder.append("fwi");
+                            i++;
+                            break;
+                        case 'ゥ':
+                            builder.append("fwu");
+                            i++;
+                            break;
+                        case 'ェ':
+                            builder.append("fwe");
+                            i++;
+                            break;
+                        case 'ォ':
+                            builder.append("fwo");
+                            i++;
+                            break;
+                        case 'ャ':
+                            builder.append("fya");
+                            i++;
+                            break;
+                        case 'ュ':
+                            builder.append("fyu");
+                            i++;
+                            break;
+                        case 'ョ':
+                            builder.append("fyo");
+                            i++;
+                            break;
+                        default:
+                            builder.append("ho");
+                            break;
                     }
                     break;
                 case 'ヘ':
                     builder.append("he");
                     break;
                 case 'ホ':
-                    if (ch2 == 'ウ') {
-                        builder.append("hō");
-                        i++;
-                    } else if (ch2 == 'ゥ') {
-                        builder.append("hu");
-                        i++;
-                    } else {
-                        builder.append("ho");
-                    }
+                    builder.append("ho");
                     break;
                 case 'マ':
                     builder.append("ma");
                     break;
                 case 'ミ':
-                    if (ch2 == 'ョ' && ch3 == 'ウ') {
-                        builder.append("myō");
-                        i += 2;
-                    } else if (ch2 == 'ュ' && ch3 == 'ウ') {
-                        builder.append("myū");
-                        i += 2;
-                    } else if (ch2 == 'ャ') {
-                        builder.append("mya");
-                        i++;
-                    } else if (ch2 == 'ョ') {
-                        builder.append("myo");
-                        i++;
-                    } else if (ch2 == 'ュ') {
-                        builder.append("myu");
-                        i++;
-                    } else if (ch2 == 'ェ') {
-                        builder.append("mye");
-                        i++;
-                    } else {
-                        builder.append("mi");
+                    switch (ch2) {
+                        case 'ャ':
+                            builder.append("mya");
+                            i++;
+                            break;
+                        case 'ィ':
+                            builder.append("myi");
+                            i++;
+                            break;
+                        case 'ュ':
+                            builder.append("myu");
+                            i++;
+                            break;
+                        case 'ェ':
+                            builder.append("mye");
+                            i++;
+                            break;
+                        case 'ョ':
+                            builder.append("myo");
+                            i++;
+                            break;
+                        default:
+                            builder.append("mi");
+                            break;
                     }
                     break;
                 case 'ム':
@@ -575,12 +696,7 @@ public class Translations {
                     builder.append("me");
                     break;
                 case 'モ':
-                    if (ch2 == 'ウ') {
-                        builder.append("mō");
-                        i++;
-                    } else {
-                        builder.append("mo");
-                    }
+                    builder.append("mo");
                     break;
                 case 'ヤ':
                     builder.append("ya");
@@ -589,143 +705,104 @@ public class Translations {
                     builder.append("yu");
                     break;
                 case 'ヨ':
-                    if (ch2 == 'ウ') {
-                        builder.append("yō");
-                        i++;
-                    } else {
-                        builder.append("yo");
-                    }
+                    builder.append("yo");
                     break;
                 case 'ラ':
-                    if (ch2 == '゜') {
-                        builder.append("la");
-                        i++;
-                    } else {
-                        builder.append("ra");
-                    }
+                    builder.append("ra");
                     break;
                 case 'リ':
-                    if (ch2 == 'ョ' && ch3 == 'ウ') {
-                        builder.append("ryō");
-                        i += 2;
-                    } else if (ch2 == 'ュ' && ch3 == 'ウ') {
-                        builder.append("ryū");
-                        i += 2;
-                    } else if (ch2 == 'ャ') {
-                        builder.append("rya");
-                        i++;
-                    } else if (ch2 == 'ョ') {
-                        builder.append("ryo");
-                        i++;
-                    } else if (ch2 == 'ュ') {
-                        builder.append("ryu");
-                        i++;
-                    } else if (ch2 == 'ェ') {
-                        builder.append("rye");
-                        i++;
-                    } else if (ch2 == '゜') {
-                        builder.append("li");
-                        i++;
-                    } else {
-                        builder.append("ri");
+                    switch (ch2) {
+                        case 'ャ':
+                            builder.append("rya");
+                            i++;
+                            break;
+                        case 'ィ':
+                            builder.append("ryi");
+                            i++;
+                            break;
+                        case 'ュ':
+                            builder.append("ryu");
+                            i++;
+                            break;
+                        case 'ェ':
+                            builder.append("rye");
+                            i++;
+                            break;
+                        case 'ョ':
+                            builder.append("ryo");
+                            i++;
+                            break;
+                        default:
+                            builder.append("ri");
+                            break;
                     }
                     break;
                 case 'ル':
-                    if (ch2 == '゜') {
-                        builder.append("lu");
-                        i++;
-                    } else {
-                        builder.append("ru");
-                    }
+                    builder.append("ru");
                     break;
                 case 'レ':
-                    if (ch2 == '゜') {
-                        builder.append("le");
-                        i++;
-                    } else {
-                        builder.append("re");
-                    }
+                    builder.append("re");
                     break;
                 case 'ロ':
-                    if (ch2 == 'ウ') {
-                        builder.append("rō");
-                        i++;
-                    } else if (ch2 == '゜') {
-                        builder.append("lo");
-                        i++;
-                    } else {
-                        builder.append("ro");
-                    }
+                    builder.append("ro");
                     break;
                 case 'ワ':
                     builder.append("wa");
                     break;
                 case 'ヰ':
-                    builder.append("i");
+                    builder.append("wi");
                     break;
                 case 'ヱ':
-                    builder.append("e");
+                    builder.append("we");
                     break;
                 case 'ヲ':
-                    builder.append("o");
+                    builder.append("wo");
                     break;
                 case 'ン':
                     switch (ch2) {
-                        case 'バ':
-                        case 'ビ':
-                        case 'ブ':
-                        case 'ベ':
-                        case 'ボ':
-                        case 'パ':
-                        case 'ピ':
-                        case 'プ':
-                        case 'ペ':
-                        case 'ポ':
-                        case 'マ':
-                        case 'ミ':
-                        case 'ム':
-                        case 'メ':
-                        case 'モ':
-                            builder.append('m');
-                            break main;
-                        case 'ヤ':
-                        case 'ユ':
-                        case 'ヨ':
                         case 'ア':
                         case 'イ':
                         case 'ウ':
                         case 'エ':
                         case 'オ':
-                            builder.append("n'");
-                            break main;
+                        case 'ヤ':
+                        case 'ユ':
+                        case 'ヨ':
+                            builder.append("nn");
+                            break;
                         default:
-                            builder.append("n");
-                            break main;
+                            builder.append('n');
+                            break;
                     }
+                    break;
                 case 'ガ':
                     builder.append("ga");
                     break;
                 case 'ギ':
-                    if (ch2 == 'ョ' && ch3 == 'ウ') {
-                        builder.append("gyō");
-                        i += 2;
-                    } else if (ch2 == 'ュ' && ch3 == 'ウ') {
-                        builder.append("gyū");
-                        i += 2;
-                    } else if (ch2 == 'ャ') {
-                        builder.append("gya");
-                        i++;
-                    } else if (ch2 == 'ョ') {
-                        builder.append("gyo");
-                        i++;
-                    } else if (ch2 == 'ュ') {
-                        builder.append("gyu");
-                        i++;
-                    } else if (ch2 == 'ェ') {
-                        builder.append("gye");
-                        i++;
-                    } else {
-                        builder.append("gi");
+                    switch (ch2) {
+                        case 'ャ':
+                            builder.append("gya");
+                            i++;
+                            break;
+                        case 'ィ':
+                            builder.append("gyi");
+                            i++;
+                            break;
+                        case 'ュ':
+                            builder.append("gyu");
+                            i++;
+                            break;
+                        case 'ェ':
+                            builder.append("gye");
+                            i++;
+                            break;
+                        case 'ョ':
+                            builder.append("gyo");
+                            i++;
+                            break;
+                        default:
+                            builder.append("gi");
+                            break;
                     }
                     break;
                 case 'グ':
@@ -738,16 +815,16 @@ public class Translations {
                             builder.append("gwi");
                             i++;
                             break;
+                        case 'ゥ':
+                            builder.append("qwu");
+                            i++;
+                            break;
                         case 'ェ':
                             builder.append("gwe");
                             i++;
                             break;
                         case 'ォ':
                             builder.append("gwo");
-                            i++;
-                            break;
-                        case 'ヮ':
-                            builder.append("gwa");
                             i++;
                             break;
                         default:
@@ -759,134 +836,162 @@ public class Translations {
                     builder.append("ge");
                     break;
                 case 'ゴ':
-                    if (ch2 == 'ウ') {
-                        builder.append("gō");
-                        i++;
-                    } else {
-                        builder.append("go");
-                    }
+                    builder.append("go");
                     break;
                 case 'ザ':
                     builder.append("za");
                     break;
                 case 'ジ':
-                    if (ch2 == 'ョ' && ch3 == 'ウ') {
-                        builder.append("jō");
-                        i += 2;
-                    } else if (ch2 == 'ュ' && ch3 == 'ウ') {
-                        builder.append("jū");
-                        i += 2;
-                    } else if (ch2 == 'ャ') {
-                        builder.append("ja");
-                        i++;
-                    } else if (ch2 == 'ョ') {
-                        builder.append("jo");
-                        i++;
-                    } else if (ch2 == 'ュ') {
-                        builder.append("ju");
-                        i++;
-                    } else if (ch2 == 'ェ') {
-                        builder.append("je");
-                        i++;
-                    } else {
-                        builder.append("ji");
+                    switch (ch2) {
+                        case 'ャ':
+                            builder.append("zya");
+                            i++;
+                            break;
+                        case 'ィ':
+                            builder.append("zyi");
+                            i++;
+                            break;
+                        case 'ュ':
+                            builder.append("zyu");
+                            i++;
+                            break;
+                        case 'ェ':
+                            builder.append("zye");
+                            i++;
+                            break;
+                        case 'ョ':
+                            builder.append("zyo");
+                            i++;
+                            break;
+                        default:
+                            builder.append("zi");
+                            break;
                     }
                     break;
                 case 'ズ':
-                    if (ch2 == 'ィ') {
-                        builder.append("zi");
-                        i++;
-                    } else {
-                        builder.append("zu");
-                    }
+                    builder.append("zu");
                     break;
                 case 'ゼ':
                     builder.append("ze");
                     break;
                 case 'ゾ':
-                    if (ch2 == 'ウ') {
-                        builder.append("zō");
-                        i++;
-                    } else {
-                        builder.append("zo");
-                    }
+                    builder.append("zo");
                     break;
                 case 'ダ':
                     builder.append("da");
                     break;
                 case 'ヂ':
-                    // TODO: investigate all this
-                    if (ch2 == 'ョ' && ch3 == 'ウ') {
-                        builder.append("jō");
-                        i += 2;
-                    } else if (ch2 == 'ュ' && ch3 == 'ウ') {
-                        builder.append("jū");
-                        i += 2;
-                    } else if (ch2 == 'ャ') {
-                        builder.append("ja");
-                        i++;
-                    } else if (ch2 == 'ョ') {
-                        builder.append("jo");
-                        i++;
-                    } else if (ch2 == 'ュ') {
-                        builder.append("ju");
-                        i++;
-                    } else if (ch2 == 'ェ') {
-                        builder.append("je");
-                        i++;
-                    } else {
-                        builder.append("ji");
+                    switch (ch2) {
+                        case 'ャ':
+                            builder.append("dya");
+                            i++;
+                            break;
+                        case 'ィ':
+                            builder.append("dyi");
+                            i++;
+                            break;
+                        case 'ュ':
+                            builder.append("dyu");
+                            i++;
+                            break;
+                        case 'ェ':
+                            builder.append("dye");
+                            i++;
+                            break;
+                        case 'ョ':
+                            builder.append("dyo");
+                            i++;
+                            break;
+                        default:
+                            builder.append("di");
+                            break;
                     }
                     break;
                 case 'ヅ':
                     builder.append("zu");
                     break;
                 case 'デ':
-                    if (ch2 == 'ィ') {
-                        builder.append("di");
-                        i++;
-                    } else if (ch2 == 'ュ') {
-                        builder.append("dyu");
-                        i++;
-                    } else {
-                        builder.append("de");
+                    switch (ch2) {
+                        case 'ャ':
+                            builder.append("dha");
+                            i++;
+                            break;
+                        case 'ィ':
+                            builder.append("dhi");
+                            i++;
+                            break;
+                        case 'ュ':
+                            builder.append("dhu");
+                            i++;
+                            break;
+                        case 'ェ':
+                            builder.append("dhe");
+                            i++;
+                            break;
+                        case 'ョ':
+                            builder.append("dho");
+                            i++;
+                            break;
+                        default:
+                            builder.append("de");
+                            break;
                     }
                     break;
                 case 'ド':
-                    if (ch2 == 'ウ') {
-                        builder.append("dō");
-                        i++;
-                    } else if (ch2 == 'ゥ') {
-                        builder.append("du");
-                        i++;
-                    } else {
-                        builder.append("do");
+                    switch (ch2) {
+                        case 'ァ':
+                            builder.append("dwa");
+                            i++;
+                            break;
+                        case 'ィ':
+                            builder.append("dwi");
+                            i++;
+                            break;
+                        case 'ゥ':
+                            builder.append("dwu");
+                            i++;
+                            break;
+                        case 'ェ':
+                            builder.append("dwe");
+                            i++;
+                            break;
+                        case 'ォ':
+                            builder.append("dwo");
+                            i++;
+                            break;
+                        default:
+                            builder.append("do");
+                            break;
                     }
                     break;
                 case 'バ':
                     builder.append("ba");
                     break;
                 case 'ビ':
-                    if (ch2 == 'ョ' && ch3 == 'ウ') {
-                        builder.append("byō");
-                        i += 2;
-                    } else if (ch2 == 'ュ' && ch3 == 'ウ') {
-                        builder.append("byū");
-                        i += 2;
-                    } else if (ch2 == 'ャ') {
-                        builder.append("bya");
-                        i++;
-                    } else if (ch2 == 'ョ') {
-                        builder.append("byo");
-                        i++;
-                    } else if (ch2 == 'ュ') {
-                        builder.append("byu");
-                        i++;
-                    } else if (ch2 == 'ェ') {
-                        builder.append("bye");
-                        i++;
-                    } else {
-                        builder.append("bi");
+                    switch (ch2) {
+                        case 'ャ':
+                            builder.append("bya");
+                            i++;
+                            break;
+                        case 'ィ':
+                            builder.append("byi");
+                            i++;
+                            break;
+                        case 'ュ':
+                            builder.append("byu");
+                            i++;
+                            break;
+                        case 'ェ':
+                            builder.append("bye");
+                            i++;
+                            break;
+                        case 'ョ':
+                            builder.append("byo");
+                            i++;
+                            break;
+                        default:
+                            builder.append("bi");
+                            break;
                     }
                     break;
                 case 'ブ':
@@ -896,37 +1001,36 @@ public class Translations {
                     builder.append("be");
                     break;
                 case 'ボ':
-                    if (ch2 == 'ウ') {
-                        builder.append("bō");
-                        i++;
-                    } else {
-                        builder.append("bo");
-                    }
+                    builder.append("bo");
                     break;
                 case 'パ':
                     builder.append("pa");
                     break;
                 case 'ピ':
-                    if (ch2 == 'ョ' && ch3 == 'ウ') {
-                        builder.append("pyō");
-                        i += 2;
-                    } else if (ch2 == 'ュ' && ch3 == 'ウ') {
-                        builder.append("pyū");
-                        i += 2;
-                    } else if (ch2 == 'ャ') {
-                        builder.append("pya");
-                        i++;
-                    } else if (ch2 == 'ョ') {
-                        builder.append("pyo");
-                        i++;
-                    } else if (ch2 == 'ュ') {
-                        builder.append("pyu");
-                        i++;
-                    } else if (ch2 == 'ェ') {
-                        builder.append("pye");
-                        i++;
-                    } else {
-                        builder.append("pi");
+                    switch (ch2) {
+                        case 'ャ':
+                            builder.append("pya");
+                            i++;
+                            break;
+                        case 'ィ':
+                            builder.append("pyi");
+                            i++;
+                            break;
+                        case 'ュ':
+                            builder.append("pyu");
+                            i++;
+                            break;
+                        case 'ェ':
+                            builder.append("pye");
+                            i++;
+                            break;
+                        case 'ョ':
+                            builder.append("pyo");
+                            i++;
+                            break;
+                        default:
+                            builder.append("pi");
+                            break;
                     }
                     break;
                 case 'プ':
@@ -936,64 +1040,86 @@ public class Translations {
                     builder.append("pe");
                     break;
                 case 'ポ':
-                    if (ch2 == 'ウ') {
-                        builder.append("pō");
-                        i++;
-                    } else {
-                        builder.append("po");
-                    }
-                    break;
-                case 'ヷ':
-                    builder.append("va");
-                    break;
-                case 'ヸ':
-                    builder.append("vi");
-                    break;
-                case 'ヹ':
-                    builder.append("ve");
-                    break;
-                case 'ヺ':
-                    builder.append("vo");
+                    builder.append("po");
                     break;
                 case 'ヴ':
-                    if (ch2 == 'ィ' && ch3 == 'ェ') {
-                        builder.append("vye");
-                        i += 2;
-                    } else {
-                        builder.append('v');
+                    switch (ch2) {
+                        case 'ァ':
+                            builder.append("va");
+                            i++;
+                            break;
+                        case 'ィ':
+                            builder.append("vi");
+                            i++;
+                            break;
+                        case 'ェ':
+                            builder.append("ve");
+                            i++;
+                            break;
+                        case 'ォ':
+                            builder.append("vo");
+                            i++;
+                            break;
+                        case 'ャ':
+                            builder.append("vya");
+                            i++;
+                            break;
+                        case 'ュ':
+                            builder.append("vyu");
+                            i++;
+                            break;
+                        case 'ョ':
+                            builder.append("vyo");
+                            i++;
+                            break;
+                        default:
+                            builder.append("vu");
+                            break;
                     }
                     break;
                 case 'ァ':
-                    builder.append('a');
+                    builder.append("la");
                     break;
                 case 'ィ':
-                    builder.append('i');
+                    builder.append("li");
                     break;
                 case 'ゥ':
-                    builder.append('u');
+                    builder.append("lu");
                     break;
                 case 'ェ':
-                    builder.append('e');
+                    builder.append("le");
                     break;
                 case 'ォ':
-                    builder.append('o');
+                    builder.append("lo");
                     break;
-                case 'ヮ':
-                    builder.append("wa");
+                case 'ヵ':
+                    builder.append("lka");
+                    break;
+                case 'ヶ':
+                    builder.append("lke");
                     break;
                 case 'ャ':
-                    builder.append("ya");
+                    builder.append("lya");
                     break;
                 case 'ュ':
-                    builder.append("yu");
+                    builder.append("lyu");
                     break;
                 case 'ョ':
-                    builder.append("yo");
+                    builder.append("lyo");
+                    break;
+                case 'ヮ':
+                    builder.append("lwa");
                     break;
                 case 'ー':
+                    builder.append('-');
+                    break;
+                case '・':
+                case '＝':
+                    /* drop these characters */
                     break;
                 default:
                     builder.append(ch);
+                    break;
             }
         }
     }
