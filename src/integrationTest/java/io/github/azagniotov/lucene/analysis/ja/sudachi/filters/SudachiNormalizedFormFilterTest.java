@@ -51,7 +51,13 @@ public class SudachiNormalizedFormFilterTest extends BaseTokenStreamTestCase {
 
     @Test
     public void testJapaneseNormalizedFormWithUnNormalizedWord() throws IOException {
-        TokenStream tokenStream = this.testUtils.tokenize("昨日は学校にいった後に走って食べました。");
+        TokenStream tokenStream = this.testUtils.tokenize("昨日は学校にいった後に走って食べました。"); // いった
+        tokenStream = factory.create(tokenStream);
+
+        assertTokenStreamContents(
+                tokenStream, new String[] {"昨日", "は", "学校", "に", "行く", "た", "後", "に", "走る", "て", "食べる", "ます", "た"});
+
+        tokenStream = this.testUtils.tokenize("昨日は学校に行った後に走って食べました。"); // 行った
         tokenStream = factory.create(tokenStream);
 
         assertTokenStreamContents(

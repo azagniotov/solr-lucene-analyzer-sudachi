@@ -19,22 +19,25 @@
 package io.github.azagniotov.lucene.analysis.ja.sudachi.analyzer;
 
 import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilterFactory;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiKatakanaStemFilter;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilterFactory;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.util.NoOpResourceLoader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.cjk.CJKWidthFilter;
 import org.apache.lucene.analysis.core.StopFilter;
-import org.apache.lucene.analysis.ja.JapaneseKatakanaStemFilter;
 import org.apache.lucene.tests.analysis.BaseTokenStreamTestCase;
 import org.apache.lucene.util.AttributeFactory;
 import org.junit.Test;
@@ -57,6 +60,80 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
     }
 
     @Test
+    public void testLargeTextLoadTestWithUnfilteredStopWords() throws Exception {
+        final Analyzer analyzer = new Analyzer() {
+            @Override
+            protected TokenStreamComponents createComponents(final String fieldName) {
+                try {
+                    Tokenizer tokenizer = createTokenizer(new HashMap<>());
+                    TokenStream stream = tokenizer;
+
+                    stream = new SudachiBaseFormFilterFactory(new HashMap<>()).create(stream);
+                    stream = new SudachiPartOfSpeechStopFilterFactory(new HashMap<>()).create(stream);
+                    stream = new StopFilter(stream, new CharArraySet(16, true));
+                    stream = new SudachiKatakanaStemFilter(stream);
+                    stream = new LowerCaseFilter(stream);
+                    return new TokenStreamComponents(tokenizer, stream);
+                } catch (IOException iox) {
+                    throw new UncheckedIOException(iox);
+                }
+            }
+        };
+
+        assertNotNull(analyzer);
+
+        final InputStream textInputStream = this.getClass().getResourceAsStream("/large.japanese.text.txt");
+        final String japanese = new Scanner(textInputStream).useDelimiter("\\A").next();
+
+        final TokenStream tokenStream = analyzer.tokenStream("any", japanese);
+
+        final InputStream termsInputStream =
+                this.getClass().getResourceAsStream("/large.japanese.text.unfiltered.terms.txt");
+        final String terms = new Scanner(termsInputStream).useDelimiter("\\A").next();
+        final String[] strings = terms.split("\\n");
+
+        assertEquals(778, strings.length);
+        assertTokenStreamContents(tokenStream, strings);
+    }
+
+    @Test
+    public void testLargeTextLoadTestWithFilteredOutStopWords() throws Exception {
+        final Analyzer analyzer = new Analyzer() {
+            @Override
+            protected TokenStreamComponents createComponents(final String fieldName) {
+                try {
+                    Tokenizer tokenizer = createTokenizer(new HashMap<>());
+                    TokenStream stream = tokenizer;
+
+                    stream = new SudachiBaseFormFilterFactory(new HashMap<>()).create(stream);
+                    stream = new SudachiPartOfSpeechStopFilterFactory(new HashMap<>()).create(stream);
+                    stream = new StopFilter(stream, SudachiAnalyzer.getDefaultStopSet());
+                    stream = new SudachiKatakanaStemFilter(stream);
+                    stream = new LowerCaseFilter(stream);
+                    return new TokenStreamComponents(tokenizer, stream);
+                } catch (IOException iox) {
+                    throw new UncheckedIOException(iox);
+                }
+            }
+        };
+
+        assertNotNull(analyzer);
+
+        final InputStream textInputStream = this.getClass().getResourceAsStream("/large.japanese.text.txt");
+        final String japanese = new Scanner(textInputStream).useDelimiter("\\A").next();
+
+        final TokenStream tokenStream = analyzer.tokenStream("any", japanese);
+
+        final InputStream termsInputStream =
+                this.getClass().getResourceAsStream("/large.japanese.text.filtered.terms.txt");
+        final String terms = new Scanner(termsInputStream).useDelimiter("\\A").next();
+        final String[] strings = terms.split("\\n");
+
+        assertEquals(610, strings.length);
+        assertTokenStreamContents(tokenStream, strings);
+    }
+
+    @Test
     public void testSimulateSolrAnalyzerCreation() throws Exception {
         final Analyzer analyzer = new Analyzer() {
             @Override
@@ -68,7 +145,7 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
                     stream = new SudachiBaseFormFilterFactory(new HashMap<>()).create(stream);
                     stream = new SudachiPartOfSpeechStopFilterFactory(new HashMap<>()).create(stream);
                     stream = new StopFilter(stream, new CharArraySet(16, true));
-                    stream = new JapaneseKatakanaStemFilter(stream);
+                    stream = new SudachiKatakanaStemFilter(stream);
                     stream = new LowerCaseFilter(stream);
                     return new TokenStreamComponents(tokenizer, stream);
                 } catch (IOException iox) {
@@ -82,6 +159,48 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
         final TokenStream tokenStream = analyzer.tokenStream("any", "すもももももももものうち。");
         // 'Full' dictionary by Sudachi does not split this properly to すもも and もも
         assertTokenStreamContents(tokenStream, new String[] {"すもももももも", "もも", "うち"});
+    }
+
+    /**
+     * Test a few common katakana spelling variations.
+     *
+     * <p>English translations are as follows:
+     *
+     * <ul>
+     *   <li>copy
+     *   <li>coffee
+     *   <li>taxi
+     *   <li>party
+     *   <li>party (without long sound)
+     *   <li>center
+     * </ul>
+     * <p>
+     * Note that we remove a long sound in the case of "coffee" that is required.
+     * Also, "copy" (コピー) should not be stemmed.
+     */
+    @Test
+    public void testKatakanaStemming() throws Exception {
+        final Analyzer analyzer = new Analyzer() {
+            @Override
+            protected TokenStreamComponents createComponents(final String fieldName) {
+                try {
+                    final Tokenizer tokenizer = createTokenizer(new HashMap<>());
+                    TokenStream stream = tokenizer;
+
+                    stream = new CJKWidthFilter(stream);
+                    stream = new SudachiKatakanaStemFilter(stream);
+                    return new TokenStreamComponents(tokenizer, stream);
+                } catch (IOException iox) {
+                    throw new UncheckedIOException(iox);
+                }
+            }
+        };
+
+        assertNotNull(analyzer);
+
+        final TokenStream tokenStream = analyzer.tokenStream("any", "コピー コーヒー ｺｰﾋｰ タクシー ﾀｸｼｰ パーティー パーティ ｾﾝﾀｰ センター");
+        assertTokenStreamContents(
+                tokenStream, new String[] {"コピー", "コーヒ", "コーヒ", "タクシ", "タクシ", "パーティ", "パーティ", "センタ", "センタ"});
     }
 
     @Test
