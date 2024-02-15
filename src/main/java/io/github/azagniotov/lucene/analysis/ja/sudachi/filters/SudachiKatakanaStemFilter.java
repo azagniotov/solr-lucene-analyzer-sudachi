@@ -34,6 +34,8 @@ import org.apache.lucene.analysis.tokenattributes.KeywordAttribute;
  * <p>In order to prevent terms from being stemmed, use an instance of {@link
  * org.apache.lucene.analysis.miscellaneous.SetKeywordMarkerFilter} or a custom {@link TokenFilter}
  * that sets the {@link KeywordAttribute} before this {@link TokenStream}.
+ * <p>
+ * From Alexander Zagniotov: I copied the class in order not to rely on Lucene Kuromoji JAR to be on the classpath
  */
 public final class SudachiKatakanaStemFilter extends TokenFilter {
     public static final int DEFAULT_MINIMUM_LENGTH = 4;
