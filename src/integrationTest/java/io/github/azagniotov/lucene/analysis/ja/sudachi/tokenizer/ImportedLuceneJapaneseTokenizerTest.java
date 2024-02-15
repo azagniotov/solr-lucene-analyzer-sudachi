@@ -47,7 +47,7 @@ public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase
 
     public void testDecomposition_v1() throws Exception {
         final String input = "本来は、貧困層の女性や子供に医療保護を提供するために創設された制度である、アメリカ低所得者医療援助制度が、今日では、その予算の約３分の１を老人に費やしている。";
-        final TokenStream tokenStream = this.testUtils.tokenize(input, true, SplitMode.A);
+        final TokenStream tokenStream = this.testUtils.tokenize(input);
 
         assertTokenStreamContents(
                 tokenStream,
@@ -68,7 +68,7 @@ public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase
 
     public void testDecomposition_v2() throws Exception {
         final String input = "麻薬の密売は根こそぎ絶やさなければならない";
-        final TokenStream tokenStream = this.testUtils.tokenize(input, true, SplitMode.A);
+        final TokenStream tokenStream = this.testUtils.tokenize(input);
 
         assertTokenStreamContents(
                 tokenStream,
@@ -79,7 +79,7 @@ public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase
 
     public void testDecomposition_v3() throws Exception {
         final String input = "魔女狩大将マシュー・ホプキンス。";
-        final TokenStream tokenStream = this.testUtils.tokenize(input, true, SplitMode.A);
+        final TokenStream tokenStream = this.testUtils.tokenize(input);
 
         assertTokenStreamContents(
                 tokenStream, new String[] {"魔女", "狩", "大将", "マシュー", "ホプキンス"}, new int[] {0, 2, 3, 5, 10}, new int[] {
@@ -90,7 +90,7 @@ public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase
     // The stop words will be filtered out by the Analyzer anyway
     public void testDecomposition_v4() throws Exception {
         final String input = "これは本ではない    ";
-        final TokenStream tokenStream = this.testUtils.tokenize(input, true, SplitMode.A);
+        final TokenStream tokenStream = this.testUtils.tokenize(input);
         assertTokenStreamContents(
                 tokenStream,
                 new String[] {"これ", "は", "本", "で", "は", "ない"},
@@ -101,7 +101,7 @@ public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase
 
     public void testDecomposition_v5() throws Exception {
         final String input = "くよくよくよくよくよくよくよくよくよくよくよくよくよくよくよくよくよくよくよくよ";
-        final TokenStream tokenStream = this.testUtils.tokenize(input, true, SplitMode.A);
+        final TokenStream tokenStream = this.testUtils.tokenize(input);
 
         assertTokenStreamContents(
                 tokenStream,
@@ -115,7 +115,7 @@ public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase
      */
     public void testTwoSentences() throws Exception {
         final String input = "魔女狩大将マシュー・ホプキンス。 魔女狩大将マシュー・ホプキンス。";
-        final TokenStream tokenStream = this.testUtils.tokenize(input, true, SplitMode.A);
+        final TokenStream tokenStream = this.testUtils.tokenize(input);
         assertTokenStreamContents(
                 tokenStream,
                 new String[] {"魔女", "狩", "大将", "マシュー", "ホプキンス", "魔女", "狩", "大将", "マシュー", "ホプキンス"},
@@ -125,18 +125,12 @@ public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase
 
     public void testSurrogates() throws Exception {
         final String input = "𩬅艱鍟䇹愯瀛";
-        final TokenStream tokenStream = this.testUtils.tokenize(input, true, SplitMode.A);
+        final TokenStream tokenStream = this.testUtils.tokenize(input);
         assertTokenStreamContents(tokenStream, new String[] {"𩬅", "艱", "鍟䇹", "愯瀛"});
     }
 
     public void testSurrogates_v2() throws Exception {
-        final Tokenizer tokenizer = this.testUtils.makeTokenizer(false, SplitMode.A);
-        final Analyzer analyzer = new Analyzer() {
-            @Override
-            protected TokenStreamComponents createComponents(String fieldName) {
-                return new TokenStreamComponents(tokenizer, tokenizer);
-            }
-        };
+        final Analyzer analyzer = this.testUtils.makeDefaultAnalyzer();
 
         final int numIterations = atLeast(500);
         for (int i = 0; i < numIterations; i++) {
@@ -153,13 +147,7 @@ public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase
     }
 
     public void testOnlyPunctuation() throws Exception {
-        final Tokenizer tokenizer = this.testUtils.makeTokenizer(true, SplitMode.A);
-        final Analyzer analyzerNoPunct = new Analyzer() {
-            @Override
-            protected TokenStreamComponents createComponents(String fieldName) {
-                return new TokenStreamComponents(tokenizer, tokenizer);
-            }
-        };
+        final Analyzer analyzerNoPunct = this.testUtils.makeNoPunctuationAnalyzer();
         try (TokenStream ts = analyzerNoPunct.tokenStream("foo", "。、。。")) {
             ts.reset();
             assertFalse(ts.incrementToken());
@@ -210,58 +198,20 @@ public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase
     }
 
     public void testReadings() throws Exception {
-        final Tokenizer tokenizer = this.testUtils.makeTokenizer(false, SplitMode.A);
-        final Analyzer analyzer = new Analyzer() {
-            @Override
-            protected TokenStreamComponents createComponents(String fieldName) {
-                return new TokenStreamComponents(tokenizer, tokenizer);
-            }
-        };
-        assertReadings(analyzer, "寿司が食べたいです。", "スシ", "ガ", "タベ", "タイ", "デス", "。");
+        assertReadings("寿司が食べたいです。", "スシ", "ガ", "タベ", "タイ", "デス", "。");
     }
 
     public void testReadings_v2() throws Exception {
-        final Tokenizer tokenizer = this.testUtils.makeTokenizer(false, SplitMode.A);
-        final Analyzer analyzer = new Analyzer() {
-            @Override
-            protected TokenStreamComponents createComponents(String fieldName) {
-                return new TokenStreamComponents(tokenizer, tokenizer);
-            }
-        };
-        assertReadings(analyzer, "多くの学生が試験に落ちた。", "オオク", "ノ", "ガクセイ", "ガ", "シケン", "ニ", "オチ", "タ", "。");
+        assertReadings("多くの学生が試験に落ちた。", "オオク", "ノ", "ガクセイ", "ガ", "シケン", "ニ", "オチ", "タ", "。");
     }
 
     public void testBasicForms() throws Exception {
-        final Tokenizer tokenizer = this.testUtils.makeTokenizer(false, SplitMode.A);
-        final Analyzer analyzer = new Analyzer() {
-            @Override
-            protected TokenStreamComponents createComponents(String fieldName) {
-                return new TokenStreamComponents(tokenizer, tokenizer);
-            }
-        };
-        assertBaseForms(analyzer, "それはまだ実験段階にあります。", "それ", "は", "まだ", "実験", "段階", "に", "ある", "ます", "。");
+        assertBaseForms("それはまだ実験段階にあります。", "それ", "は", "まだ", "実験", "段階", "に", "ある", "ます", "。");
     }
 
     public void testPartOfSpeech() throws Exception {
-        final Tokenizer tokenizer = this.testUtils.makeTokenizer(false, SplitMode.A);
-        final Analyzer analyzer = new Analyzer() {
-            @Override
-            protected TokenStreamComponents createComponents(String fieldName) {
-                return new TokenStreamComponents(tokenizer, tokenizer);
-            }
-        };
         assertPartsOfSpeech(
-                analyzer,
-                "それはまだ実験段階にあります。",
-                "代名詞",
-                "助詞-係助詞",
-                "副詞",
-                "名詞-普通名詞",
-                "名詞-普通名詞",
-                "助詞-格助詞",
-                "動詞-非自立可能",
-                "助動詞",
-                "補助記号-句点");
+                "それはまだ実験段階にあります。", "代名詞", "助詞-係助詞", "副詞", "名詞-普通名詞", "名詞-普通名詞", "助詞-格助詞", "動詞-非自立可能", "助動詞", "補助記号-句点");
     }
 
     public void testCompoundOverPunctuation() throws Exception {
@@ -281,6 +231,7 @@ public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase
     }
 
     public void testBigDocument() throws Exception {
+        // Modified version. Lucene Kuromoji test does only one iteration
         final String doc =
                 "商品の購入・詳細(サイズ、画像)は商品名をクリックしてください！[L.B　CANDY　STOCK]フラワービジューベアドレス[L.B　DAILY　STOCK]ボーダーニットトップス［L.B　DAILY　STOCK］ボーダーロングニットOP［L.B　DAILY　STOCK］ロゴトートBAG［L.B　DAILY　STOCK］裏毛ロゴプリントプルオーバー【TVドラマ着用】アンゴラワッフルカーディガン【TVドラマ着用】グラフィティーバックリボンワンピース【TVドラマ着用】ボーダーハイネックトップス【TVドラマ着用】レオパードミッドカーフスカート【セットアップ対応商品】起毛ニットスカート【セットアップ対応商品】起毛ニットプルオーバー2wayサングラス33ナンバーリングニット3Dショルダーフレアードレス3周年スリッパ3周年ラグマット3周年ロックグラスキャンドルLily　Brown　2015年　福袋MIXニットプルオーバーPeckhamロゴニットアンゴラジャガードプルオーバーアンゴラタートルアンゴラチュニックアンゴラニットカーディガンアンゴラニットプルオーバーアンゴラフレアワンピースアンゴラロングカーディガンアンゴラワッフルカーディガンヴィンテージファー付コートヴィンテージボーダーニットヴィンテージレースハイネックトップスヴィンテージレースブラウスウエストシースルーボーダーワンピースオーガンジーラインフレアスカートオープンショルダーニットトップスオフショルシャーリングワンピースオフショルニットオフショルニットプルオーバーオフショルボーダーロンパースオフショルワイドコンビネゾンオルテガ柄ニットプルオーバーカシュクールオフショルワンピースカットアシンメトリードレスカットサテンプリーツフレアースカートカラースーパーハイウェストスキニーカラーブロックドレスカラーブロックニットチュニックギャザーフレアスカートキラキラストライプタイトスカートキラキラストライプドレスキルティングファーコートグラデーションベアドレスグラデーションラウンドサングラスグラフティーオフショルトップスグラフティーキュロットグリッターリボンヘアゴムクロップドブラウスケーブルハイウエストスカートコーデュロイ×スエードパネルスカートコーデュロイタイトスカートゴールドバックルベルト付スカートゴシックヒールショートブーツゴシック柄ニットワンピコンビスタジャンサイドステッチボーイズデニムパンツサスペつきショートパンツサスペンダー付プリーツロングスカートシャーリングタイトスカートジャガードタックワンピーススエードフリルフラワーパンツスエード裏毛肩空きトップススクエアショルダーBAGスクエアバックルショルダースクエアミニバッグストーンビーチサンダルストライプサスペ付きスキニーストライプバックスリットシャツスライバーシャギーコートタートル×レースタイトスカートタートルニットプルオーバータイトジャンパースカートダブルクロスチュールフレアスカートダブルストラップパンプスダブルハートリングダブルフェイスチェックストールチェーンコンビビジューネックレスチェーンコンビビジューピアスチェーンコンビビジューブレスチェーンツバ広HATチェーンビジューピアスチェックニットプルオーバーチェックネルミディアムスカートチェック柄スキニーパンツチュールコンビアシメトップスデニムフレアースカートドットオフショルフリルブラウスドットジャガードドレスドットニットプルオーバードットレーストップスニット×オーガンジースカートセットニットキャミソールワンピースニットスヌードパールコンビフープピアスハイウエストショートデニムハイウエストタイトスカートハイウエストデニムショートパンツハイウエストプリーツスカートハイウエストミッドカーフスカートハイゲージタートルニットハイゲージラインニットハイネック切り替えスウェットバタフライネックレスバタフライミニピアスバタフライリングバックタンクリブワンピースバックリボンスキニーデニムパンツバックリボン深Vワンピースビジューストラップサンダルビスチェコンビオフショルブラウスブークレジャガードニットフェイクムートンショートコートフェレットカーディガンフェレットビックタートルニットブラウジングクルーブラウスプリーツブラウスフリルニットプルオーバーフリンジニットプルオーバーフレアニットスカートブロウ型サングラスベーシックフェレットプルオーバーベルト付ガウチョパンツベルト付ショートパンツベルト付タックスカートベルト付タックパンツベルベットインヒールパンプスベロアウェッジパンプスベロアミッドカーフワンピースベロアワンピースベロア風ニットカーディガンボア付コートボーダーVネックTシャツボーダーオフショルカットソーボーダーカットソーワンピースボーダータイトカットソーボーダートップスボーダートップス×スカートセットボストンメガネマオカラーシャツニットセットミックスニットプルオーバーミッドカーフ丈ポンチスカートミリタリーギャザーショートパンツメッシュハイネックトップスメルトンPコートメルトンダッフルコートメルトンダブルコートモヘアニットカーディガンモヘアニットタートルユリ柄プリーツフレアースカートライダースデニムジャケットライナー付チェスターコートラッフルプリーツブラウスラメジャガードハイゲージニットリブニットワンピリボン×パールバレッタリボンバレッタリボンベルトハイウエストパンツリリー刺繍開襟ブラウスレースビスチェローファーサボロゴニットキャップロゴ刺繍ニットワッチロングニットガウンワッフルアンゴラプルオーバーワンショルダワーワンピース光沢ラメニットカーディガン刺繍シフォンブラウス台形ミニスカート配色ニットプルオーバー裏毛プルオーバー×オーガンジースカートセット";
 
@@ -298,7 +249,8 @@ public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase
         assertEquals(51000, totalTokens);
     }
 
-    private void assertReadings(final Analyzer analyzer, final String input, String... readings) throws Exception {
+    private void assertReadings(final String input, String... readings) throws Exception {
+        final Analyzer analyzer = this.testUtils.makeDefaultAnalyzer();
         try (final TokenStream ts = analyzer.tokenStream("ignored", input)) {
             final SudachiReadingFormAttribute readingAtt = ts.addAttribute(SudachiReadingFormAttribute.class);
             ts.reset();
@@ -311,7 +263,8 @@ public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase
         }
     }
 
-    private void assertBaseForms(final Analyzer analyzer, final String input, String... baseForms) throws Exception {
+    private void assertBaseForms(final String input, String... baseForms) throws Exception {
+        final Analyzer analyzer = this.testUtils.makeDefaultAnalyzer();
         try (final TokenStream ts = analyzer.tokenStream("ignored", input)) {
             final SudachiBaseFormAttribute baseFormAtt = ts.addAttribute(SudachiBaseFormAttribute.class);
             ts.reset();
@@ -324,8 +277,8 @@ public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase
         }
     }
 
-    private void assertPartsOfSpeech(final Analyzer analyzer, final String input, String... partsOfSpeech)
-            throws Exception {
+    private void assertPartsOfSpeech(final String input, String... partsOfSpeech) throws Exception {
+        final Analyzer analyzer = this.testUtils.makeDefaultAnalyzer();
         try (final TokenStream ts = analyzer.tokenStream("ignored", input)) {
             final SudachiPartOfSpeechAttribute partOfSpeechAtt = ts.addAttribute(SudachiPartOfSpeechAttribute.class);
             ts.reset();

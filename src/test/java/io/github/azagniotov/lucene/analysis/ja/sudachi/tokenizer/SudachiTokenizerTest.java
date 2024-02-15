@@ -22,6 +22,7 @@ import com.worksap.nlp.sudachi.JapaneseDictionary;
 import com.worksap.nlp.sudachi.Morpheme;
 import com.worksap.nlp.sudachi.MorphemeList;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.cache.DictionaryCache;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.util.NoOpResourceLoader;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.util.Strings;
 import java.io.Reader;
 import java.io.StringReader;
@@ -30,6 +31,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -49,6 +51,7 @@ public class SudachiTokenizerTest {
             }
         };
         final SudachiTokenizerFactory sudachiTokenizerFactory = new SudachiTokenizerFactory(args);
+        sudachiTokenizerFactory.inform(new NoOpResourceLoader());
         sudachiTokenizer = (SudachiTokenizer) sudachiTokenizerFactory.create(DEFAULT_TOKEN_ATTRIBUTE_FACTORY);
     }
 
@@ -184,7 +187,24 @@ public class SudachiTokenizerTest {
     @Test(dataProvider = "querySurfaces")
     public void testBasicTokenization(final Object query, final Object... expected) throws Exception {
         final Reader stringReader = new StringReader(query.toString());
-        assertThat(tokens(sudachiTokenizer.tokenize(stringReader))).containsExactly(expected);
+        assertThat(tokens(sudachiTokenizer.tokenize(stringReader), false)).containsExactly(expected);
+    }
+
+    @DataProvider(name = "numericQuerySurfaces")
+    public static Object[][] numericQuerySurfaces() {
+        return new Object[][] {
+            {"123円20銭", new Object[] {"123", "円", "20", "銭"}},
+            {"六三四", new Object[] {"634"}},
+            {"一二三万二千円", new Object[] {"1232000", "円"}},
+        };
+    }
+
+    @Test(dataProvider = "numericQuerySurfaces")
+    public void testNumericTokenization(final Object query, final Object... expected) throws Exception {
+        // Related to com.worksap.nlp.sudachi.JoinNumericPlugin
+
+        final Reader stringReader = new StringReader(query.toString());
+        assertThat(tokens(sudachiTokenizer.tokenize(stringReader), true)).containsExactly(expected);
     }
 
     @Test
@@ -196,13 +216,13 @@ public class SudachiTokenizerTest {
         sb.append(new String(new char[limit]).replace("\0", katakanaWord));
 
         final Reader stringReader = new StringReader(sb.toString());
-        final List<String> tokens = tokens(sudachiTokenizer.tokenize(stringReader));
+        final List<String> tokens = tokens(sudachiTokenizer.tokenize(stringReader), false);
 
         assertThat(tokens.size()).isEqualTo(limit);
         assertThat(tokens).containsExactly("テスト", "テスト", "テスト", "テスト", "テスト");
     }
 
-    private List<String> tokens(final Iterator<MorphemeList> morphemeList) {
+    private List<String> tokens(final Iterator<MorphemeList> morphemeList, final boolean useNormalizedForm) {
         final List<Morpheme> result = new ArrayList<>();
 
         for (final Iterator<MorphemeList> it = morphemeList; it.hasNext(); ) {
@@ -219,6 +239,8 @@ public class SudachiTokenizerTest {
             });
         }
 
-        return result.stream().map(Morpheme::surface).map(String::trim).collect(Collectors.toList());
+        final Function<Morpheme, String> morphemeFunction =
+                useNormalizedForm ? Morpheme::normalizedForm : Morpheme::surface;
+        return result.stream().map(morphemeFunction).map(String::trim).collect(Collectors.toList());
     }
 }

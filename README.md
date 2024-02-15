@@ -71,7 +71,7 @@ Whether you are running Solr in Docker environment or on a bare metal machine, t
 
 1. Clone one of the [Solr version matching available repository tags](https://github.com/azagniotov/solr-lucene-analyzer-sudachi/tags), e.g.:
 
-   `git clone -b v8.11.2 https://github.com/azagniotov/solr-lucene-analyzer-sudachi.git --depth 1`
+   `git clone -b v9.4.0 https://github.com/azagniotov/solr-lucene-analyzer-sudachi.git --depth 1`
 
 2. Change to the cloned directory
 
@@ -83,15 +83,18 @@ Whether you are running Solr in Docker environment or on a bare metal machine, t
 
 4. Assemble the plugin uber jar
 
-   `./gradlew -PsolrVersion=8.11.2 assemble`
+   `./gradlew -PsolrVersion=9.4.0 assemble`
 
 5. Copy the built plugin jar to the Solr home lib directory
 
-   `cp ./build/libs/solr-lucene-analyzer-sudachi*.jar /opt/solr/server/solr-webapp/webapp/WEB-INF/lib`
+   `cp ./build/libs/solr-lucene-analyzer-sudachi*.jar /opt/solr/lib`
 
 6. [**When installing on bare metal machines**] Sanity check Unix file permissions
 
    Check the directory permissions to make sure that Solr can read the files under `/tmp/sudachi/`
+
+7. [Optional] You can change the default location of Sudachi dictionary in the file system from `/tmp/sudachi/` to somewhere else. As an example, check the section [Changing local Sudachi dictionary location for runtime](#changing-local-sudachi-dictionary-location-for-runtime) and/or the [src/smokeTest/solr_9.x.x/solr_9_4_0/Dockerfile.arm64#L52-L62](https://github.com/azagniotov/solr-lucene-analyzer-sudachi/blob/master/src/smokeTest/solr_9.x.x/solr_9_4_0/Dockerfile.arm64#L52-L62)
+
 
 [`Back to top`](#table-of-contents)
 
@@ -106,11 +109,10 @@ Configure the `schema.xml` (or a `managed-schema` file) with the following confi
       <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilterFactory" />
       <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilterFactory" tags="lang/stoptags_ja.txt" />
       <filter class="solr.CJKWidthFilterFactory" />
-      <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiKatakanaStemFilterFactory" minimumLength="4" />
       <!-- Removes common tokens typically not useful for search, but have a negative effect on ranking -->
       <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_ja.txt" />
       <!-- Normalizes common katakana spelling variations by removing any last long sound character (U+30FC) -->
-      <filter class="solr.JapaneseKatakanaStemFilterFactory" minimumLength="4" />
+      <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiKatakanaStemFilterFactory" minimumLength="4" />
       <!-- Lower-cases romaji characters -->
       <filter class="solr.LowerCaseFilterFactory" />
     </analyzer>
