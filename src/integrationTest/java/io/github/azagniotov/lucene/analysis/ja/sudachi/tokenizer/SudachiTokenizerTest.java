@@ -249,7 +249,7 @@ public class SudachiTokenizerTest extends BaseTokenStreamTestCase {
         }
 
         // Because of the custom test config Config.fromClasspath("sudachi_test_config.json"),
-        // the number of resulting tokens is large
+        // the number of resulting tokens is large than when using default config
         assertEquals(170500, totalTokens);
     }
 }

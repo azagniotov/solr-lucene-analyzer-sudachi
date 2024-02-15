@@ -66,7 +66,7 @@ public class SolrFieldAnalysisTest extends SolrTestCaseJ4 {
 
         final Iterable<Map.Entry<String, FieldAnalysisResponse.Analysis>> allFieldTypeAnalysis =
                 fieldAnalysisResponse.getAllFieldTypeAnalysis();
-        assertEquals(true, allFieldTypeAnalysis.iterator().hasNext());
+        assertTrue(allFieldTypeAnalysis.iterator().hasNext());
 
         final Map.Entry<String, FieldAnalysisResponse.Analysis> filedTypeAnalysis =
                 allFieldTypeAnalysis.iterator().next();
@@ -77,6 +77,13 @@ public class SolrFieldAnalysisTest extends SolrTestCaseJ4 {
                 .collect(Collectors.toList());
 
         assertFalse(indexPhrases.isEmpty());
+        final AnalysisResponseBase.AnalysisPhase analysisPhase = indexPhrases.get(0);
+
+        // Sanity check asserts, which by no means are exhaustive
+        assertEquals(
+                "io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizer",
+                analysisPhase.getClassName());
+        assertEquals("もも", analysisPhase.getTokens().get(0).getText());
     }
 
     private static SolrClient getSolrCore() {

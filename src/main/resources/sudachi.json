@@ -20,8 +20,7 @@
       "cost" : 3857 }
   ],
   "pathRewritePlugin" : [
-    { "class" : "com.worksap.nlp.sudachi.JoinNumericPlugin",
-      "joinKanjiNumeric" : true },
+    { "class" : "com.worksap.nlp.sudachi.JoinNumericPlugin", "enableNormalize" : true },
     { "class" : "com.worksap.nlp.sudachi.JoinKatakanaOovPlugin",
       "oovPOS" : [ "名詞", "普通名詞", "一般", "*", "*", "*" ],
       "minLength" : 3

@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 
@@ -66,5 +67,25 @@ public class TestUtils {
         assert DictionaryCache.INSTANCE.get().getClass().isAssignableFrom(JapaneseDictionary.class);
 
         return tokenizer;
+    }
+
+    public Analyzer makeDefaultAnalyzer() throws IOException {
+        final Tokenizer tokenizer = this.makeTokenizer(false, SplitMode.A);
+        return new Analyzer() {
+            @Override
+            protected TokenStreamComponents createComponents(String fieldName) {
+                return new TokenStreamComponents(tokenizer, tokenizer);
+            }
+        };
+    }
+
+    public Analyzer makeNoPunctuationAnalyzer() throws IOException {
+        final Tokenizer tokenizer = this.makeTokenizer(true, SplitMode.A);
+        return new Analyzer() {
+            @Override
+            protected TokenStreamComponents createComponents(String fieldName) {
+                return new TokenStreamComponents(tokenizer, tokenizer);
+            }
+        };
     }
 }
