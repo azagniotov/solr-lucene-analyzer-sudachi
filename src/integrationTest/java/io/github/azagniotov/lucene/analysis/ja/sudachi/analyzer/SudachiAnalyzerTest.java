@@ -256,6 +256,10 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
 
         // 'Full' dictionary by Sudachi does not split this properly to すもも and もも
         assertAnalyzesTo(analyzer, "すもももももももものうち。", new String[] {"すもももももも", "もも"});
+        assertAnalyzesTo(analyzer, "エーービ〜〜〜シ〰〰〰〰", new String[] {"エービーシ"});
+        assertAnalyzesTo(analyzer, "シュミレーション", new String[] {"シュミレーション"});
+        assertAnalyzesTo(analyzer, "ちゃあ", new String[] {}); // Result ちゃあ => だ got filtered out due to stopwords.txt
+        assertAnalyzesTo(analyzer, "打ち込む", new String[] {"打つ", "込む"});
 
         assertAnalyzesTo(
                 analyzer,
