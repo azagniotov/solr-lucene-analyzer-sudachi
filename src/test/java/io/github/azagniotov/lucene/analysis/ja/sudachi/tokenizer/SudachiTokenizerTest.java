@@ -62,6 +62,9 @@ public class SudachiTokenizerTest {
         assertThat(DictionaryCache.INSTANCE.get()).isInstanceOf(JapaneseDictionary.class);
     }
 
+    /**
+     * FYI: These tests assert against morpheme.surface(), NOT the morpheme.normalizedForm()
+     */
     @DataProvider(name = "querySurfaces")
     public static Object[][] querySurfaces() {
         return new Object[][] {
@@ -181,15 +184,25 @@ public class SudachiTokenizerTest {
             // {"すもももももももものうち", new Object[] {"すもも", "も", "もも", "も", "もも", "の", "うち"}},
             {"イーブイヒーローズbox未開封シュリンク", new Object[] {"イーブイヒーローズ", "box", "未", "開封", "シュリンク"}},
             {"いいいいいいいい", new Object[] {"いい", "いい", "いい", "いい"}},
+            {"一二三万二千円", new Object[] {"一二三万二千", "円"}},
+            {"ちゃあ", new Object[] {"ちゃあ"}},
+            {"かつ丼", new Object[] {"かつ", "丼"}},
+            {"エーービ〜〜〜シ〰〰〰〰", new Object[] {"エーービ〜〜〜シ〰〰〰〰"}},
+            {"徳島（とくしま）に行(い)く", new Object[] {"徳島（とくしま）", "に", "行(い)く"}},
         };
     }
 
+    /**
+     * FYI: These tests assert against morpheme.surface(), NOT the morpheme.normalizedForm()
+     */
     @Test(dataProvider = "querySurfaces")
     public void testBasicTokenization(final Object query, final Object... expected) throws Exception {
         final Reader stringReader = new StringReader(query.toString());
         assertThat(tokens(sudachiTokenizer.tokenize(stringReader), false)).containsExactly(expected);
     }
-
+    /**
+     * FYI: These tests assert against morpheme.normalizedForm(), NOT the morpheme.surface()
+     */
     @DataProvider(name = "numericQuerySurfaces")
     public static Object[][] numericQuerySurfaces() {
         return new Object[][] {
@@ -198,10 +211,41 @@ public class SudachiTokenizerTest {
             {"一二三万二千円", new Object[] {"1232000", "円"}},
         };
     }
-
+    /**
+     * FYI: These tests assert against morpheme.normalizedForm(), NOT the morpheme.surface()
+     */
     @Test(dataProvider = "numericQuerySurfaces")
     public void testNumericTokenization(final Object query, final Object... expected) throws Exception {
         // Related to com.worksap.nlp.sudachi.JoinNumericPlugin
+
+        final Reader stringReader = new StringReader(query.toString());
+        assertThat(tokens(sudachiTokenizer.tokenize(stringReader), true)).containsExactly(expected);
+    }
+
+    /**
+     * FYI: These tests assert against morpheme.normalizedForm(), NOT the morpheme.surface()
+     */
+    @DataProvider(name = "abnormalQuerySurfaces")
+    public static Object[][] abnormalQuerySurfaces() {
+        return new Object[][] {
+            {"打込む", new Object[] {"打つ", "込む"}},
+            {"打ち込む", new Object[] {"打つ", "込む"}},
+            {"エーービ〜〜〜シ〰〰〰〰", new Object[] {"エービーシー"}},
+            {"かつ丼", new Object[] {"かつ", "丼"}},
+            {"シュミレーション", new Object[] {"シミュレーション"}}, // simulation
+            {"ちゃあ", new Object[] {"だ"}}, // (adjective)っちゃあ (same adjective)（だ）けど
+            {"忙しいちゃあ忙しいけど", new Object[] {"忙しい", "ては", "忙しい", "けれど"}},
+            {"徳島（とくしま）に行(い)く", new Object[] {"徳島", "に", "行く"}},
+        };
+    }
+
+    /**
+     * FYI: These tests assert against morpheme.normalizedForm(), NOT the morpheme.surface()
+     */
+    @Test(dataProvider = "abnormalQuerySurfaces")
+    public void testInputTextNormalization(final Object query, final Object... expected) throws Exception {
+        // Related to com.worksap.nlp.sudachi.DefaultInputTextPlugin
+        // Related to com.worksap.nlp.sudachi.ProlongedSoundMarkInputTextPlugin
 
         final Reader stringReader = new StringReader(query.toString());
         assertThat(tokens(sudachiTokenizer.tokenize(stringReader), true)).containsExactly(expected);
