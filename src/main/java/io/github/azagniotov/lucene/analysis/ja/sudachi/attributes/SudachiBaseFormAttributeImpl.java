@@ -25,7 +25,11 @@ public class SudachiBaseFormAttributeImpl extends AttributeImpl implements Sudac
 
     @Override
     public String getBaseForm() {
-        return morpheme.dictionaryForm();
+        if (this.morpheme == null) {
+            return "n/a";
+        } else {
+            return morpheme.dictionaryForm();
+        }
     }
 
     @Override

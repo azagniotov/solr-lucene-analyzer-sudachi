@@ -25,7 +25,11 @@ public class SudachiNormalizedFormAttributeImpl extends AttributeImpl implements
 
     @Override
     public String getNormalizedForm() {
-        return morpheme.normalizedForm();
+        if (this.morpheme == null) {
+            return "n/a";
+        } else {
+            return morpheme.normalizedForm();
+        }
     }
 
     @Override

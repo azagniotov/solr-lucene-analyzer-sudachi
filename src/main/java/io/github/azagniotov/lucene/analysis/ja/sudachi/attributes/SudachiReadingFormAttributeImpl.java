@@ -26,7 +26,11 @@ public class SudachiReadingFormAttributeImpl extends AttributeImpl implements Su
 
     @Override
     public String getReadingForm() {
-        return morpheme.readingForm();
+        if (this.morpheme == null) {
+            return null;
+        } else {
+            return morpheme.readingForm();
+        }
     }
 
     @Override
