@@ -26,7 +26,7 @@ public class SudachiPartOfSpeechAttributeImpl extends AttributeImpl implements S
 
     @Override
     public String getPartOfSpeech() {
-        if (morpheme.partOfSpeech().isEmpty()) {
+        if (morpheme == null || morpheme.partOfSpeech().isEmpty()) {
             return null;
         } else {
             final StringBuilder posBuilder = new StringBuilder();

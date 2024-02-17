@@ -63,6 +63,7 @@ testing {
                 implementation project()
                 implementation "commons-io:commons-io:2.8.0"
                 implementation "org.apache.lucene:lucene-queryparser:${luceneVersion}"
+                implementation "org.apache.lucene:lucene-codecs:${luceneVersion}"
                 implementation "org.apache.solr:solr-test-framework:${solrVersion}"
                 implementation "junit:junit:4.13.2"
             }

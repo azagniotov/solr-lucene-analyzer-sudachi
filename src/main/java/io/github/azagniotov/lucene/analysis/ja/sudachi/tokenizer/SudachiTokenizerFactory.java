@@ -56,9 +56,8 @@ public class SudachiTokenizerFactory extends TokenizerFactory implements Resourc
 
     public SudachiTokenizerFactory(final Map<String, String> args, final Config config) {
         super(args);
-
-        this.mode = getMode(get(args, MODE));
-        this.discardPunctuation = getBoolean(args, DISCARD_PUNCTUATION, true);
+        this.mode = getMode(args.getOrDefault(MODE, "search"));
+        this.discardPunctuation = Boolean.parseBoolean(args.getOrDefault(DISCARD_PUNCTUATION, "true"));
         this.config = config;
     }
 
