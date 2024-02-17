@@ -53,6 +53,13 @@
       <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiKatakanaStemFilterFactory" minimumLength="4" />
       <!-- Lower-cases romaji characters -->
       <filter class="solr.LowerCaseFilterFactory" />
+      <filter class="solr.SynonymGraphFilterFactory"
+              synonyms="lang/synonyms.txt"
+              ignoreCase="true"
+              expand="true"
+              format="solr"
+              tokenizerFactory="io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory"
+      />
     </analyzer>
   </fieldType>
 </schema>

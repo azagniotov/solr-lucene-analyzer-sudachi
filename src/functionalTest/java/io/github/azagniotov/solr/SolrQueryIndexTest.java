@@ -46,11 +46,41 @@ public class SolrQueryIndexTest extends SolrTestCaseJ4 {
 
         indexDocument("1", "すもももももももものうち。");
         indexDocument("2", "ももたろうは日本のおとぎ話の一つ。");
+        indexDocument("3", "赤ちゃん");
+        indexDocument("4", "新生児");
+        indexDocument("5", "児");
     }
 
     @AfterClass
     public static void afterClass() {
         // Do nothing
+    }
+
+    @Test
+    public void testMatchesWithSynonym() throws Exception {
+        final SolrQuery solrQuery = new SolrQuery();
+
+        // '児,新生児' are synonyms
+        solrQuery.setQuery("terms_ja:赤ちゃん");
+
+        final QueryRequest queryRequestOne = new QueryRequest(solrQuery);
+        final QueryResponse queryResponseOne = queryRequestOne.process(getSolrCore());
+
+        assertEquals(3, queryResponseOne.getResults().size());
+        assertEquals("赤ちゃん", queryResponseOne.getResults().get(0).get("terms_ja"));
+        assertEquals("新生児", queryResponseOne.getResults().get(1).get("terms_ja"));
+        assertEquals("児", queryResponseOne.getResults().get(2).get("terms_ja"));
+
+        // '赤ちゃん,新生児' are synonyms
+        solrQuery.setQuery("terms_ja:児");
+
+        final QueryRequest queryRequestTwo = new QueryRequest(solrQuery);
+        final QueryResponse queryResponseTwo = queryRequestTwo.process(getSolrCore());
+
+        assertEquals(3, queryResponseTwo.getResults().size());
+        assertEquals("赤ちゃん", queryResponseTwo.getResults().get(0).get("terms_ja"));
+        assertEquals("新生児", queryResponseTwo.getResults().get(1).get("terms_ja"));
+        assertEquals("児", queryResponseTwo.getResults().get(2).get("terms_ja"));
     }
 
     @Test

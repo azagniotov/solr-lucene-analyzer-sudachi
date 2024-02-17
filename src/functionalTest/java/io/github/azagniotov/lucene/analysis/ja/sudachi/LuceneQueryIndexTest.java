@@ -16,10 +16,27 @@
 package io.github.azagniotov.lucene.analysis.ja.sudachi;
 
 import io.github.azagniotov.lucene.analysis.ja.sudachi.analyzer.SudachiAnalyzer;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilterFactory;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiKatakanaStemFilter;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilterFactory;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory;
+import io.github.azagniotov.lucene.analysis.ja.sudachi.util.NoOpResourceLoader;
 import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.LowerCaseFilter;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.cjk.CJKWidthFilterFactory;
+import org.apache.lucene.analysis.core.FlattenGraphFilter;
+import org.apache.lucene.analysis.core.StopFilter;
+import org.apache.lucene.analysis.synonym.SynonymGraphFilter;
+import org.apache.lucene.analysis.synonym.SynonymMap;
+import org.apache.lucene.codecs.simpletext.SimpleTextCodec;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StringField;
@@ -37,6 +54,8 @@ import org.apache.lucene.search.TotalHitCountCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.tests.analysis.BaseTokenStreamTestCase;
+import org.apache.lucene.util.AttributeFactory;
+import org.apache.lucene.util.CharsRef;
 import org.junit.Test;
 
 public class LuceneQueryIndexTest extends BaseTokenStreamTestCase {
@@ -105,10 +124,100 @@ public class LuceneQueryIndexTest extends BaseTokenStreamTestCase {
         assertTokenStreamContents(tokenStreamTwo, new String[] {"もも", "日本", "おとぎ話", "一"});
     }
 
+    @Test
+    public void queryIndexWithSynonyms() throws Exception {
+
+        System.out.println("Writing index to " + indexTempDirectory.getCanonicalPath());
+        final Analyzer analyzerWithSynonym = new Analyzer() {
+            @Override
+            protected TokenStreamComponents createComponents(final String fieldName) {
+                try {
+                    Tokenizer tokenizer = createTokenizer(new HashMap<>());
+                    TokenStream stream = tokenizer;
+
+                    stream = new SudachiBaseFormFilterFactory(new HashMap<>()).create(stream);
+                    stream = new SudachiPartOfSpeechStopFilterFactory(new HashMap<>()).create(stream);
+                    stream = new CJKWidthFilterFactory(new HashMap<>()).create(stream);
+                    stream = new StopFilter(stream, SudachiAnalyzer.getDefaultStopSet());
+                    stream = new SudachiKatakanaStemFilter(stream);
+                    stream = new LowerCaseFilter(stream);
+                    stream = new SynonymGraphFilter(stream, getSynonymMap(), true);
+                    stream = new FlattenGraphFilter(stream);
+                    return new TokenStreamComponents(tokenizer, stream);
+                } catch (IOException iox) {
+                    throw new UncheckedIOException(iox);
+                }
+            }
+        };
+
+        registerDocuments(ramDirectory, analyzerWithSynonym);
+
+        final DirectoryReader directoryReader = DirectoryReader.open(ramDirectory);
+        final IndexSearcher indexSearcher = new IndexSearcher(directoryReader);
+        final QueryParser queryParser = new QueryParser("content", analyzerWithSynonym);
+
+        ///////////////////////////////////////////////////////////////////////////////////
+        // FIRST QUERY: 新生児
+        ///////////////////////////////////////////////////////////////////////////////////
+        final Query queryOne = queryParser.parse("新生児");
+        final TotalHitCountCollector totalHitCountCollectorOne = new TotalHitCountCollector();
+        indexSearcher.search(queryOne, totalHitCountCollectorOne);
+
+        final int totalHitsOne = totalHitCountCollectorOne.getTotalHits();
+        assertEquals(3, totalHitsOne);
+
+        final TopFieldCollector documentCollector = TopFieldCollector.create(Sort.RELEVANCE, 10, totalHitsOne);
+        indexSearcher.search(queryOne, documentCollector);
+
+        final ScoreDoc[] scoreDocsOne = documentCollector.topDocs().scoreDocs;
+        assertEquals(3, scoreDocsOne.length);
+
+        assertEquals("新生児", indexSearcher.doc(scoreDocsOne[0].doc).get("content"));
+        assertEquals("赤ちゃん", indexSearcher.doc(scoreDocsOne[1].doc).get("content"));
+        assertEquals("児", indexSearcher.doc(scoreDocsOne[2].doc).get("content"));
+
+        ///////////////////////////////////////////////////////////////////////////////////
+        // SECOND QUERY: 赤ちゃん
+        ///////////////////////////////////////////////////////////////////////////////////
+        final Query queryTwo = queryParser.parse("赤ちゃん");
+        final TotalHitCountCollector totalHitCountCollectorTwo = new TotalHitCountCollector();
+        indexSearcher.search(queryTwo, totalHitCountCollectorTwo);
+
+        final int totalHitsTwo = totalHitCountCollectorTwo.getTotalHits();
+        assertEquals(3, totalHitsTwo);
+
+        final TopFieldCollector documentCollectorTwo = TopFieldCollector.create(Sort.RELEVANCE, 10, totalHitsTwo);
+        indexSearcher.search(queryTwo, documentCollectorTwo);
+
+        final ScoreDoc[] scoreDocsTwo = documentCollectorTwo.topDocs().scoreDocs;
+        assertEquals(3, scoreDocsTwo.length);
+
+        assertEquals("赤ちゃん", indexSearcher.doc(scoreDocsTwo[0].doc).get("content"));
+        assertEquals("児", indexSearcher.doc(scoreDocsTwo[1].doc).get("content"));
+        assertEquals("新生児", indexSearcher.doc(scoreDocsTwo[2].doc).get("content"));
+    }
+
+    private SynonymMap getSynonymMap() throws IOException {
+
+        final SynonymMap.Builder synMapBuilder = new SynonymMap.Builder(Boolean.TRUE);
+        // Word => Synonym
+        synMapBuilder.add(new CharsRef("赤ちゃん"), new CharsRef("児"), Boolean.TRUE);
+        synMapBuilder.add(new CharsRef("赤ちゃん"), new CharsRef("新生児"), Boolean.TRUE);
+
+        return synMapBuilder.build();
+    }
+
     private void registerDocuments(final Directory directory, final Analyzer analyzer) throws Exception {
-        try (final IndexWriter indexWriter = new IndexWriter(directory, new IndexWriterConfig(analyzer))) {
+        final IndexWriterConfig indexWriterConfig = new IndexWriterConfig(analyzer);
+        indexWriterConfig.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+        indexWriterConfig.setCodec(new SimpleTextCodec());
+
+        try (final IndexWriter indexWriter = new IndexWriter(directory, indexWriterConfig)) {
             indexWriter.addDocument(createDocument("1", "すもももももももものうち。"));
             indexWriter.addDocument(createDocument("2", "ももたろうは日本のおとぎ話の一つ。"));
+            indexWriter.addDocument(createDocument("3", "赤ちゃん"));
+            indexWriter.addDocument(createDocument("4", "新生児"));
+            indexWriter.addDocument(createDocument("5", "児"));
 
             indexWriter.commit();
         }
@@ -120,5 +229,16 @@ public class LuceneQueryIndexTest extends BaseTokenStreamTestCase {
         document.add(new TextField("terms", text, Field.Store.YES));
         document.add(new TextField("content", text, Field.Store.YES));
         return document;
+    }
+
+    private Tokenizer createTokenizer(final Map<String, String> args) throws IOException {
+
+        final Map<String, String> map = new HashMap<>(args);
+        map.put("mode", "search");
+        map.put("discardPunctuation", "true");
+        final SudachiTokenizerFactory factory = new SudachiTokenizerFactory(map);
+        factory.inform(new NoOpResourceLoader());
+
+        return factory.create(AttributeFactory.DEFAULT_ATTRIBUTE_FACTORY);
     }
 }
