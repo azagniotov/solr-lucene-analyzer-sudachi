@@ -17,6 +17,7 @@
 package io.github.azagniotov.lucene.analysis.ja.sudachi.attributes;
 
 import com.worksap.nlp.sudachi.Morpheme;
+import java.util.Optional;
 import org.apache.lucene.util.AttributeImpl;
 import org.apache.lucene.util.AttributeReflector;
 
@@ -25,8 +26,8 @@ public class SudachiMorphemeAttributeImpl extends AttributeImpl implements Sudac
     private Morpheme morpheme;
 
     @Override
-    public Morpheme getMorpheme() {
-        return morpheme;
+    public Optional<Morpheme> getValue() {
+        return this.morpheme == null ? Optional.empty() : Optional.of(morpheme);
     }
 
     @Override

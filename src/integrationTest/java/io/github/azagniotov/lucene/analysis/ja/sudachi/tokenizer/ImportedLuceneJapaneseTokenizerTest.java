@@ -252,11 +252,11 @@ public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase
     private void assertReadings(final String input, String... readings) throws Exception {
         final Analyzer analyzer = this.testUtils.makeDefaultAnalyzer();
         try (final TokenStream ts = analyzer.tokenStream("ignored", input)) {
-            final SudachiReadingFormAttribute readingAtt = ts.addAttribute(SudachiReadingFormAttribute.class);
+            final SudachiReadingFormAttribute<?> readingAtt = ts.addAttribute(SudachiReadingFormAttribute.class);
             ts.reset();
-            for (final String reading : readings) {
+            for (final String readingForm : readings) {
                 assertTrue(ts.incrementToken());
-                assertEquals(reading, readingAtt.getReadingForm());
+                assertEquals(readingAtt.getValue().orElseThrow(), readingForm);
             }
             assertFalse(ts.incrementToken());
             ts.end();
@@ -270,7 +270,7 @@ public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase
             ts.reset();
             for (final String baseForm : baseForms) {
                 assertTrue(ts.incrementToken());
-                assertEquals(baseForm, baseFormAtt.getBaseForm());
+                assertEquals(baseFormAtt.getValue().orElseThrow(), baseForm);
             }
             assertFalse(ts.incrementToken());
             ts.end();
@@ -284,7 +284,7 @@ public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase
             ts.reset();
             for (final String partOfSpeech : partsOfSpeech) {
                 assertTrue(ts.incrementToken());
-                assertEquals(partOfSpeech, partOfSpeechAtt.getPartOfSpeech());
+                assertEquals(partOfSpeechAtt.getValue().orElseThrow(), partOfSpeech);
             }
             assertFalse(ts.incrementToken());
             ts.end();

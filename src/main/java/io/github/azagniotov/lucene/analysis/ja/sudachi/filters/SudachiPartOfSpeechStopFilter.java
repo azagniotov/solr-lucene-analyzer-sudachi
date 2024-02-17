@@ -21,6 +21,7 @@ import com.worksap.nlp.sudachi.Morpheme;
 import com.worksap.nlp.sudachi.PosMatcher;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiMorphemeAttribute;
 import java.io.IOException;
+import java.util.Optional;
 import org.apache.lucene.analysis.FilteringTokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 
@@ -41,12 +42,14 @@ public class SudachiPartOfSpeechStopFilter extends FilteringTokenFilter {
 
     @Override
     protected boolean accept() throws IOException {
-        final Morpheme morpheme = this.morphemeAtt.getMorpheme();
-
-        boolean currentTokenPoSMatchesDefinedPartOfSpeechTags = posMatcher.test(this.morphemeAtt.getMorpheme());
-
-        // Any token with a part-of-speech tag that exactly matches those
-        // defined in the stoptags.txt file are removed from the token stream.
-        return morpheme == null || !currentTokenPoSMatchesDefinedPartOfSpeechTags;
+        final Optional<Morpheme> morpheme = this.morphemeAtt.getValue();
+        if (morpheme.isPresent()) {
+            // Any token with a part-of-speech tag that exactly matches those
+            // defined in the stoptags.txt file are removed from the token stream.
+            boolean currentTokenPoSMatchesDefinedPartOfSpeechTags = posMatcher.test(morpheme.get());
+            return !currentTokenPoSMatchesDefinedPartOfSpeechTags;
+        } else {
+            return true;
+        }
     }
 }

@@ -16,6 +16,7 @@
 package io.github.azagniotov.lucene.analysis.ja.sudachi.attributes;
 
 import com.worksap.nlp.sudachi.Morpheme;
+import java.util.Optional;
 import org.apache.lucene.util.AttributeImpl;
 import org.apache.lucene.util.AttributeReflector;
 
@@ -24,12 +25,8 @@ public class SudachiBaseFormAttributeImpl extends AttributeImpl implements Sudac
     private Morpheme morpheme;
 
     @Override
-    public String getBaseForm() {
-        if (this.morpheme == null) {
-            return "n/a";
-        } else {
-            return morpheme.dictionaryForm();
-        }
+    public Optional<String> getValue() {
+        return this.morpheme == null ? Optional.empty() : Optional.of(morpheme.dictionaryForm());
     }
 
     @Override
@@ -46,7 +43,10 @@ public class SudachiBaseFormAttributeImpl extends AttributeImpl implements Sudac
     public void reflectWith(AttributeReflector attributeReflector) {
         // AttributeReflector is used by Solr and Elasticsearch to provide analysis output.
 
-        attributeReflector.reflect(SudachiBaseFormAttribute.class, "baseForm", getBaseForm());
+        getValue()
+                .ifPresentOrElse(
+                        value -> attributeReflector.reflect(SudachiBaseFormAttribute.class, "baseForm", value),
+                        () -> attributeReflector.reflect(SudachiBaseFormAttribute.class, "baseForm", "n/a"));
     }
 
     @Override

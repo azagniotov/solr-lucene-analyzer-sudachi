@@ -17,20 +17,17 @@ package io.github.azagniotov.lucene.analysis.ja.sudachi.attributes;
 
 import com.worksap.nlp.sudachi.Morpheme;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.util.Translations;
+import java.util.Optional;
 import org.apache.lucene.util.AttributeImpl;
 import org.apache.lucene.util.AttributeReflector;
 
-public class SudachiReadingFormAttributeImpl extends AttributeImpl implements SudachiReadingFormAttribute {
+public class SudachiReadingFormAttributeImpl extends AttributeImpl implements SudachiReadingFormAttribute<String> {
 
     private Morpheme morpheme;
 
     @Override
-    public String getReadingForm() {
-        if (this.morpheme == null) {
-            return null;
-        } else {
-            return morpheme.readingForm();
-        }
+    public Optional<String> getValue() {
+        return this.morpheme == null ? Optional.empty() : Optional.of(morpheme.readingForm());
     }
 
     @Override
@@ -47,20 +44,26 @@ public class SudachiReadingFormAttributeImpl extends AttributeImpl implements Su
     public void reflectWith(AttributeReflector attributeReflector) {
         // AttributeReflector is used by Solr and Elasticsearch to provide analysis output.
 
-        final String readingFormJA = getReadingForm();
-        if (readingFormJA != null && !readingFormJA.trim().isEmpty()) {
-            final String readingFormEN = Translations.toRomaji(readingFormJA);
-            attributeReflector.reflect(SudachiReadingFormAttribute.class, "reading (ja)", readingFormJA);
-            attributeReflector.reflect(SudachiReadingFormAttribute.class, "reading (en)", readingFormEN);
-        } else {
-            attributeReflector.reflect(SudachiReadingFormAttribute.class, "reading (ja)", "Out of Vocab");
-            attributeReflector.reflect(SudachiReadingFormAttribute.class, "reading (en)", "Out of Vocab");
-        }
+        getValue()
+                .ifPresentOrElse(
+                        readingFormJA -> {
+                            final String readingFormEN = Translations.toRomaji(readingFormJA);
+                            attributeReflector.reflect(
+                                    SudachiReadingFormAttribute.class, "reading (ja)", readingFormJA);
+                            attributeReflector.reflect(
+                                    SudachiReadingFormAttribute.class, "reading (en)", readingFormEN);
+                        },
+                        () -> {
+                            attributeReflector.reflect(
+                                    SudachiReadingFormAttribute.class, "reading (ja)", "Out of Vocab");
+                            attributeReflector.reflect(
+                                    SudachiReadingFormAttribute.class, "reading (en)", "Out of Vocab");
+                        });
     }
 
     @Override
     public void copyTo(AttributeImpl attribute) {
-        final SudachiReadingFormAttribute at = (SudachiReadingFormAttribute) attribute;
+        final SudachiReadingFormAttribute<?> at = (SudachiReadingFormAttribute<?>) attribute;
         at.setMorpheme(morpheme);
     }
 }

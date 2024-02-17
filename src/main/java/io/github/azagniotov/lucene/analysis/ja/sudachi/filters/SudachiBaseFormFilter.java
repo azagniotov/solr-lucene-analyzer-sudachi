@@ -48,10 +48,7 @@ public final class SudachiBaseFormFilter extends TokenFilter {
     public boolean incrementToken() throws IOException {
         if (input.incrementToken()) {
             if (!keywordAtt.isKeyword()) {
-                final String baseForm = baseFormAtt.getBaseForm();
-                if (baseForm != null) {
-                    termAtt.setEmpty().append(baseForm);
-                }
+                baseFormAtt.getValue().ifPresent(value -> termAtt.setEmpty().append(value));
             }
             return true;
         } else {

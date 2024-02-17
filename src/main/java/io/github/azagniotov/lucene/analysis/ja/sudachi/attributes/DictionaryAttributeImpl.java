@@ -19,14 +19,9 @@ import com.worksap.nlp.sudachi.Dictionary;
 import org.apache.lucene.util.AttributeImpl;
 import org.apache.lucene.util.AttributeReflector;
 
-public class SudachiAttributeImpl extends AttributeImpl implements SudachiAttribute {
+public class DictionaryAttributeImpl extends AttributeImpl implements DictionaryAttribute {
 
     private Dictionary dictionary;
-
-    @Override
-    public Dictionary getDictionary() {
-        return dictionary == null ? null : dictionary;
-    }
 
     @Override
     public void setDictionary(final Dictionary dictionary) {
@@ -50,7 +45,7 @@ public class SudachiAttributeImpl extends AttributeImpl implements SudachiAttrib
 
     @Override
     public void copyTo(AttributeImpl attribute) {
-        final SudachiAttribute at = (SudachiAttribute) attribute;
+        final DictionaryAttribute at = (DictionaryAttribute) attribute;
         at.setDictionary(dictionary);
     }
 }
