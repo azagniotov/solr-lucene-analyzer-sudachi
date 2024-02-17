@@ -19,13 +19,7 @@ package io.github.azagniotov.lucene.analysis.ja.sudachi.attributes;
 import com.worksap.nlp.sudachi.Dictionary;
 import org.apache.lucene.util.Attribute;
 
-public interface SudachiAttribute extends Attribute {
-    /**
-     * Get current dictionary instance
-     *
-     * @return reloadable facade for the current dictionary
-     */
-    Dictionary getDictionary();
+public interface DictionaryAttribute extends Attribute {
 
     /**
      * Set the current dictionary for the token stream. Use this method only if you

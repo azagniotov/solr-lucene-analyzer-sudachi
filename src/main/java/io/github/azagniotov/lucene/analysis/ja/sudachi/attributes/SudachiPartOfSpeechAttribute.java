@@ -15,14 +15,7 @@
  */
 package io.github.azagniotov.lucene.analysis.ja.sudachi.attributes;
 
-import com.worksap.nlp.sudachi.Morpheme;
-import org.apache.lucene.util.Attribute;
-
 /**
  * Attribute for {@link com.worksap.nlp.sudachi.Morpheme#partOfSpeech()}
  */
-public interface SudachiPartOfSpeechAttribute extends Attribute {
-    String getPartOfSpeech();
-
-    void setMorpheme(final Morpheme morpheme);
-}
+public interface SudachiPartOfSpeechAttribute extends MorphemeReliantAttribute<String> {}

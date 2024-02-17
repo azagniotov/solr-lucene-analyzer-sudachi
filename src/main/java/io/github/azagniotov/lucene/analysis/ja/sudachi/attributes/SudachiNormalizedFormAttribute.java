@@ -16,13 +16,8 @@
 package io.github.azagniotov.lucene.analysis.ja.sudachi.attributes;
 
 import com.worksap.nlp.sudachi.Morpheme;
-import org.apache.lucene.util.Attribute;
 
 /**
  * Attribute for {@link Morpheme#normalizedForm()}
  */
-public interface SudachiNormalizedFormAttribute extends Attribute {
-    String getNormalizedForm();
-
-    void setMorpheme(final Morpheme morpheme);
-}
+public interface SudachiNormalizedFormAttribute extends MorphemeReliantAttribute<String> {}

@@ -49,10 +49,8 @@ public final class SudachiNormalizedFormFilter extends TokenFilter {
     public boolean incrementToken() throws IOException {
         if (input.incrementToken()) {
             if (!keywordAtt.isKeyword()) {
-                final String normalizedForm = normalizedFormAtt.getNormalizedForm();
-                if (normalizedForm != null) {
-                    termAtt.setEmpty().append(normalizedForm);
-                }
+                normalizedFormAtt.getValue().ifPresent(value -> termAtt.setEmpty()
+                        .append(value));
             }
             return true;
         } else {

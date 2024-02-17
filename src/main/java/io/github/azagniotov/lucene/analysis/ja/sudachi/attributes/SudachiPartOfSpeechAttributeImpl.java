@@ -17,6 +17,7 @@ package io.github.azagniotov.lucene.analysis.ja.sudachi.attributes;
 
 import com.worksap.nlp.sudachi.Morpheme;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.util.Translations;
+import java.util.Optional;
 import org.apache.lucene.util.AttributeImpl;
 import org.apache.lucene.util.AttributeReflector;
 
@@ -25,9 +26,9 @@ public class SudachiPartOfSpeechAttributeImpl extends AttributeImpl implements S
     private Morpheme morpheme;
 
     @Override
-    public String getPartOfSpeech() {
+    public Optional<String> getValue() {
         if (morpheme == null || morpheme.partOfSpeech().isEmpty()) {
-            return null;
+            return Optional.empty();
         } else {
             final StringBuilder posBuilder = new StringBuilder();
             posBuilder.append(morpheme.partOfSpeech().get(0));
@@ -39,7 +40,7 @@ public class SudachiPartOfSpeechAttributeImpl extends AttributeImpl implements S
                 posBuilder.append("-");
                 posBuilder.append(secondPos);
             }
-            return posBuilder.toString();
+            return Optional.of(posBuilder.toString());
         }
     }
 
@@ -57,17 +58,20 @@ public class SudachiPartOfSpeechAttributeImpl extends AttributeImpl implements S
     public void reflectWith(AttributeReflector attributeReflector) {
         // AttributeReflector is used by Solr and Elasticsearch to provide analysis output.
 
-        final String partOfSpeech = getPartOfSpeech();
-        if (partOfSpeech != null) {
-            final String translation = Translations.forPos(partOfSpeech);
-            final String partOfSpeechEN = translation == null ? "n/a" : translation;
-
-            attributeReflector.reflect(SudachiPartOfSpeechAttribute.class, "partOfSpeech (ja)", partOfSpeech);
-            attributeReflector.reflect(SudachiPartOfSpeechAttribute.class, "partOfSpeech (en)", partOfSpeechEN);
-        } else {
-            attributeReflector.reflect(SudachiPartOfSpeechAttribute.class, "partOfSpeech (ja)", "n/a");
-            attributeReflector.reflect(SudachiPartOfSpeechAttribute.class, "partOfSpeech (en)", "n/a");
-        }
+        getValue()
+                .ifPresentOrElse(
+                        partOfSpeech -> {
+                            final String translation = Translations.forPos(partOfSpeech);
+                            final String partOfSpeechEN = translation == null ? "n/a" : translation;
+                            attributeReflector.reflect(
+                                    SudachiPartOfSpeechAttribute.class, "partOfSpeech (ja)", partOfSpeech);
+                            attributeReflector.reflect(
+                                    SudachiPartOfSpeechAttribute.class, "partOfSpeech (en)", partOfSpeechEN);
+                        },
+                        () -> {
+                            attributeReflector.reflect(SudachiPartOfSpeechAttribute.class, "partOfSpeech (ja)", "n/a");
+                            attributeReflector.reflect(SudachiPartOfSpeechAttribute.class, "partOfSpeech (en)", "n/a");
+                        });
     }
 
     @Override

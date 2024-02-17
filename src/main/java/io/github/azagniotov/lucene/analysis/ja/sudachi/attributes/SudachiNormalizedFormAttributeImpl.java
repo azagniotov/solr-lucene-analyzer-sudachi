@@ -16,6 +16,7 @@
 package io.github.azagniotov.lucene.analysis.ja.sudachi.attributes;
 
 import com.worksap.nlp.sudachi.Morpheme;
+import java.util.Optional;
 import org.apache.lucene.util.AttributeImpl;
 import org.apache.lucene.util.AttributeReflector;
 
@@ -24,12 +25,8 @@ public class SudachiNormalizedFormAttributeImpl extends AttributeImpl implements
     private Morpheme morpheme;
 
     @Override
-    public String getNormalizedForm() {
-        if (this.morpheme == null) {
-            return "n/a";
-        } else {
-            return morpheme.normalizedForm();
-        }
+    public Optional<String> getValue() {
+        return this.morpheme == null ? Optional.empty() : Optional.of(morpheme.normalizedForm());
     }
 
     @Override
@@ -46,8 +43,12 @@ public class SudachiNormalizedFormAttributeImpl extends AttributeImpl implements
     public void reflectWith(AttributeReflector attributeReflector) {
         // AttributeReflector is used by Solr and Elasticsearch to provide analysis output.
 
-        final String normalizedForm = getNormalizedForm();
-        attributeReflector.reflect(SudachiNormalizedFormAttribute.class, "normalizedForm", normalizedForm);
+        getValue()
+                .ifPresentOrElse(
+                        value -> attributeReflector.reflect(
+                                SudachiNormalizedFormAttribute.class, "normalizedForm", value),
+                        () -> attributeReflector.reflect(
+                                SudachiNormalizedFormAttribute.class, "normalizedForm", "n/a"));
     }
 
     @Override
