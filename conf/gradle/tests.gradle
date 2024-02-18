@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Alexander Zagniotov
+ * Copyright (c) 2023-2024 Alexander Zagniotov
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+configurations.all {
+    resolutionStrategy {
+        force "junit:junit:${junitVersion}"
+        force "commons-io:commons-io:2.8.0"
+        force "org.apache.lucene:lucene-queryparser:${luceneVersion}"
+        force "org.apache.lucene:lucene-codecs:${luceneVersion}"
+        force "org.apache.lucene:lucene-test-framework:${luceneVersion}"
+        force "org.apache.solr:solr-test-framework:${solrVersion}"
+    }
+}
 
 testing {
     suites {
@@ -36,8 +47,8 @@ testing {
             useJUnit()
             dependencies {
                 implementation project()
-                implementation "junit:junit:4.13.2"
-                implementation "org.apache.solr:solr-test-framework:${solrVersion}"
+                implementation "junit:junit"
+                implementation "org.apache.lucene:lucene-test-framework"
             }
 
             targets {
@@ -61,11 +72,37 @@ testing {
             useJUnit()
             dependencies {
                 implementation project()
-                implementation "commons-io:commons-io:2.8.0"
-                implementation "org.apache.lucene:lucene-queryparser:${luceneVersion}"
-                implementation "org.apache.lucene:lucene-codecs:${luceneVersion}"
-                implementation "org.apache.solr:solr-test-framework:${solrVersion}"
-                implementation "junit:junit:4.13.2"
+                implementation "junit:junit"
+                implementation "commons-io:commons-io"
+                implementation "org.apache.lucene:lucene-codecs"
+                implementation "org.apache.lucene:lucene-queryparser"
+                implementation "org.apache.lucene:lucene-test-framework"
+            }
+
+            targets {
+                all {
+                    testTask.configure {
+                        shouldRunAfter(test)
+                    }
+                }
+            }
+        }
+
+        endToEndTest(JvmTestSuite) {
+
+            sources {
+                resources {
+                    srcDirs += [
+                            "src/main/resources"
+                    ]
+                }
+            }
+            useJUnit()
+            dependencies {
+                implementation project()
+                implementation "junit:junit"
+                implementation "commons-io:commons-io"
+                implementation "org.apache.solr:solr-test-framework"
             }
 
             targets {

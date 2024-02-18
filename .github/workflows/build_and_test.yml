@@ -37,9 +37,12 @@ jobs:
       - name: Run unit tests
         run: ./gradlew clean test
 
-      - name: Run integration tests
+      - name: Run integration tests utilizing Tokenizer/Analyzer and imported Lucene Kuromoji tests
         run: ./gradlew clean integrationTest
 
-      - name: Run functional tests
+      - name: Run functional tests utilizing Lucene
         run: ./gradlew clean functionalTest
+
+      - name: Run end-to-end tests utilizing a Solr instance
+        run: ./gradlew clean endToEndTest
 

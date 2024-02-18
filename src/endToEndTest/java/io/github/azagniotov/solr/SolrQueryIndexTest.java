@@ -57,10 +57,12 @@ public class SolrQueryIndexTest extends SolrTestCaseJ4 {
     }
 
     @Test
-    public void testMatchesWithSynonym() throws Exception {
+    public void testMatchesWithSynonyms() throws Exception {
         final SolrQuery solrQuery = new SolrQuery();
 
-        // '児,新生児' are synonyms
+        ///////////////////////////////////////////////////////////////////////////////////
+        // FIRST QUERY: 赤ちゃん. '児,新生児' are synonyms
+        ///////////////////////////////////////////////////////////////////////////////////
         solrQuery.setQuery("terms_ja:赤ちゃん");
 
         final QueryRequest queryRequestOne = new QueryRequest(solrQuery);
@@ -71,8 +73,13 @@ public class SolrQueryIndexTest extends SolrTestCaseJ4 {
         assertEquals("新生児", queryResponseOne.getResults().get(1).get("terms_ja"));
         assertEquals("児", queryResponseOne.getResults().get(2).get("terms_ja"));
 
-        // '赤ちゃん,新生児' are synonyms
-        solrQuery.setQuery("terms_ja:児");
+        ///////////////////////////////////////////////////////////////////////////////////
+        // SECOND QUERY: 新生
+        ///////////////////////////////////////////////////////////////////////////////////
+        // Internally, synonym 新生児 will be tokenized to '新生, 児' by the provided tokenizer
+        // to the SynonymGraphFilterFactory, see: resources/solr/collection1/conf/schema.xml
+        // Therefore, query '新生' will match its synonyms: '赤ちゃん,新生児,児'
+        solrQuery.setQuery("terms_ja:新生");
 
         final QueryRequest queryRequestTwo = new QueryRequest(solrQuery);
         final QueryResponse queryResponseTwo = queryRequestTwo.process(getSolrCore());
