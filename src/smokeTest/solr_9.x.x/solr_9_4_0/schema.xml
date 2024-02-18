@@ -339,7 +339,7 @@
 
     <!-- A text field with defaults appropriate for English: it tokenizes with StandardTokenizer,
          removes English stop words (lang/stopwords_en.txt), down cases, protects words from protwords.txt, and
-         finally applies Porter's stemming.  The query time analyzer also applies synonyms from synonyms.txt. -->
+         finally applies Porter's stemming.  The query time analyzer also applies synonyms from synonyms_ja.txt. -->
     <dynamicField name="*_txt_en" type="text_en"  indexed="true"  stored="true"/>
     <fieldType name="text_en" class="solr.TextField" positionIncrementGap="100">
       <analyzer type="index">
@@ -835,8 +835,62 @@
     -->
     <dynamicField name="*_txt_ja" type="text_ja"  indexed="true"  stored="true"/>
     <fieldType name="text_ja" class="solr.TextField" autoGeneratePhraseQueries="false" positionIncrementGap="100">
-        <analyzer>
+        <analyzer type="query">
             <tokenizer class="io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory" mode="search" discardPunctuation="true" />
+            <!--
+              If you use SynonymGraphFilterFactory during indexing, you must follow it with FlattenGraphFilter
+              to squash tokens on top of one another like SynonymFilter, because the indexer can't directly
+              consume a graph.
+
+              FlattenGraphFilterFactory converts an incoming graph token stream, such as one from SynonymGraphFilter,
+              into a flat form so that all nodes form a single linear chain with no side paths. Every path through the
+              graph touches every node. This is necessary when indexing a graph token stream, because the index does
+              not save PositionLengthAttribute and so it cannot preserve the graph structure. However, at search time,
+              query parsers can correctly handle the graph and this token filter should NOT be used.
+            -->
+            <filter class="solr.SynonymGraphFilterFactory"
+                    synonyms="synonyms_ja.txt"
+                    ignoreCase="true"
+                    expand="true"
+                    format="solr"
+                    tokenizerFactory.mode="search"
+                    tokenizerFactory.discardPunctuation="true"
+                    tokenizerFactory="io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory" />
+            <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilterFactory" />
+            <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilterFactory" tags="lang/stoptags_ja.txt" />
+            <filter class="solr.CJKWidthFilterFactory" />
+            <!-- Removes common tokens typically not useful for search, but have a negative effect on ranking -->
+            <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_ja.txt" />
+            <!-- Normalizes common katakana spelling variations by removing any last long sound character (U+30FC) -->
+            <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiKatakanaStemFilterFactory" minimumLength="4" />
+            <!-- Lower-cases romaji characters -->
+            <filter class="solr.LowerCaseFilterFactory" />
+        </analyzer>
+
+        <analyzer type="index">
+            <tokenizer class="io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory" mode="search" discardPunctuation="true" />
+            <!--
+              If you use SynonymGraphFilterFactory during indexing, you must follow it with FlattenGraphFilter
+              to squash tokens on top of one another like SynonymFilter, because the indexer can't directly
+              consume a graph.
+
+              FlattenGraphFilterFactory converts an incoming graph token stream, such as one from SynonymGraphFilter,
+              into a flat form so that all nodes form a single linear chain with no side paths. Every path through the
+              graph touches every node. This is necessary when indexing a graph token stream, because the index does
+              not save PositionLengthAttribute and so it cannot preserve the graph structure. However, at search time,
+              query parsers can correctly handle the graph and this token filter should NOT be used.
+
+              From: org.apache.lucene.analysis.core.FlattenGraphFilterFactory
+            -->
+            <filter class="solr.SynonymGraphFilterFactory"
+                    synonyms="synonyms_ja.txt"
+                    ignoreCase="true"
+                    expand="true"
+                    format="solr"
+                    tokenizerFactory.mode="search"
+                    tokenizerFactory.discardPunctuation="true"
+                    tokenizerFactory="io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory" />
+            <filter class="solr.FlattenGraphFilterFactory" />
             <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilterFactory" />
             <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilterFactory" tags="lang/stoptags_ja.txt" />
             <filter class="solr.CJKWidthFilterFactory" />

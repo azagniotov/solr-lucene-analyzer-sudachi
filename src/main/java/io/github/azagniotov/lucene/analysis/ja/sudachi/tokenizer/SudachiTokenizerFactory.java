@@ -57,8 +57,19 @@ public class SudachiTokenizerFactory extends TokenizerFactory implements Resourc
     public SudachiTokenizerFactory(final Map<String, String> args, final Config config) {
         super(args);
         this.mode = getMode(args.getOrDefault(MODE, "search"));
+        if (!args.isEmpty()) {
+            args.remove(MODE);
+        }
         this.discardPunctuation = Boolean.parseBoolean(args.getOrDefault(DISCARD_PUNCTUATION, "true"));
+        if (!args.isEmpty()) {
+            args.remove(DISCARD_PUNCTUATION);
+        }
+
         this.config = config;
+
+        if (!args.isEmpty()) {
+            throw new IllegalArgumentException("Unknown parameters: " + args);
+        }
     }
 
     @Override
@@ -96,7 +107,7 @@ public class SudachiTokenizerFactory extends TokenizerFactory implements Resourc
                 return SplitMode.C;
             }
         }
-        throw new IllegalArgumentException("Tokenization input mode is null");
+        throw new IllegalArgumentException("Tokenization input mode is null, was given " + input);
     }
 
     private static Path getEnv(final String name, final String defaultValue) {

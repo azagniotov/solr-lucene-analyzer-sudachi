@@ -29,6 +29,7 @@ public class ImportedLuceneJapaneseKatakanaStemFilterFactoryTest extends BaseTok
         final SudachiTokenizerFactory tokenizerFactory = new SudachiTokenizerFactory(new HashMap<>() {
             {
                 put("mode", "search");
+                put("discardPunctuation", "true");
             }
         });
         tokenizerFactory.inform(new NoOpResourceLoader());
@@ -47,12 +48,13 @@ public class ImportedLuceneJapaneseKatakanaStemFilterFactoryTest extends BaseTok
             "予定",
             "が",
             "ある",
-            // コピー should not be stemmed
+            // Sudachi split 図書館 =>  図書, 館
             "図書",
             "館",
             "で",
             "資料",
             "を",
+            // コピー should not be stemmed
             "コピー",
             "し",
             "まし",

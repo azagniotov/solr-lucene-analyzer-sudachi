@@ -135,14 +135,14 @@ public class LuceneQueryIndexTest extends BaseTokenStreamTestCase {
                     Tokenizer tokenizer = createTokenizer(new HashMap<>());
                     TokenStream stream = tokenizer;
 
+                    stream = new SynonymGraphFilter(stream, getSynonymMap(), true);
+                    stream = new FlattenGraphFilter(stream);
                     stream = new SudachiBaseFormFilterFactory(new HashMap<>()).create(stream);
                     stream = new SudachiPartOfSpeechStopFilterFactory(new HashMap<>()).create(stream);
                     stream = new CJKWidthFilterFactory(new HashMap<>()).create(stream);
                     stream = new StopFilter(stream, SudachiAnalyzer.getDefaultStopSet());
                     stream = new SudachiKatakanaStemFilter(stream);
                     stream = new LowerCaseFilter(stream);
-                    stream = new SynonymGraphFilter(stream, getSynonymMap(), true);
-                    stream = new FlattenGraphFilter(stream);
                     return new TokenStreamComponents(tokenizer, stream);
                 } catch (IOException iox) {
                     throw new UncheckedIOException(iox);

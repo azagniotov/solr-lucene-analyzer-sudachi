@@ -60,5 +60,6 @@ COPY --from=BUILD_JAR_STAGE /home/gradle/solr-lucene-analyzer-sudachi/build/libs
 COPY --from=BUILD_JAR_STAGE $SUDACHI_DICT_HOME/system-dict/system.dict $SOLR_INSTALL_DIR/system.dict
 COPY --from=BUILD_JAR_STAGE $SUDACHI_DICT_HOME/user_lexicon.dict $SOLR_INSTALL_DIR/user_lexicon.dict
 COPY schema.xml $SOLR_SERVER_HOME/solr/configsets/_default/conf/managed-schema.xml
+COPY synonyms_ja.txt $SOLR_SERVER_HOME/solr/configsets/_default/conf/synonyms_ja.txt
 
 USER solr
