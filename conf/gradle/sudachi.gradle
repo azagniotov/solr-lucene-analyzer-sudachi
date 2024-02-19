@@ -60,7 +60,7 @@ plugins.withType(JavaPlugin) {
             }
 
             ant.copy file: "${rootDir}/user-dictionary/user_lexicon.csv", todir: targetDir
-            ant.move file: "${unpackedDir}/system_${dictionarySuffix}.dic", tofile: "${unpackedDir}/system.dict"
+            ant.move file: "${unpackedDir}/system_${sudachiDictionaryType}.dic", tofile: "${unpackedDir}/system.dict"
         }
     }
 
