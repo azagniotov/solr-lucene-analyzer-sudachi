@@ -23,8 +23,7 @@ apply plugin: "de.undercouch.download"
 plugins.withType(JavaPlugin) {
     ext {
         targetDir = file("/tmp/sudachi")
-        dictionarySuffix = "full"
-        dictionaryName = "sudachi-dictionary-20240109-${dictionarySuffix}"
+        dictionaryName = "sudachi-dictionary-${sudachiDictionaryVersion}-${sudachiDictionaryType}"
         downloadDestination = "${rootDir}/.sudachi/downloaded/${dictionaryName}.zip"
         dictChecksum = "0d6de3b5a9eb8548189b8b1596ae421d"
     }
@@ -61,7 +60,7 @@ plugins.withType(JavaPlugin) {
             }
 
             ant.copy file: "${rootDir}/user-dictionary/user_lexicon.csv", todir: targetDir
-            ant.move file: "${unpackedDir}/system_${dictionarySuffix}.dic", tofile: "${unpackedDir}/system.dict"
+            ant.move file: "${unpackedDir}/system_${sudachiDictionaryType}.dic", tofile: "${unpackedDir}/system.dict"
         }
     }
 

@@ -81,6 +81,11 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
     }
 
     @Override
+    public void close() throws IOException {
+        super.close();
+    }
+
+    @Override
     public void reset() throws IOException {
         super.reset();
         MorphemeIterator sentenceMorphemeIterator = new SentenceMorphemeIterator(tokenize(input));
