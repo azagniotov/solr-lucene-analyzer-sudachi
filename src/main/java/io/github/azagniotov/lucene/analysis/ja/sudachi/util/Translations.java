@@ -377,27 +377,27 @@ public class Translations {
                 case 'シ':
                     switch (ch2) {
                         case 'ャ':
-                            builder.append("sya");
+                            builder.append("sha");
                             i++;
                             break;
                         case 'ィ':
-                            builder.append("syi");
+                            builder.append("shi");
                             i++;
                             break;
                         case 'ュ':
-                            builder.append("syu");
+                            builder.append("shu");
                             i++;
                             break;
                         case 'ェ':
-                            builder.append("sye");
+                            builder.append("she");
                             i++;
                             break;
                         case 'ョ':
-                            builder.append("syo");
+                            builder.append("sho");
                             i++;
                             break;
                         default:
-                            builder.append("si");
+                            builder.append("shi");
                             break;
                     }
                     break;
@@ -440,27 +440,27 @@ public class Translations {
                 case 'チ':
                     switch (ch2) {
                         case 'ャ':
-                            builder.append("tya");
+                            builder.append("cha");
                             i++;
                             break;
                         case 'ィ':
-                            builder.append("tyi");
+                            builder.append("chi");
                             i++;
                             break;
                         case 'ュ':
-                            builder.append("tyu");
+                            builder.append("chu");
                             i++;
                             break;
                         case 'ェ':
-                            builder.append("tye");
+                            builder.append("che");
                             i++;
                             break;
                         case 'ョ':
-                            builder.append("tyo");
+                            builder.append("cho");
                             i++;
                             break;
                         default:
-                            builder.append("ti");
+                            builder.append("chi");
                             break;
                     }
                     break;
@@ -844,27 +844,27 @@ public class Translations {
                 case 'ジ':
                     switch (ch2) {
                         case 'ャ':
-                            builder.append("zya");
+                            builder.append("ja");
                             i++;
                             break;
                         case 'ィ':
-                            builder.append("zyi");
+                            builder.append("ji");
                             i++;
                             break;
                         case 'ュ':
-                            builder.append("zyu");
+                            builder.append("ju");
                             i++;
                             break;
                         case 'ェ':
-                            builder.append("zye");
+                            builder.append("je");
                             i++;
                             break;
                         case 'ョ':
-                            builder.append("zyo");
+                            builder.append("jo");
                             i++;
                             break;
                         default:
-                            builder.append("zi");
+                            builder.append("ji");
                             break;
                     }
                     break;
