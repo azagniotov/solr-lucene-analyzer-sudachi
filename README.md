@@ -135,7 +135,7 @@ The plugin needs a dictionary in order to run the tests. Thus, it needs to be do
 ```
 
 The above command does the following:
-1. Downloads a system dictionary `sudachi-dictionary-<YYYYMMDD>-full.zip` (The `YYYYMMDD` is `20230927` as of Jan 15th, 2024) ZIP from AWS and unpacks it under the `<PROJECT_ROOT>/.sudachi/downloaded/` (if the ZIP has been downloaded earlier, the downloaded file will be reused)
+1. Downloads a system dictionary `sudachi-dictionary-<YYYYMMDD>-full.zip` (The `YYYYMMDD` is defined in [gradle.properties#sudachiDictionaryVersion](gradle.properties)) ZIP from AWS and unpacks it under the `<PROJECT_ROOT>/.sudachi/downloaded/` (if the ZIP has been downloaded earlier, the downloaded file will be reused)
 2. Unzips the content under the `/tmp/sudachi/system-dict/`
 3. Renames the downloaded `system_full.dic` to `system.dict`
 4. Copies the [user-dictionary/user_lexicon.csv](user-dictionary/user_lexicon.csv) under the `/tmp/sudachi/`. The CSV is used to create a User dictionary. Although user defined dictionary contains only two entries, this sets an example how to add user dictionary metadata entries.
