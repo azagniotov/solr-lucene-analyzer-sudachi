@@ -23,6 +23,8 @@ A Lucene plugin based on [Sudachi](https://github.com/WorksApplications/Sudachi)
 ### Table of Contents
 * [Plugin philosophy](#plugin-philosophy)
 * [Plugin compatibility with Lucene and Solr](#plugin-compatibility-with-lucene-and-solr)
+    * [Solr field analysis screen](#solr-field-analysis-screen)
+    * [Solr field with synonyms analysis screen](#solr-field-with-synonyms-analysis-screen)
 * [Plugin installation and configuration](#plugin-installation-and-configuration)
     * [Configuring the dictionaries and building a plugin uber jar](#configuring-the-dictionaries-and-building-the-plugin-jar)
     * [Solr schema configuration](#solr-schema-configuration)
@@ -60,6 +62,20 @@ The plugin strives to where possible:
 Since the plugin is tightly coupled with Lucene, being compatible with a given version of Lucene makes the plugin compatible with the same version of Solr, at least until the Solr version `v9.0.0` (incl.)  From Solr version `v9.1.0` (incl.), Solr and Lucene versions started to diverge.
 
 There are a number of [Solr version matching available repository tags](https://github.com/azagniotov/solr-lucene-analyzer-sudachi/tags) which you can git clone before building the plugin jar.
+
+### Solr field analysis screen
+
+Solr field analysis screen demonstrating tokenized terms and their respective metadata, similar to Lucene Kuromoji behavior: 
+
+![solr-field-analysis-screen](./assets/solr.analysis.field.png)
+
+[`Back to top`](#table-of-contents)
+
+### Solr field with synonyms analysis screen
+
+The configured synonyms are `赤ちゃん,新生児,児`. The `SynonymGraphFilterFactory` was leveraging a tokenizer, therefore the synonym `新生児` got tokenized to `新生` and `児`:   
+
+![solr-field-synonys-analysis-screen](./assets/solr.analysis.field.synonys.png)
 
 [`Back to top`](#table-of-contents)
 
