@@ -328,7 +328,7 @@ To run functional tests, run the following command:
 
 #### End-to-End tests
 
-The meaning of `functional` is that the test sources extend from Solr's `SolrTestCaseJ4` in order to spin-up a Solr ecosystem using an embedded Solr server instance and create a searchable document index in the local filesystem for the purpose of the tests.
+The meaning of `End-to-End` is that the test sources extend from Solr's `SolrTestCaseJ4` in order to spin-up a Solr ecosystem using an embedded Solr server instance and create a searchable document index in the local filesystem for the purpose of the tests.
 
 To run end-to-end tests, run the following command:
 
