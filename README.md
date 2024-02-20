@@ -41,6 +41,7 @@ A Lucene plugin based on [Sudachi](https://github.com/WorksApplications/Sudachi)
         * [Unit tests](#unit-tests)
         * [Integration tests](#integration-tests)
         * [Functional tests](#functional-tests)
+        * [End-to-End tests](#end-to-end-tests)
         * [Smoke tests](#smoke-tests)
 * [Licenses](#licenses)
     * [Sudachi and Sudachi Logo](#sudachi-and-sudachi-logo)
@@ -116,10 +117,19 @@ Whether you are running Solr in Docker environment or on a bare metal machine, t
 
 ### Solr schema configuration
 
-Configure the `schema.xml` (or a `managed-schema` file) with the following configuration for the `text_ja` field:
+The current section provides a few `schema.xml` (or a `managed-schema` file) configuration examples for the `text_ja` field:
 
-```xml
-<fieldType name="text_ja" class="solr.TextField" autoGeneratePhraseQueries="false" positionIncrementGap="100">
+Simple example of `<analyzer>` XML element
+<details markdown=block>
+  <summary markdown=span>
+   <code>
+     Click to expand
+   </code>
+
+  </summary>
+
+  ```xml
+  <fieldType name="text_ja" class="solr.TextField" autoGeneratePhraseQueries="false" positionIncrementGap="100">
     <analyzer>
       <tokenizer class="io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory" mode="search" discardPunctuation="true" />
       <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilterFactory" />
@@ -133,7 +143,91 @@ Configure the `schema.xml` (or a `managed-schema` file) with the following confi
       <filter class="solr.LowerCaseFilterFactory" />
     </analyzer>
   </fieldType>
-```
+  ```
+
+</details>
+
+A more comprehensive example of two `<analyzer>` XML elements, query time and indexing time analyzers with synonym support. For synonym support, Lucene's `SynonymGraphFilterFactory` and `FlattenGraphFilterFactory` are configured.
+
+<details markdown=block>
+  <summary markdown=span>
+   <code>
+     Click to expand
+   </code>
+  </summary>
+
+  ```xml
+  <fieldType name="text_ja" class="solr.TextField" autoGeneratePhraseQueries="false" positionIncrementGap="100">
+    <analyzer type="query">
+        <tokenizer class="io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory" mode="search" discardPunctuation="true" />
+        <!--
+          If you use SynonymGraphFilterFactory during indexing, you must follow it with FlattenGraphFilter
+          to squash tokens on top of one another like SynonymFilter, because the indexer can't directly
+          consume a graph.
+
+          FlattenGraphFilterFactory converts an incoming graph token stream, such as one from SynonymGraphFilter,
+          into a flat form so that all nodes form a single linear chain with no side paths. Every path through the
+          graph touches every node. This is necessary when indexing a graph token stream, because the index does
+          not save PositionLengthAttribute and so it cannot preserve the graph structure. However, at search time,
+          query parsers can correctly handle the graph and this token filter should NOT be used.
+        -->
+        <filter class="solr.SynonymGraphFilterFactory"
+                synonyms="synonyms_ja.txt"
+                ignoreCase="true"
+                expand="true"
+                format="solr"
+                tokenizerFactory.mode="search"
+                tokenizerFactory.discardPunctuation="true"
+                tokenizerFactory="io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory" />
+        <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilterFactory" />
+        <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilterFactory" tags="lang/stoptags_ja.txt" />
+        <filter class="solr.CJKWidthFilterFactory" />
+        <!-- Removes common tokens typically not useful for search, but have a negative effect on ranking -->
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_ja.txt" />
+        <!-- Normalizes common katakana spelling variations by removing any last long sound character (U+30FC) -->
+        <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiKatakanaStemFilterFactory" minimumLength="4" />
+        <!-- Lower-cases romaji characters -->
+        <filter class="solr.LowerCaseFilterFactory" />
+    </analyzer>
+
+    <analyzer type="index">
+        <tokenizer class="io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory" mode="search" discardPunctuation="true" />
+        <!--
+          If you use SynonymGraphFilterFactory during indexing, you must follow it with FlattenGraphFilter
+          to squash tokens on top of one another like SynonymFilter, because the indexer can't directly
+          consume a graph.
+
+          FlattenGraphFilterFactory converts an incoming graph token stream, such as one from SynonymGraphFilter,
+          into a flat form so that all nodes form a single linear chain with no side paths. Every path through the
+          graph touches every node. This is necessary when indexing a graph token stream, because the index does
+          not save PositionLengthAttribute and so it cannot preserve the graph structure. However, at search time,
+          query parsers can correctly handle the graph and this token filter should NOT be used.
+
+          From: org.apache.lucene.analysis.core.FlattenGraphFilterFactory
+        -->
+        <filter class="solr.SynonymGraphFilterFactory"
+                synonyms="synonyms_ja.txt"
+                ignoreCase="true"
+                expand="true"
+                format="solr"
+                tokenizerFactory.mode="search"
+                tokenizerFactory.discardPunctuation="true"
+                tokenizerFactory="io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer.SudachiTokenizerFactory" />
+        <filter class="solr.FlattenGraphFilterFactory" />
+        <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilterFactory" />
+        <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilterFactory" tags="lang/stoptags_ja.txt" />
+        <filter class="solr.CJKWidthFilterFactory" />
+        <!-- Removes common tokens typically not useful for search, but have a negative effect on ranking -->
+        <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_ja.txt" />
+        <!-- Normalizes common katakana spelling variations by removing any last long sound character (U+30FC) -->
+        <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiKatakanaStemFilterFactory" minimumLength="4" />
+        <!-- Lower-cases romaji characters -->
+        <filter class="solr.LowerCaseFilterFactory" />
+    </analyzer>
+  </fieldType>
+  ```
+
+</details>
 
 [`Back to top`](#table-of-contents)
 
@@ -168,7 +262,7 @@ But, their location in the local file system can be controlled via the ENV varia
 ### System Requirements
 
 - The plugin keeps Java 8 source compatibility at the moment
-- JDK 8
+- At least JDK 8
 
 ### Build System
 
@@ -214,7 +308,7 @@ To run unit tests, run the following command:
 
 #### Integration tests
 
-The meaning of `integration` is that the test sources extend from `org.apache.lucene.analysis.BaseTokenStreamTestCase` in order to spin-up the Lucene ecosystem.
+The meaning of `integration` is that the test sources extend from Lucene's `BaseTokenStreamTestCase` in order to spin-up the Lucene ecosystem.
 
 To run integration tests, run the following command:
 
@@ -224,14 +318,22 @@ To run integration tests, run the following command:
 
 #### Functional tests
 
-The meaning of `functional` is that the test sources may:
-1. Extend from Lucene's `BaseTokenStreamTestCase` in order to spin-up the Lucene ecosystem and also create a searchable document index in the local filesystem for the purpose of the tests; OR
-2. Extend from Solr's `SolrTestCaseJ4` in order to spin-up a Solr ecosystem using an embedded Solr server instance
+The meaning of `functional` is that the test sources extend from Lucene's `BaseTokenStreamTestCase` in order to spin-up the Lucene ecosystem and create a searchable document index in the local filesystem for the purpose of the tests.
 
 To run functional tests, run the following command:
 
 ```bash
 ./gradlew functionalTest
+```
+
+#### End-to-End tests
+
+The meaning of `functional` is that the test sources extend from Solr's `SolrTestCaseJ4` in order to spin-up a Solr ecosystem using an embedded Solr server instance and create a searchable document index in the local filesystem for the purpose of the tests.
+
+To run end-to-end tests, run the following command:
+
+```bash
+./gradlew endToEndTest
 ```
 
 #### Smoke tests
@@ -259,7 +361,7 @@ Lucene, a high-performance, full-featured text search engine library written in 
 The Lucene-based Solr plugin leveraging [Sudachi](https://github.com/WorksApplications/Sudachi) by Alexander Zagniotov is licensed under the [Apache License, Version2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
 
 ```
-Copyright (c) 2023 Alexander Zagniotov
+Copyright (c) 2023-2024 Alexander Zagniotov
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
