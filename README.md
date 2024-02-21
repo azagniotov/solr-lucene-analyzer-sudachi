@@ -21,8 +21,11 @@ A Lucene plugin based on [Sudachi](https://github.com/WorksApplications/Sudachi)
 
 
 ### Table of Contents
-* [Preface - Shortcoming of the Lucene Kuromoji Analyzer](#preface---shortcoming-of-the-lucene-kuromoji-analyzer)
-    * [About IPA dictionary](#about-ipa-dictionary) 
+* [Preface - Why built-in Lucene Kuromoji module may impact Japanese search accuracy
+](#preface---why-built-in-lucene-kuromoji-module-may-impact-japanese-search-accuracy)
+    * [Shortcoming of the Lucene Kuromoji Analyzer](#shortcoming-of-the-lucene-kuromoji-analyzer)
+    * [About IPA dictionary](#about-ipa-dictionary)
+    * [Conclusion](#conclusion) 
 * [Solr Lucene Analyzer Sudachi plugin philosophy](#solr-lucene-analyzer-sudachi-plugin-philosophy)
 * [Plugin compatibility with Lucene and Solr](#plugin-compatibility-with-lucene-and-solr)
     * [Solr field analysis screen](#solr-field-analysis-screen)
@@ -47,15 +50,23 @@ A Lucene plugin based on [Sudachi](https://github.com/WorksApplications/Sudachi)
         * [Smoke tests](#smoke-tests)
 * [Licenses](#licenses)
     * [Sudachi and Sudachi Logo](#sudachi-and-sudachi-logo)
-    * [Lucene](#lucene)
+    * [Lucene and Lucene Logo](#lucene-and-lucene-logo)
     * [Current work](#current-work)
 <!-- TOC -->
 
-## Preface - Shortcoming of the Lucene Kuromoji Analyzer
+## Preface - Why built-in Lucene Kuromoji module may impact Japanese search accuracy
 
-MeCab IPA dictionary ([bundled within Lucene Kuromoji](https://github.com/apache/lucene/blob/2a3e5ca07f5df1f5080b5cb54ff104b7924e99f3/gradle/generation/kuromoji.gradle#L57-L60) by default) dates back to 2007. This means that there is a high likelihood that some newer words / proper nouns that came into the use after 2007 (e.g: new Japanese imperial era `令和` (read as "Reiwa"), people's names, manga/anime/brand/place names, etc) may not be tokenized correctly. The "correctly" here means under-tokenized or over-tokenized. 
+The Lucene "Kuromoji" is a built-in Japanese morphological analysis component that provides analysis/tokenization capabilities. By default, Kuromoji leverages [under the hood](https://github.com/apache/lucene/blob/2a3e5ca07f5df1f5080b5cb54ff104b7924e99f3/gradle/generation/kuromoji.gradle#L50-L97) the [MeCab tokenizer’s “IPA” dictionary](https://taku910.github.io/mecab/) (the resource is written in Japanese).
 
-Although the [support for new Japanese imperial era "Reiwa" (令和) has been added to the Lucene Kuromoji especially by Uchida Tomoko](https://github.com/apache/lucene/commit/7619c07d3a80bb781f688c2cbbff33024142670a), for many post-2007 (i.e.: more modern) words there is no explicit support by the Lucene Kuromoji maintainers.
+To take a step back here and to expand on the "tokenization" a little in simple terms: a "tokenizer" is a thing that breaks a phrase/sentence into terms, by leveraging a metadata of language-specific grammar rules (a.k.a. "dictionary") which defines how a phrase/sentence should be tokenized.
+
+For example, a tongue twister `すもももももももものうち` (read as “sumomoh moh momoh moh momoh noh uchi” which means “both Japanese plum and peach are from a peach family”) will be tokenized into the following terms:" `すもも` / `も` / `もも` / `も` / `もも` / `の` / `うち`.
+
+### Shortcoming of the Lucene Kuromoji Analyzer
+
+The MeCab IPA dictionary ([bundled within Lucene Kuromoji](https://github.com/apache/lucene/blob/2a3e5ca07f5df1f5080b5cb54ff104b7924e99f3/gradle/generation/kuromoji.gradle#L57-L60) by default) dates back to 2007. This means that there is a _high likelihood_ that some newer words / proper nouns that came into the use after 2007 (e.g: new Japanese imperial era `令和` (read as "Reiwa"), people's names, manga/anime/brand/place names, etc) _may not_ be tokenized correctly. The "not correctly" here means under-tokenized or over-tokenized. 
+
+Although the [support for new Japanese imperial era "Reiwa" (令和) has been added to the Lucene Kuromoji especially by Uchida Tomoko](https://github.com/apache/lucene/commit/7619c07d3a80bb781f688c2cbbff33024142670a), for many post-2007 (i.e.: more modern) words there is no explicit support by the Lucene Kuromoji maintainers. 
 
 ### About IPA dictionary
 
@@ -67,7 +78,9 @@ As a supplementary fun read, you can have a look at the excellent article that o
 
 Thus, the above makes a UniDic (which is the dictionary that Sudachi tokenizer leverages) dictionary to be the best choice for a MeCab-based tokenizer dictionary. 
 
-Therefore, `Solr Lucene Analyzer Sudachi` is a good choice for those who are interested to run their Solr eco-system on a more up-to date Japanese morphological analysis tooling. 
+### Conclusion
+
+The adoption of a more updated version of the dictionary can directly influence the search quality and accuracy of the 1st-phase retrieval, the Solr output. Therefore, `Solr Lucene Analyzer Sudachi` is a good choice for those who are interested to run their Solr eco-system on a more up-to date Japanese morphological analysis tooling. 
 
 [`Back to top`](#table-of-contents)
 
