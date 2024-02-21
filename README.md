@@ -21,7 +21,9 @@ A Lucene plugin based on [Sudachi](https://github.com/WorksApplications/Sudachi)
 
 
 ### Table of Contents
-* [Plugin philosophy](#plugin-philosophy)
+* [Preface - Shortcoming of the Lucene Kuromoji Analyzer](#preface---shortcoming-of-the-lucene-kuromoji-analyzer)
+    * [About IPA dictionary](#about-ipa-dictionary) 
+* [Solr Lucene Analyzer Sudachi plugin philosophy](#solr-lucene-analyzer-sudachi-plugin-philosophy)
 * [Plugin compatibility with Lucene and Solr](#plugin-compatibility-with-lucene-and-solr)
     * [Solr field analysis screen](#solr-field-analysis-screen)
     * [Solr field with synonyms analysis screen](#solr-field-with-synonyms-analysis-screen)
@@ -49,7 +51,27 @@ A Lucene plugin based on [Sudachi](https://github.com/WorksApplications/Sudachi)
     * [Current work](#current-work)
 <!-- TOC -->
 
-## Plugin philosophy
+## Preface - Shortcoming of the Lucene Kuromoji Analyzer
+
+MeCab IPA dictionary ([bundled within Lucene Kuromoji](https://github.com/apache/lucene/blob/2a3e5ca07f5df1f5080b5cb54ff104b7924e99f3/gradle/generation/kuromoji.gradle#L57-L60) by default) dates back to 2007. This means that there is a high likelihood that some newer words / proper nouns that came into the use after 2007 (e.g: new Japanese imperial era `令和` (read as "Reiwa"), people's names, manga/anime/brand/place names, etc) may not be tokenized correctly. The "correctly" here means under-tokenized or over-tokenized. 
+
+Although the [support for new Japanese imperial era "Reiwa" (令和) has been added to the Lucene Kuromoji especially by Uchida Tomoko](https://github.com/apache/lucene/commit/7619c07d3a80bb781f688c2cbbff33024142670a), for many post-2007 (i.e.: more modern) words there is no explicit support by the Lucene Kuromoji maintainers.
+
+### About IPA dictionary
+
+The IPA dictionary is the MeCab's so-called "standard dictionary", characterized by a more intuitive separation of morphological units than UniDic. In contrast, UniDic splits a sentence into smaller example units for retrieval. UniDIC is a dictionary based on "[short units](https://clrd.ninjal.ac.jp/bccwj/en/morphology.html)" (短単位 read as "tantani") as defined by the NINJAL, a National Institute for Japanese Language and Linguistics which produces and maintains the UniDic dictionary.
+
+From a Japanese full-text search perspective, consistency of the tokenization (regardless of the length of the text) is more important. Therefore, UniDic dictionary is more suitable for Japanese full-text information retrieval since the dictionary is well maintained by researchers of NINJAL (to the best of my knowledge) and its shorter lexical units make it more suitable for splitting words when searching (tokenization is more coarse-grained) than the IPA dictionary. 
+
+As a supplementary fun read, you can have a look at the excellent article that outlines [Differences between IPADic and UniDic](https://github.com/ikawaha/kagome/wiki/About-the-dictionary#differences-between-ipadic-and-unidic) by the author of the GoLang-based [Kagome](https://github.com/ikawaha/kagome) tokenizer (**TL;DR**: UniDic has more advantage for lexical searching purpose). 
+
+Thus, the above makes a UniDic (which is the dictionary that Sudachi tokenizer leverages) dictionary to be the best choice for a MeCab-based tokenizer dictionary. 
+
+Therefore, `Solr Lucene Analyzer Sudachi` is a good choice for those who are interested to run their Solr eco-system on a more up-to date Japanese morphological analysis tooling. 
+
+[`Back to top`](#table-of-contents)
+
+## Solr Lucene Analyzer Sudachi plugin philosophy
 
 The plugin strives to where possible:
 
