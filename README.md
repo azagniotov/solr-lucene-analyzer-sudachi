@@ -69,6 +69,8 @@ Thus, the above makes a UniDic (which is the dictionary that Sudachi tokenizer l
 
 Therefore, `Solr Lucene Analyzer Sudachi` is a good choice for those who are interested to run their Solr eco-system on a more up-to date Japanese morphological analysis tooling. 
 
+[`Back to top`](#table-of-contents)
+
 ## Solr Lucene Analyzer Sudachi plugin philosophy
 
 The plugin strives to where possible:
