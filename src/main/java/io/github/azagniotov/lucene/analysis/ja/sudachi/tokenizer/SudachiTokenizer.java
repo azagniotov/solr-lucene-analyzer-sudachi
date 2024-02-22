@@ -115,7 +115,9 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
         }
 
         clearAttributes();
-        this.termAtt.append(morpheme.surface());
+        // this.termAtt.append(morpheme.surface());
+        final String surface = morpheme.surface();
+        this.termAtt.copyBuffer(surface.toCharArray(), 0, surface.length());
 
         final int baseOffset = morphemeIterator.getBaseOffset();
         final int startOffset = correctOffset(baseOffset + morpheme.begin());
