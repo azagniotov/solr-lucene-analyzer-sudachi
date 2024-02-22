@@ -22,12 +22,12 @@ A Lucene plugin based on [Sudachi](https://github.com/WorksApplications/Sudachi)
 
 ### Table of Contents
 * [Preface - Lucene Japanese morphological analysis landscape](#preface---lucene-japanese-morphological-analysis-landscape)
-    * [Lucene Kuromoji Morphological Analyzer](#lucene-kuromoji-morphological-analyzer)  
+    * [Lucene Kuromoji morphological analyzer](#lucene-kuromoji-morphological-analyzer)  
     * [What is MeCab](#what-is-mecab)
     * [How MeCab-based tokenizers work](#how-mecab-based-tokenizers-work)
     * [What is IPA dictionary](#what-is-ipa-dictionary)
     * [What is UniDic dictionary](#what-is-unidic-dictionary)
-    * [Why built-in Lucene Kuromoji module may impact Japanese search accuracy](#why-built-in-lucene-kuromoji-module-may-impact-japanese-search-accuracy)
+    * [Why the built-in Lucene Kuromoji module may impact Japanese search accuracy](#why-the-built-in-lucene-kuromoji-module-may-impact-japanese-search-accuracy)
     * [Conclusion](#conclusion) 
 * [Solr Lucene Analyzer Sudachi plugin philosophy](#solr-lucene-analyzer-sudachi-plugin-philosophy)
 * [Plugin compatibility with Lucene and Solr](#plugin-compatibility-with-lucene-and-solr)
@@ -63,11 +63,11 @@ Tokenization, or morphological analysis, is a fundamental and important technolo
 
 [`Back to top`](#table-of-contents)
 
-### Lucene Kuromoji Morphological Analyzer
+### Lucene Kuromoji morphological analyzer
 
 The Lucene "Kuromoji" is a built-in MeCab-style Japanese morphological analysis component that provides analysis/tokenization capabilities. By default, Kuromoji leverages [under the hood](https://github.com/apache/lucene/blob/2a3e5ca07f5df1f5080b5cb54ff104b7924e99f3/gradle/generation/kuromoji.gradle#L50-L97) the [MeCab tokenizer’s “IPA” dictionary (ja)](https://taku910.github.io/mecab/).
 
-Kuromoji analyzer has its roots in the Kuromoji analyzer made by [Atilika](https://www.atilika.org/), a small NLP company in Tokyo. Atilika has donated Kuromoji codebase to the Apache Software Foundation as of Apache Lucene and Apache Solr v3.6. These days, the implementations of Atilika and Lucene Kuromoji have diverged, while [Atilika Kuromoji](https://github.com/atilika/kuromoji) seems to be abandoned anyways.
+Kuromoji analyzer has its roots in the Kuromoji analyzer made by [Atilika](https://www.atilika.org/), a small NLP company in Tokyo. Atilika has donated Kuromoji codebase (see [LUCENE-3305](https://issues.apache.org/jira/browse/LUCENE-3305)) to the Apache Software Foundation as of Apache Lucene and Apache Solr v3.6. These days, the implementations of Atilika and Lucene Kuromoji have diverged, while [Atilika Kuromoji](https://github.com/atilika/kuromoji) seems to be abandoned anyways.
 
 [`Back to top`](#table-of-contents)
 
@@ -95,10 +95,6 @@ The IPA dictionary is the MeCab's so-called "standard dictionary", characterized
 
 From a Japanese full-text search perspective, consistency of the tokenization (regardless of the length of the text) is more important. Therefore, UniDic dictionary is more suitable for Japanese full-text information retrieval since the dictionary is well maintained by researchers of NINJAL (to the best of my knowledge) and its shorter lexical units make it more suitable for splitting words when searching (tokenization is more coarse-grained) than the IPA dictionary. 
 
-As a supplementary fun read, you can have a look at the excellent article that outlines [Differences between IPADic and UniDic](https://github.com/ikawaha/kagome/wiki/About-the-dictionary#differences-between-ipadic-and-unidic) by the author of the GoLang-based [Kagome](https://github.com/ikawaha/kagome) tokenizer (**TL;DR**: UniDic has more advantage for lexical searching purpose).
-
-Thus, the above makes a UniDic (which is the dictionary that Sudachi tokenizer leverages) dictionary to be the best choice for a MeCab-based tokenizer dictionary.
-
 [`Back to top`](#table-of-contents)
 
 ### What is UniDic dictionary
@@ -111,9 +107,13 @@ The data is ~104.3 million words, covering genres such as general books and maga
 
 Thus, UniDic is a lexicon (i.e.: collection of morphemes) of BCCWJ core data (about couple percents of the whole corpus is manually annotated with things like part of speech, etc). The approximate UniDic size is ~20-30k sentences.
 
+As a supplementary fun read, you can have a look at the excellent article that outlines [Differences between IPADic and UniDic](https://github.com/ikawaha/kagome/wiki/About-the-dictionary#differences-between-ipadic-and-unidic) by the author of the GoLang-based [Kagome](https://github.com/ikawaha/kagome) tokenizer (**TL;DR**: UniDic has more advantage for lexical searching purpose).
+
+Thus, the above makes a UniDic (which is the dictionary that Sudachi tokenizer leverages) dictionary to be the best choice for a MeCab-based tokenizer dictionary.
+
 [`Back to top`](#table-of-contents)
 
-### Why built-in Lucene Kuromoji module may impact Japanese search accuracy
+### Why the built-in Lucene Kuromoji module may impact Japanese search accuracy
 
 The MeCab IPA dictionary ([bundled within Lucene Kuromoji](https://github.com/apache/lucene/blob/2a3e5ca07f5df1f5080b5cb54ff104b7924e99f3/gradle/generation/kuromoji.gradle#L57-L60) by default) dates back to 2007. This means that there is a _high likelihood_ that some newer words / proper nouns that came into the use after 2007 (e.g: new Japanese imperial era `令和` (read as "Reiwa"), people's names, manga/anime/brand/place names, etc) _may not_ be tokenized correctly. The "not correctly" here means under-tokenized or over-tokenized. 
 
