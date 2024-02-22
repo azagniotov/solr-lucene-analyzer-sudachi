@@ -21,10 +21,12 @@ A Lucene plugin based on [Sudachi](https://github.com/WorksApplications/Sudachi)
 
 
 ### Table of Contents
-* [Preface - Why built-in Lucene Kuromoji module may impact Japanese search accuracy
-](#preface---why-built-in-lucene-kuromoji-module-may-impact-japanese-search-accuracy)
-    * [Shortcoming of the Lucene Kuromoji Analyzer](#shortcoming-of-the-lucene-kuromoji-analyzer)
+* [Preface - Lucene Japanese morphological analysis landscape](#preface---lucene-japanese-morphological-analysis-landscape)
+    * [Lucene Kuromoji Morphological Analyzer](#lucene-kuromoji-morphological-analyzer)  
+    * [What is MeCab](#what-is-mecab)
+    * [How MeCab-based tokenizers work](#how-mecab-based-tokenizers-work)
     * [About IPA dictionary](#about-ipa-dictionary)
+    * [Why built-in Lucene Kuromoji module may impact Japanese search accuracy](#why-built-in-lucene-kuromoji-module-may-impact-japanese-search-accuracy)
     * [Conclusion](#conclusion) 
 * [Solr Lucene Analyzer Sudachi plugin philosophy](#solr-lucene-analyzer-sudachi-plugin-philosophy)
 * [Plugin compatibility with Lucene and Solr](#plugin-compatibility-with-lucene-and-solr)
@@ -54,23 +56,33 @@ A Lucene plugin based on [Sudachi](https://github.com/WorksApplications/Sudachi)
     * [Current work](#current-work)
 <!-- TOC -->
 
-## Preface - Why built-in Lucene Kuromoji module may impact Japanese search accuracy
+## Preface - Lucene Japanese morphological analysis landscape
 
-The Lucene "Kuromoji" is a built-in Japanese morphological analysis component that provides analysis/tokenization capabilities. By default, Kuromoji leverages [under the hood](https://github.com/apache/lucene/blob/2a3e5ca07f5df1f5080b5cb54ff104b7924e99f3/gradle/generation/kuromoji.gradle#L50-L97) the [MeCab tokenizer’s “IPA” dictionary](https://taku910.github.io/mecab/) (the resource is written in Japanese).
+Tokenization, or morphological analysis, is a fundamental and important technology for processing a Japanese text, especially for industrial applications. Unlike whitespace separation between words for English text, Japanese text does not contain explicit word boundary information. The methods to recognize words within a text are unobvious and the morphological analysis of a token (segmentation + part-of-speech tagging) in Japanese is not trivial. Over time, there were various morphological tools developed, each with different kinds of the standard.
 
-To take a step back here and to expand on the "tokenization" a little in simple terms: a "tokenizer" is a thing that breaks a phrase/sentence into terms, by leveraging a metadata of language-specific grammar rules (a.k.a. "dictionary") which defines how a phrase/sentence should be tokenized.
+### Lucene Kuromoji Morphological Analyzer
 
-For example, a tongue twister `すもももももももものうち` (read as “sumomoh moh momoh moh momoh noh uchi” which means “both Japanese plum and peach are from a peach family”) will be tokenized into the following terms:" `すもも` / `も` / `もも` / `も` / `もも` / `の` / `うち`.
+The Lucene "Kuromoji" is a built-in MeCab-style Japanese morphological analysis component that provides analysis/tokenization capabilities. By default, Kuromoji leverages [under the hood](https://github.com/apache/lucene/blob/2a3e5ca07f5df1f5080b5cb54ff104b7924e99f3/gradle/generation/kuromoji.gradle#L50-L97) the [MeCab tokenizer’s “IPA” dictionary (ja)](https://taku910.github.io/mecab/).
 
-### Shortcoming of the Lucene Kuromoji Analyzer
+Kuromoji analyzer has its roots in the Kuromoji analyzer made by [Atilika](https://www.atilika.org/), a small NLP company in Tokyo. Atilika has donated Kuromoji codebase to the Apache Software Foundation as of Apache Lucene and Apache Solr v3.6. These days, the implementations of Atilika and Lucene Kuromoji have diverged, while [Atilika Kuromoji](https://github.com/atilika/kuromoji) seems to be abandoned anyways.
 
-The MeCab IPA dictionary ([bundled within Lucene Kuromoji](https://github.com/apache/lucene/blob/2a3e5ca07f5df1f5080b5cb54ff104b7924e99f3/gradle/generation/kuromoji.gradle#L57-L60) by default) dates back to 2007. This means that there is a _high likelihood_ that some newer words / proper nouns that came into the use after 2007 (e.g: new Japanese imperial era `令和` (read as "Reiwa"), people's names, manga/anime/brand/place names, etc) _may not_ be tokenized correctly. The "not correctly" here means under-tokenized or over-tokenized. 
+### What is MeCab
 
-Although the [support for new Japanese imperial era "Reiwa" (令和) has been added to the Lucene Kuromoji especially by Uchida Tomoko](https://github.com/apache/lucene/commit/7619c07d3a80bb781f688c2cbbff33024142670a), for many post-2007 (i.e.: more modern) words there is no explicit support by the Lucene Kuromoji maintainers. 
+[MeCab (ja)](https://taku910.github.io/mecab/) is an open source morphological analysis engine developed through a joint research unit project between Kyoto University Graduate School of Informatics and Nippon Telegraph and Telephone Corporation's Communication Science Research Institute. 
+
+MeCab was created by [Taku Kudo](http://chasen.org/~taku/) in ~2007. He/they made a breakthrough by leveraging the [CRF algorithm](https://en.wikipedia.org/wiki/Conditional_random_field) (Conditional Random Fields) to train a CRF model and build a word dictionary by [utilizing the trained model](https://taku910.github.io/mecab/).
+
+### How MeCab-based tokenizers work
+
+MeCab-style tokenizer builds a graph-like structure (i.e.: lattice) to represent input corpus (i.e.: text terms/words) and to find the best connected path through that graph by leveraging Viterbi algorithm. 
+
+For Lattice-based tokenizers, a dictionary is an object or a data structure that provides a list of known terms or words, as well as how those terms should appear next to each other (i.e.: connection cost) according to Japanese grammar or some statistical probability. During the tokenization process, a tokenizer uses the dictionary in order to tokenize the input text by leveraging the dictionary metadata. The objective of tokenizer is to find the best tokenization that maximizes the sum of phrase scores.
+
+To expand on the dictionary: a dictionary is not a mere "word collection", it includes a machine-learned language model which is carefully trained (for example, with the help of [MeCab CLI (ja)](https://taku910.github.io/mecab/learn.html)). If you want to update the dictionary, you have to start from "re-training" the model on a larger / fresher lexicon.
 
 ### About IPA dictionary
 
-The IPA dictionary is the MeCab's so-called "standard dictionary", characterized by a more intuitive separation of morphological units than UniDic. In contrast, UniDic splits a sentence into smaller example units for retrieval. UniDIC is a dictionary based on "[short units](https://clrd.ninjal.ac.jp/bccwj/en/morphology.html)" (短単位 read as "tantani") as defined by the NINJAL, a National Institute for Japanese Language and Linguistics which produces and maintains the UniDic dictionary.
+The IPA dictionary is the MeCab's so-called "standard dictionary", characterized by a more intuitive separation of morphological units than UniDic. In contrast, UniDic splits a sentence into smaller example units for retrieval. UniDIC is a dictionary based on "[short units](https://clrd.ninjal.ac.jp/bccwj/en/morphology.html)" (短単位 read as "tantani") as defined by the NINJAL (National Institute for Japanese Language and Linguistics) which produces and maintains the UniDic dictionary.
 
 From a Japanese full-text search perspective, consistency of the tokenization (regardless of the length of the text) is more important. Therefore, UniDic dictionary is more suitable for Japanese full-text information retrieval since the dictionary is well maintained by researchers of NINJAL (to the best of my knowledge) and its shorter lexical units make it more suitable for splitting words when searching (tokenization is more coarse-grained) than the IPA dictionary. 
 
@@ -78,9 +90,17 @@ As a supplementary fun read, you can have a look at the excellent article that o
 
 Thus, the above makes a UniDic (which is the dictionary that Sudachi tokenizer leverages) dictionary to be the best choice for a MeCab-based tokenizer dictionary. 
 
+### Why built-in Lucene Kuromoji module may impact Japanese search accuracy
+
+The MeCab IPA dictionary ([bundled within Lucene Kuromoji](https://github.com/apache/lucene/blob/2a3e5ca07f5df1f5080b5cb54ff104b7924e99f3/gradle/generation/kuromoji.gradle#L57-L60) by default) dates back to 2007. This means that there is a _high likelihood_ that some newer words / proper nouns that came into the use after 2007 (e.g: new Japanese imperial era `令和` (read as "Reiwa"), people's names, manga/anime/brand/place names, etc) _may not_ be tokenized correctly. The "not correctly" here means under-tokenized or over-tokenized. 
+
+Although the [support for the current Japanese imperial era "Reiwa" (令和) has been added to the Lucene Kuromoji especially by Uchida Tomoko](https://github.com/apache/lucene/commit/7619c07d3a80bb781f688c2cbbff33024142670a), for many post-2007 (i.e.: more modern) words there is no explicit support by the Lucene Kuromoji maintainers. 
+
 ### Conclusion
 
-The adoption of a more updated version of the dictionary can directly influence the search quality and accuracy of the 1st-phase retrieval, the Solr output. Therefore, `Solr Lucene Analyzer Sudachi` is a good choice for those who are interested to run their Solr eco-system on a more up-to date Japanese morphological analysis tooling. 
+The adoption of a more updated version of the dictionary can directly influence the search quality and accuracy of the 1st-phase retrieval, the Solr output. Depending on the business domain of a company that leverages search as its core function, this may create more or less issues.
+
+Therefore, **Solr Lucene Analyzer Sudachi** is a reasonable choice for those who are interested to run their Solr eco-system on a more up-to date Japanese morphological analysis tooling. 
 
 [`Back to top`](#table-of-contents)
 
