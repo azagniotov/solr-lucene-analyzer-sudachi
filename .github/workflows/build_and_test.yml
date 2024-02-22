@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        java-version: [ "8.0.392+8", "11.0.21+9", "17.0.9+9" ]
+        java-version: [ "8.0.392+8", "11.0.21+9", "17.0.9+9", "21.0.2+13" ]
 
     steps:
       - name: Checkout project sources
@@ -32,17 +32,17 @@ jobs:
         uses: ./.github/actions/download-and-cache-sudachi-dictionary
 
       - name: Build
-        run: ./gradlew build
+        run: ./gradlew -PciRun build
 
       - name: Run unit tests
-        run: ./gradlew clean test
+        run: ./gradlew -PciRun clean test
 
       - name: Run integration tests utilizing Tokenizer/Analyzer and imported Lucene Kuromoji tests
-        run: ./gradlew clean integrationTest
+        run: ./gradlew -PciRun clean integrationTest
 
       - name: Run functional tests utilizing Lucene
-        run: ./gradlew clean functionalTest
+        run: ./gradlew -PciRun clean functionalTest
 
       - name: Run end-to-end tests utilizing a Solr instance
-        run: ./gradlew clean endToEndTest
+        run: ./gradlew -PciRun clean endToEndTest
 
