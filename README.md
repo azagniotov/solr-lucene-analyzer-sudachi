@@ -25,8 +25,8 @@ A Lucene plugin based on [Sudachi](https://github.com/WorksApplications/Sudachi)
     * [Lucene Kuromoji Morphological Analyzer](#lucene-kuromoji-morphological-analyzer)  
     * [What is MeCab](#what-is-mecab)
     * [How MeCab-based tokenizers work](#how-mecab-based-tokenizers-work)
-    * [About IPA dictionary](#about-ipa-dictionary)
-    * [What is a UniDic dictionary](#what-is-a-unidic-dictionary)
+    * [What is IPA dictionary](#what-is-ipa-dictionary)
+    * [What is UniDic dictionary](#what-is-unidic-dictionary)
     * [Why built-in Lucene Kuromoji module may impact Japanese search accuracy](#why-built-in-lucene-kuromoji-module-may-impact-japanese-search-accuracy)
     * [Conclusion](#conclusion) 
 * [Solr Lucene Analyzer Sudachi plugin philosophy](#solr-lucene-analyzer-sudachi-plugin-philosophy)
@@ -89,19 +89,19 @@ To expand on the dictionary: a dictionary is not a mere "word collection", it in
 
 [`Back to top`](#table-of-contents)
 
-### About IPA dictionary
+### What is IPA dictionary
 
 The IPA dictionary is the MeCab's so-called "standard dictionary", characterized by a more intuitive separation of morphological units than UniDic. In contrast, UniDic splits a sentence into smaller example units for retrieval. UniDIC is a dictionary based on "[short units](https://clrd.ninjal.ac.jp/bccwj/en/morphology.html)" (短単位 read as "tantani") as defined by the NINJAL (National Institute for Japanese Language and Linguistics) which produces and maintains the UniDic dictionary.
 
 From a Japanese full-text search perspective, consistency of the tokenization (regardless of the length of the text) is more important. Therefore, UniDic dictionary is more suitable for Japanese full-text information retrieval since the dictionary is well maintained by researchers of NINJAL (to the best of my knowledge) and its shorter lexical units make it more suitable for splitting words when searching (tokenization is more coarse-grained) than the IPA dictionary. 
 
-As a supplementary fun read, you can have a look at the excellent article that outlines [Differences between IPADic and UniDic](https://github.com/ikawaha/kagome/wiki/About-the-dictionary#differences-between-ipadic-and-unidic) by the author of the GoLang-based [Kagome](https://github.com/ikawaha/kagome) tokenizer (**TL;DR**: UniDic has more advantage for lexical searching purpose). 
+As a supplementary fun read, you can have a look at the excellent article that outlines [Differences between IPADic and UniDic](https://github.com/ikawaha/kagome/wiki/About-the-dictionary#differences-between-ipadic-and-unidic) by the author of the GoLang-based [Kagome](https://github.com/ikawaha/kagome) tokenizer (**TL;DR**: UniDic has more advantage for lexical searching purpose).
 
 Thus, the above makes a UniDic (which is the dictionary that Sudachi tokenizer leverages) dictionary to be the best choice for a MeCab-based tokenizer dictionary.
 
 [`Back to top`](#table-of-contents)
 
-### What is a UniDic dictionary
+### What is UniDic dictionary
 
 UniDic dictionaries produced by NLP researchers at NINJAL (National Institute for Japanese Language and Linguistics), which are based on the BCCWJ corpus and leverage MeCab-style dictionary format.
 
