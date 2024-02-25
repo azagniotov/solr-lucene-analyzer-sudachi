@@ -14,7 +14,7 @@
   alt="Sudachi by WorksApplications" src="https://cdn.jsdelivr.net/gh/WorksApplications/sudachi@develop/docs/Sudachi.png"></a>
 </picture>
 
-[Sudachi](https://github.com/WorksApplications/Sudachi) を活用してる日本語解析 Lucene プラグイン
+[Sudachi](https://github.com/WorksApplications/Sudachi) を活用してる日本語の形態素解析 Lucene プラグイン
 
 A Lucene plugin based on [Sudachi](https://github.com/WorksApplications/Sudachi) tokenizer for the Japanese morphological analysis
 
@@ -386,7 +386,7 @@ To expand on the dictionary: a dictionary is not a mere "word collection", it in
 
 The IPA dictionary is the MeCab's so-called "standard dictionary", characterized by a more intuitive separation of morphological units than UniDic. In contrast, UniDic splits a sentence into smaller example units for retrieval. UniDIC is a dictionary based on "[short units](https://clrd.ninjal.ac.jp/bccwj/en/morphology.html)" (短単位 read as "tantani") as defined by the NINJAL (National Institute for Japanese Language and Linguistics) which produces and maintains the UniDic dictionary.
 
-From a Japanese full-text search perspective, consistency of the tokenization (regardless of the length of the text) is more important. Therefore, UniDic dictionary is more suitable for Japanese full-text information retrieval since the dictionary is well maintained by researchers of NINJAL (to the best of my knowledge) and its shorter lexical units make it more suitable for splitting words when searching (tokenization is more coarse-grained) than the IPA dictionary. 
+From a Japanese full-text search perspective, consistency of the tokenization (regardless of the length of the text) is more important. If you are interested in this topic, please check this research paper. "[情報検索のための単語分割一貫性の定量的評価: Quantitative Evaluation of Toekinization Consistency for Information Retrieval in Japanese](https://www.anlp.jp/proceedings/annual_meeting/2016/pdf_dir/D6-5.pdf)".  Therefore, UniDic dictionary is more suitable for Japanese full-text information retrieval since the dictionary is well maintained by researchers of NINJAL (to the best of my knowledge) and its shorter lexical units make it more suitable for splitting words when searching (tokenization is more coarse-grained) than the IPA dictionary. 
 
 [`Back to top`](#table-of-contents)
 
