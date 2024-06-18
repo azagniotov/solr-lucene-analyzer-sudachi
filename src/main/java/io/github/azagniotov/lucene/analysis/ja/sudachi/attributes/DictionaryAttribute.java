@@ -22,11 +22,10 @@ import org.apache.lucene.util.Attribute;
 public interface DictionaryAttribute extends Attribute {
 
     /**
-     * Set the current dictionary for the token stream. Use this method only if you
-     * really know what you are doing.
+     * Set the current dictionary for the token stream. Use this method only if you really know what
+     * you are doing.
      *
-     * @param dictionary
-     *            new instance of the dictionary
+     * @param dictionary new instance of the dictionary
      */
     void setDictionary(Dictionary dictionary);
 }

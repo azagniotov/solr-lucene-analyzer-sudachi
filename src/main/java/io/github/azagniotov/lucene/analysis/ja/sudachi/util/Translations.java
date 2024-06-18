@@ -18,15 +18,16 @@ package io.github.azagniotov.lucene.analysis.ja.sudachi.util;
 
 import static java.util.Map.entry;
 
+import io.github.azagniotov.lucene.analysis.ja.sudachi.annotations.GeneratedCodeClassCoverageExclusion;
 import java.io.IOException;
 import java.util.Map;
 
 /**
- *
- * Utility class for english translations of morphological data, used only for debugging.
- * Borrowed from:
- * <a href="https://github.com/apache/lucene/blob/2a3e5ca07f5df1f5080b5cb54ff104b7924e99f3/lucene/analysis/kuromoji/src/java/org/apache/lucene/analysis/ja/dict/ToStringUtil.java">apache/lucene/analysis/ja/dict/ToStringUtil.java</a>
- * */
+ * Utility class for english translations of morphological data, used only for debugging. Borrowed
+ * from: <a
+ * href="https://github.com/apache/lucene/blob/2a3e5ca07f5df1f5080b5cb54ff104b7924e99f3/lucene/analysis/kuromoji/src/java/org/apache/lucene/analysis/ja/dict/ToStringUtil.java">apache/lucene/analysis/ja/dict/ToStringUtil.java</a>
+ */
+@GeneratedCodeClassCoverageExclusion
 public class Translations {
     // a translation map for parts of speech, only used for reflectWith
     private static final Map<String, String> POS_TRANSLATIONS;
@@ -142,8 +143,9 @@ public class Translations {
     }
 
     /**
-     * Romanize Katakana using Kunrei: <a href="https://en.wikipedia.org/wiki/Kunrei-shiki_romanization">Kunrei</a>
-     * */
+     * Romanize Katakana using Kunrei: <a
+     * href="https://en.wikipedia.org/wiki/Kunrei-shiki_romanization">Kunrei</a>
+     */
     public static String toRomaji(final String s) {
         final StringBuilder out = new StringBuilder();
         try {
@@ -155,25 +157,23 @@ public class Translations {
     }
 
     /**
-     *  Copyright (c) 2018 Works Applications Co., Ltd.
+     * Copyright (c) 2018 Works Applications Co., Ltd.
      *
-     * Licensed under the Apache License, Version 2.0 (the "License");
-     * you may not use this file except in compliance with the License.
-     * You may obtain a copy of the License at
-     * <p>
-     *     http://www.apache.org/licenses/LICENSE-2.0
-     * <p>
-     * Unless required by applicable law or agreed to in writing, software
-     * distributed under the License is distributed on an "AS IS" BASIS,
-     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-     * See the License for the specific language governing permissions and
+     * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+     * except in compliance with the License. You may obtain a copy of the License at
+     *
+     * <p>http://www.apache.org/licenses/LICENSE-2.0
+     *
+     * <p>Unless required by applicable law or agreed to in writing, software distributed under the
+     * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+     * either express or implied. See the License for the specific language governing permissions and
      * limitations under the License.
-     * <p>
-     * Romanize Katakana using Kunrei: <a href="https://en.wikipedia.org/wiki/Kunrei-shiki_romanization">Kunrei</a>
-     * The code adopted from:
-     * 1. https://github.com/WorksApplications/elasticsearch-sudachi/issues/29
-     * 2. https://github.com/WorksApplications/elasticsearch-sudachi/pull/32
-     * */
+     *
+     * <p>Romanize Katakana using Kunrei: <a
+     * href="https://en.wikipedia.org/wiki/Kunrei-shiki_romanization">Kunrei</a> The code adopted
+     * from: 1. https://github.com/WorksApplications/elasticsearch-sudachi/issues/29 2.
+     * https://github.com/WorksApplications/elasticsearch-sudachi/pull/32
+     */
     private static void toRomaji(final Appendable builder, final CharSequence s) throws IOException {
         final int len = s.length();
         for (int i = 0; i < len; i++) {

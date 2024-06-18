@@ -15,7 +15,5 @@
  */
 package io.github.azagniotov.lucene.analysis.ja.sudachi.attributes;
 
-/**
- * Attribute for {@link com.worksap.nlp.sudachi.Morpheme#dictionaryForm()}
- */
+/** Attribute for {@link com.worksap.nlp.sudachi.Morpheme#dictionaryForm()} */
 public interface SudachiBaseFormAttribute extends MorphemeReliantAttribute<String> {}

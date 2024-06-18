@@ -18,7 +18,5 @@ package io.github.azagniotov.lucene.analysis.ja.sudachi.attributes;
 
 import com.worksap.nlp.sudachi.Morpheme;
 
-/**
- * Attribute for {@link com.worksap.nlp.sudachi.Morpheme}
- */
+/** Attribute for {@link com.worksap.nlp.sudachi.Morpheme} */
 public interface SudachiMorphemeAttribute extends MorphemeReliantAttribute<Morpheme> {}

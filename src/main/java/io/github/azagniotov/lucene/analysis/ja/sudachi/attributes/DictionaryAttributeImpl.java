@@ -40,7 +40,8 @@ public class DictionaryAttributeImpl extends AttributeImpl implements Dictionary
         // The following code:
         // attributeReflector.reflect(SudachiAttribute.class, "dictionary", getDictionary());
         //
-        // is commented out because we do not need to reflect on the Dictionary, it is not needed for the above.
+        // is commented out because we do not need to reflect on the Dictionary, it is not needed for
+        // the above.
     }
 
     @Override
