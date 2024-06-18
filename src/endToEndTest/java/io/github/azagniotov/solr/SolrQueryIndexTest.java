@@ -46,9 +46,14 @@ public class SolrQueryIndexTest extends SolrTestCaseJ4 {
 
         indexDocument("1", "すもももももももものうち。");
         indexDocument("2", "ももたろうは日本のおとぎ話の一つ。");
+
+        // The following content are each other synonyms, see:
+        // resources/solr/collection1/lang/synonyms_ja.txt
         indexDocument("3", "赤ちゃん");
-        indexDocument("4", "新生児");
-        indexDocument("5", "児");
+        indexDocument("4", "赤ん坊");
+        indexDocument("5", "乳飲み子");
+
+        indexDocument("6", "ユニクロポロシャツ");
     }
 
     @AfterClass
@@ -61,7 +66,7 @@ public class SolrQueryIndexTest extends SolrTestCaseJ4 {
         final SolrQuery solrQuery = new SolrQuery();
 
         ///////////////////////////////////////////////////////////////////////////////////
-        // FIRST QUERY: 赤ちゃん. '児,新生児' are synonyms
+        // FIRST QUERY: 赤ちゃん. '赤ん坊,乳飲み子' are synonyms
         ///////////////////////////////////////////////////////////////////////////////////
         solrQuery.setQuery("terms_ja:赤ちゃん");
 
@@ -70,24 +75,24 @@ public class SolrQueryIndexTest extends SolrTestCaseJ4 {
 
         assertEquals(3, queryResponseOne.getResults().size());
         assertEquals("赤ちゃん", queryResponseOne.getResults().get(0).get("terms_ja"));
-        assertEquals("新生児", queryResponseOne.getResults().get(1).get("terms_ja"));
-        assertEquals("児", queryResponseOne.getResults().get(2).get("terms_ja"));
+        assertEquals("赤ん坊", queryResponseOne.getResults().get(1).get("terms_ja"));
+        assertEquals("乳飲み子", queryResponseOne.getResults().get(2).get("terms_ja"));
 
         ///////////////////////////////////////////////////////////////////////////////////
-        // SECOND QUERY: 新生
+        // SECOND QUERY: 乳飲み
         ///////////////////////////////////////////////////////////////////////////////////
-        // Internally, synonym 新生児 will be tokenized to '新生, 児' by the provided tokenizer
+        // Internally, synonym 乳飲み子 will be tokenized to '乳飲み, 子' by the provided tokenizer
         // to the SynonymGraphFilterFactory, see: resources/solr/collection1/conf/schema.xml
-        // Therefore, query '新生' will match its synonyms: '赤ちゃん,新生児,児'
-        solrQuery.setQuery("terms_ja:新生");
+        // Therefore, query '乳飲み' will match its synonyms: '赤ちゃん,赤ん坊,乳飲み子'
+        solrQuery.setQuery("terms_ja:乳飲み");
 
         final QueryRequest queryRequestTwo = new QueryRequest(solrQuery);
         final QueryResponse queryResponseTwo = queryRequestTwo.process(getSolrCore());
 
         assertEquals(3, queryResponseTwo.getResults().size());
         assertEquals("赤ちゃん", queryResponseTwo.getResults().get(0).get("terms_ja"));
-        assertEquals("新生児", queryResponseTwo.getResults().get(1).get("terms_ja"));
-        assertEquals("児", queryResponseTwo.getResults().get(2).get("terms_ja"));
+        assertEquals("赤ん坊", queryResponseTwo.getResults().get(1).get("terms_ja"));
+        assertEquals("乳飲み子", queryResponseTwo.getResults().get(2).get("terms_ja"));
     }
 
     @Test
@@ -109,7 +114,8 @@ public class SolrQueryIndexTest extends SolrTestCaseJ4 {
     public void testMatchesSingleIndexedDocumentByTerm() throws Exception {
         final SolrQuery solrQuery = new SolrQuery();
 
-        // 'Full' dictionary by Sudachi does not split this properly to すもも and もも, thus, must pass in 'すもももももも'
+        // 'Full' dictionary by Sudachi does not split this properly to すもも and もも, thus, must pass in
+        // 'すもももももも'
         solrQuery.setQuery("terms_ja:すもももももも");
 
         final QueryRequest queryRequest = new QueryRequest(solrQuery);
@@ -117,6 +123,32 @@ public class SolrQueryIndexTest extends SolrTestCaseJ4 {
 
         assertEquals(1, queryResponse.getResults().size());
         assertEquals("すもももももももものうち。", queryResponse.getResults().get(0).get("terms_ja"));
+    }
+
+    @Test
+    public void testKatakanaUniqloPoloShirtQueryUniqlo() throws Exception {
+        final SolrQuery solrQuery = new SolrQuery();
+
+        solrQuery.setQuery("terms_ja:ユニクロ");
+
+        final QueryRequest queryRequest = new QueryRequest(solrQuery);
+        final QueryResponse queryResponse = queryRequest.process(getSolrCore());
+
+        assertEquals(1, queryResponse.getResults().size());
+        assertEquals("ユニクロポロシャツ", queryResponse.getResults().get(0).get("terms_ja"));
+    }
+
+    @Test
+    public void testKatakanaUniqloPoloShirtQueryPoloShirt() throws Exception {
+        final SolrQuery solrQuery = new SolrQuery();
+
+        solrQuery.setQuery("terms_ja:ポロシャツ");
+
+        final QueryRequest queryRequest = new QueryRequest(solrQuery);
+        final QueryResponse queryResponse = queryRequest.process(getSolrCore());
+
+        assertEquals(1, queryResponse.getResults().size());
+        assertEquals("ユニクロポロシャツ", queryResponse.getResults().get(0).get("terms_ja"));
     }
 
     public void testDoesNotMatchIndexedDocumentByStopWord() throws Exception {
