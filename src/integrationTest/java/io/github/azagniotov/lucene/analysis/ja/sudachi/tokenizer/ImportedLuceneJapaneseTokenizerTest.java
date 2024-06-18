@@ -52,9 +52,9 @@ public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase
         assertTokenStreamContents(
                 tokenStream,
                 new String[] {
-                    "本来", "は", "貧困", "層", "の", "女性", "や", "子供", "に", "医療", "保護", "を", "提供", "する", "ため", "に", "創設", "さ",
-                    "れ", "た", "制度", "で", "ある", "アメリカ", "低", "所得", "者", "医療", "援助", "制度", "が", "今日", "で", "は", "その",
-                    "予算", "の", "約", "３", "分", "の", "１", "を", "老人", "に", "費やし", "て", "いる"
+                    "本来", "は", "貧困", "層", "の", "女性", "や", "子供", "に", "医療", "保護", "を", "提供", "する", "ため", "に",
+                    "創設", "さ", "れ", "た", "制度", "で", "ある", "アメリカ", "低", "所得", "者", "医療", "援助", "制度", "が", "今日",
+                    "で", "は", "その", "予算", "の", "約", "３", "分", "の", "１", "を", "老人", "に", "費やし", "て", "いる"
                 },
                 new int[] {
                     0, 2, 4, 6, 7, 8, 10, 11, 13, 14, 16, 18, 19, 21, 23, 25, 26, 28, 29, 30, 31, 33, 34, 37, 41, 42,
@@ -110,9 +110,7 @@ public class ImportedLuceneJapaneseTokenizerTest extends BaseTokenStreamTestCase
                 new int[] {4, 8, 12, 16, 20, 24, 28, 32, 36, 40});
     }
 
-    /**
-     * Tests that sentence offset is incorporated into the resulting offsets
-     */
+    /** Tests that sentence offset is incorporated into the resulting offsets */
     public void testTwoSentences() throws Exception {
         final String input = "魔女狩大将マシュー・ホプキンス。 魔女狩大将マシュー・ホプキンス。";
         final TokenStream tokenStream = this.testUtils.tokenize(input);

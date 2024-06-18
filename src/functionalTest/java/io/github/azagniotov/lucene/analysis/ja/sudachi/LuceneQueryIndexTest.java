@@ -125,6 +125,58 @@ public class LuceneQueryIndexTest extends BaseTokenStreamTestCase {
     }
 
     @Test
+    public void katakanaUniqloPoloShirtQueryUniqlo() throws Exception {
+        final DirectoryReader directoryReader = DirectoryReader.open(ramDirectory);
+        final IndexSearcher indexSearcher = new IndexSearcher(directoryReader);
+        final QueryParser queryParser = new QueryParser("content", analyzer);
+
+        final Query query = queryParser.parse("ユニクロ");
+        final TotalHitCountCollector totalHitCountCollector = new TotalHitCountCollector();
+        indexSearcher.search(query, totalHitCountCollector);
+
+        final int totalHits = totalHitCountCollector.getTotalHits();
+        assertEquals(1, totalHits);
+
+        final TopFieldCollector documentCollector = TopFieldCollector.create(Sort.RELEVANCE, 10, totalHits);
+        indexSearcher.search(query, documentCollector);
+
+        final ScoreDoc[] scoreDocs = documentCollector.topDocs().scoreDocs;
+        assertEquals(1, scoreDocs.length);
+
+        final Document found = indexSearcher.doc(scoreDocs[0].doc);
+        assertEquals("ユニクロポロシャツ", found.get("content"));
+
+        final TokenStream tokenStreamOne = found.getField("content").tokenStream(analyzer, null);
+        assertTokenStreamContents(tokenStreamOne, new String[] {"ユニクロ", "ポロシャツ"});
+    }
+
+    @Test
+    public void katakanaUniqloPoloShirtQueryPoloShirt() throws Exception {
+        final DirectoryReader directoryReader = DirectoryReader.open(ramDirectory);
+        final IndexSearcher indexSearcher = new IndexSearcher(directoryReader);
+        final QueryParser queryParser = new QueryParser("content", analyzer);
+
+        final Query query = queryParser.parse("ポロシャツ");
+        final TotalHitCountCollector totalHitCountCollector = new TotalHitCountCollector();
+        indexSearcher.search(query, totalHitCountCollector);
+
+        final int totalHits = totalHitCountCollector.getTotalHits();
+        assertEquals(1, totalHits);
+
+        final TopFieldCollector documentCollector = TopFieldCollector.create(Sort.RELEVANCE, 10, totalHits);
+        indexSearcher.search(query, documentCollector);
+
+        final ScoreDoc[] scoreDocs = documentCollector.topDocs().scoreDocs;
+        assertEquals(1, scoreDocs.length);
+
+        final Document found = indexSearcher.doc(scoreDocs[0].doc);
+        assertEquals("ユニクロポロシャツ", found.get("content"));
+
+        final TokenStream tokenStreamOne = found.getField("content").tokenStream(analyzer, null);
+        assertTokenStreamContents(tokenStreamOne, new String[] {"ユニクロ", "ポロシャツ"});
+    }
+
+    @Test
     public void queryIndexWithSynonyms() throws Exception {
 
         System.out.println("Writing index to " + indexTempDirectory.getCanonicalPath());
@@ -218,6 +270,7 @@ public class LuceneQueryIndexTest extends BaseTokenStreamTestCase {
             indexWriter.addDocument(createDocument("3", "赤ちゃん"));
             indexWriter.addDocument(createDocument("4", "新生児"));
             indexWriter.addDocument(createDocument("5", "児"));
+            indexWriter.addDocument(createDocument("6", "ユニクロポロシャツ"));
 
             indexWriter.commit();
         }

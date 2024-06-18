@@ -174,9 +174,9 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
      *   <li>party (without long sound)
      *   <li>center
      * </ul>
-     * <p>
-     * Note that we remove a long sound in the case of "coffee" that is required.
-     * Also, "copy" (コピー) should not be stemmed.
+     *
+     * <p>Note that we remove a long sound in the case of "coffee" that is required. Also, "copy"
+     * (コピー) should not be stemmed.
      */
     @Test
     public void testKatakanaStemming() throws Exception {

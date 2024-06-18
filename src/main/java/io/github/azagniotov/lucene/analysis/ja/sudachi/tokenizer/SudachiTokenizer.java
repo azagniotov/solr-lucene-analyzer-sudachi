@@ -18,6 +18,7 @@ package io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer;
 
 import static com.worksap.nlp.sudachi.Tokenizer.SplitMode;
 
+import com.worksap.nlp.sudachi.IOTools;
 import com.worksap.nlp.sudachi.Morpheme;
 import com.worksap.nlp.sudachi.MorphemeList;
 import com.worksap.nlp.sudachi.Tokenizer;
@@ -28,6 +29,8 @@ import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiPartOfS
 import io.github.azagniotov.lucene.analysis.ja.sudachi.attributes.SudachiReadingFormAttribute;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
+import java.nio.CharBuffer;
 import java.util.Iterator;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
@@ -51,6 +54,23 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
     private final boolean discardPunctuation;
     private final SplitMode mode;
 
+    //
+    // https://github.com/WorksApplications/Sudachi/issues/230 (OOM)
+    // https://github.com/WorksApplications/elasticsearch-sudachi/issues/131
+    // Fix ported from here: https://github.com/WorksApplications/elasticsearch-sudachi/pull/132
+    //
+    // In case of a huge text input text, the input data will be split into chunks for the tokenize
+    // function.
+    // The initial chunk size is INITIAL_CHUNK_SIZE, where MAX_CHUNK_SIZE is the maximum chunk size if
+    // the input is large.
+    private final int MAX_CHUNK_SIZE = 1024 * 1024; // 1 MiB
+    private final int INITIAL_CHUNK_SIZE = 32 * 1024; // 32 KiB
+    private final int CHUNK_GROW_SCALE = 8;
+
+    private CharBuffer inputChunk;
+    private int chunkCurrentOffset;
+    private int chunkEndOffset;
+
     public SudachiTokenizer(final Tokenizer sudachiTokenizer, final boolean discardPunctuation, final SplitMode mode) {
         this(DEFAULT_TOKEN_ATTRIBUTE_FACTORY, sudachiTokenizer, discardPunctuation, mode);
     }
@@ -68,6 +88,7 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
         this.termAtt = addAttribute(CharTermAttribute.class);
         this.offsetAtt = addAttribute(OffsetAttribute.class);
         this.morphemeAtt = addAttribute(SudachiMorphemeAttribute.class);
+
         // Start: attributes holding the morphological values for the field analysis screen/API
         this.posIncAtt = addAttribute(PositionIncrementAttribute.class);
         this.posLengthAtt = addAttribute(PositionLengthAttribute.class);
@@ -78,6 +99,10 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
         // End: attributes holding the morphological values for the field analysis screen/API
 
         this.morphemeIterator = MorphemeIterator.EMPTY;
+
+        this.inputChunk = CharBuffer.allocate(INITIAL_CHUNK_SIZE);
+        this.chunkCurrentOffset = 0;
+        this.chunkEndOffset = 0;
     }
 
     @Override
@@ -88,17 +113,15 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
     @Override
     public void reset() throws IOException {
         super.reset();
-        MorphemeIterator sentenceMorphemeIterator = new SentenceMorphemeIterator(tokenize(input));
-        if (discardPunctuation) {
-            sentenceMorphemeIterator = new NonPunctuationMorphemes(sentenceMorphemeIterator);
-        }
-        this.morphemeIterator = sentenceMorphemeIterator;
+        this.morphemeIterator = MorphemeIterator.EMPTY;
+        this.chunkCurrentOffset = 0;
+        this.chunkEndOffset = 0;
     }
 
     @Override
     public void end() throws IOException {
         super.end();
-        final int lastOffset = correctOffset(morphemeIterator.getBaseOffset());
+        final int lastOffset = correctOffset(chunkCurrentOffset + morphemeIterator.getBaseOffset());
         offsetAtt.setOffset(lastOffset, lastOffset);
         this.morphemeIterator = MorphemeIterator.EMPTY;
     }
@@ -109,20 +132,37 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
 
     @Override
     public boolean incrementToken() throws IOException {
-        final Morpheme morpheme = this.morphemeIterator.next();
+        clearAttributes();
+
+        Morpheme morpheme = this.morphemeIterator.next();
         if (morpheme == null) {
-            return false;
+            if (!read()) {
+                return false;
+            }
+            inputChunk.flip();
+
+            final StringReader inputReader = new StringReader(inputChunk.toString());
+            final Iterator<MorphemeList> morphemeListIterator = tokenize(inputReader);
+
+            MorphemeIterator sentenceMorphemeIterator = new SentenceMorphemeIterator(morphemeListIterator);
+            if (discardPunctuation) {
+                sentenceMorphemeIterator = new NonPunctuationMorphemes(sentenceMorphemeIterator);
+            }
+            this.morphemeIterator = sentenceMorphemeIterator;
+            this.chunkCurrentOffset = this.chunkEndOffset;
+
+            morpheme = this.morphemeIterator.next();
+            if (morpheme == null) {
+                return false;
+            }
         }
 
-        clearAttributes();
-        // this.termAtt.append(morpheme.surface());
-        final String surface = morpheme.surface();
-        this.termAtt.copyBuffer(surface.toCharArray(), 0, surface.length());
-
         final int baseOffset = morphemeIterator.getBaseOffset();
-        final int startOffset = correctOffset(baseOffset + morpheme.begin());
-        final int endOffset = correctOffset(baseOffset + morpheme.end());
-        this.offsetAtt.setOffset(startOffset, endOffset);
+        final int morphemeCorrectedStartOffset = correctOffset(chunkCurrentOffset + baseOffset + morpheme.begin());
+        final int morphemeCorrectedEndOffset = correctOffset(chunkCurrentOffset + baseOffset + morpheme.end());
+        this.offsetAtt.setOffset(morphemeCorrectedStartOffset, morphemeCorrectedEndOffset);
+
+        this.chunkEndOffset = this.chunkCurrentOffset + baseOffset + morpheme.end();
 
         this.morphemeAtt.setMorpheme(morpheme);
 
@@ -135,6 +175,41 @@ public final class SudachiTokenizer extends org.apache.lucene.analysis.Tokenizer
         this.posAtt.setMorpheme(morpheme);
         // End: setting the values for the field analysis screen/API
 
+        final String surface = morpheme.surface();
+        this.termAtt.copyBuffer(surface.toCharArray(), 0, surface.length());
+
         return true;
+    }
+
+    private boolean read() throws IOException {
+        inputChunk.clear();
+
+        while (true) {
+            final int nRead = IOTools.readAsMuchAsCan(input, inputChunk);
+            if (nRead < 0) {
+                return inputChunk.position() > 0;
+            }
+
+            // check: chunk reads all the data from Reader. No remaining data in Reader.
+            if (inputChunk.hasRemaining()) {
+                return true;
+            }
+
+            // check: chunk is already max size
+            if (inputChunk.capacity() == MAX_CHUNK_SIZE) {
+                return true;
+            }
+
+            growChunk();
+        }
+    }
+
+    private void growChunk() {
+        final int newChunkSize = Math.min(inputChunk.capacity() * CHUNK_GROW_SCALE, MAX_CHUNK_SIZE);
+        final CharBuffer newChunk = CharBuffer.allocate(newChunkSize);
+        inputChunk.flip();
+        newChunk.put(inputChunk);
+
+        inputChunk = newChunk;
     }
 }

@@ -62,9 +62,7 @@ public class SudachiTokenizerTest {
         assertThat(DictionaryCache.INSTANCE.get()).isInstanceOf(JapaneseDictionary.class);
     }
 
-    /**
-     * FYI: These tests assert against morpheme.surface(), NOT the morpheme.normalizedForm()
-     */
+    /** FYI: These tests assert against morpheme.surface(), NOT the morpheme.normalizedForm() */
     @DataProvider(name = "querySurfaces")
     public static Object[][] querySurfaces() {
         return new Object[][] {
@@ -192,17 +190,13 @@ public class SudachiTokenizerTest {
         };
     }
 
-    /**
-     * FYI: These tests assert against morpheme.surface(), NOT the morpheme.normalizedForm()
-     */
+    /** FYI: These tests assert against morpheme.surface(), NOT the morpheme.normalizedForm() */
     @Test(dataProvider = "querySurfaces")
     public void testBasicTokenization(final Object query, final Object... expected) throws Exception {
         final Reader stringReader = new StringReader(query.toString());
         assertThat(tokens(sudachiTokenizer.tokenize(stringReader), false)).containsExactly(expected);
     }
-    /**
-     * FYI: These tests assert against morpheme.normalizedForm(), NOT the morpheme.surface()
-     */
+    /** FYI: These tests assert against morpheme.normalizedForm(), NOT the morpheme.surface() */
     @DataProvider(name = "numericQuerySurfaces")
     public static Object[][] numericQuerySurfaces() {
         return new Object[][] {
@@ -211,9 +205,7 @@ public class SudachiTokenizerTest {
             {"一二三万二千円", new Object[] {"1232000", "円"}},
         };
     }
-    /**
-     * FYI: These tests assert against morpheme.normalizedForm(), NOT the morpheme.surface()
-     */
+    /** FYI: These tests assert against morpheme.normalizedForm(), NOT the morpheme.surface() */
     @Test(dataProvider = "numericQuerySurfaces")
     public void testNumericTokenization(final Object query, final Object... expected) throws Exception {
         // Related to com.worksap.nlp.sudachi.JoinNumericPlugin
@@ -222,9 +214,7 @@ public class SudachiTokenizerTest {
         assertThat(tokens(sudachiTokenizer.tokenize(stringReader), true)).containsExactly(expected);
     }
 
-    /**
-     * FYI: These tests assert against morpheme.normalizedForm(), NOT the morpheme.surface()
-     */
+    /** FYI: These tests assert against morpheme.normalizedForm(), NOT the morpheme.surface() */
     @DataProvider(name = "abnormalQuerySurfaces")
     public static Object[][] abnormalQuerySurfaces() {
         return new Object[][] {
@@ -239,9 +229,7 @@ public class SudachiTokenizerTest {
         };
     }
 
-    /**
-     * FYI: These tests assert against morpheme.normalizedForm(), NOT the morpheme.surface()
-     */
+    /** FYI: These tests assert against morpheme.normalizedForm(), NOT the morpheme.surface() */
     @Test(dataProvider = "abnormalQuerySurfaces")
     public void testInputTextNormalization(final Object query, final Object... expected) throws Exception {
         // Related to com.worksap.nlp.sudachi.DefaultInputTextPlugin

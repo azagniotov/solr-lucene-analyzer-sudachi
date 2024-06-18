@@ -142,9 +142,7 @@ public class ImportedLuceneJapaneseAnalyzerTest extends BaseTokenStreamTestCase 
         checkAnalysisConsistency(random, analyzer, random.nextBoolean(), s);
     }
 
-    /**
-     * Blast random strings against the analyzer
-     */
+    /** Blast random strings against the analyzer */
     @Test
     @Ignore(
             "Regression with the Lucene's JapaneseAnalyzer tests: final base offset sometimes incorrect when using Sudachi's tokenizeSentences")
@@ -153,9 +151,7 @@ public class ImportedLuceneJapaneseAnalyzerTest extends BaseTokenStreamTestCase 
         checkRandomData(random, analyzer, atLeast(100));
     }
 
-    /**
-     * blast some random large strings through the analyzer
-     */
+    /** blast some random large strings through the analyzer */
     @Test
     @Ignore(
             "Regression with the Lucene's JapaneseAnalyzer tests: final base offset sometimes incorrect when using Sudachi's tokenizeSentences")
@@ -164,7 +160,8 @@ public class ImportedLuceneJapaneseAnalyzerTest extends BaseTokenStreamTestCase 
         checkRandomData(random, analyzer, 2 * RANDOM_MULTIPLIER, 8192);
     }
 
-    // https://issues.apache.org/jira/browse/LUCENE-3897: this string (found by testHugeRandomStrings) tripped assert
+    // https://issues.apache.org/jira/browse/LUCENE-3897: this string (found by testHugeRandomStrings)
+    // tripped assert
     @Test
     @Ignore(
             "Regression with the Lucene's JapaneseAnalyzer tests: final base offset sometimes incorrect when using Sudachi's tokenizeSentences")
@@ -176,7 +173,8 @@ public class ImportedLuceneJapaneseAnalyzerTest extends BaseTokenStreamTestCase 
         checkAnalysisConsistency(random, analyzer, random.nextBoolean(), s);
     }
 
-    // https://issues.apache.org/jira/browse/LUCENE-3897: this string (found by testHugeRandomStrings) tripped assert
+    // https://issues.apache.org/jira/browse/LUCENE-3897: this string (found by testHugeRandomStrings)
+    // tripped assert
     @Test
     @Ignore(
             "Regression with the Lucene's JapaneseAnalyzer tests: final base offset sometimes incorrect when using Sudachi's tokenizeSentences")
@@ -189,19 +187,21 @@ public class ImportedLuceneJapaneseAnalyzerTest extends BaseTokenStreamTestCase 
     }
 
     /**
-     * RE: UTF-16
-     * When it was first realized that more than 65,536 characters might be needed, an attempt was made to expand
-     * the character space while keeping what was basically a two-byte encoding. The result was UTF-16. UTF-16
-     * adds a complication: surrogate pairs. The ranges 0xD800-0xDBFF, the High Surrogate Area, and 0xDC00-0xDFFF,
-     * the Low Surrogate Area, do not directly represent characters. Instead, pairs of values, one a high surrogate,
-     * the other a low surrogate, together encode a character. The low ten bits of the high surrogate are
-     * concatenated with the low ten bits of the low surrogate, yielding a 20 bit number. Such surrogate pairs can
-     * encode 1,048,576 additional characters. UTF-16 can therefore encode a total of 65,536 -2048 + 1,048,576 or
-     * 1,112,064 characters. The characters in the Basic Multilingual Plane (BMP) are represented by two bytes;
-     * characters outside the BMP are represented by four bytes. Codepoints 0x0000 through 0xFFFF are BMP because it
-     * contains the great majority of characters in current use for the world's languages
-     * <p>
-     * See <a href="https://www.ling.upenn.edu/courses/Spring_2003/ling538/Lecnotes/Unicode.html">Unicode.html</a>
+     * RE: UTF-16 When it was first realized that more than 65,536 characters might be needed, an
+     * attempt was made to expand the character space while keeping what was basically a two-byte
+     * encoding. The result was UTF-16. UTF-16 adds a complication: surrogate pairs. The ranges
+     * 0xD800-0xDBFF, the High Surrogate Area, and 0xDC00-0xDFFF, the Low Surrogate Area, do not
+     * directly represent characters. Instead, pairs of values, one a high surrogate, the other a low
+     * surrogate, together encode a character. The low ten bits of the high surrogate are concatenated
+     * with the low ten bits of the low surrogate, yielding a 20 bit number. Such surrogate pairs can
+     * encode 1,048,576 additional characters. UTF-16 can therefore encode a total of 65,536 -2048 +
+     * 1,048,576 or 1,112,064 characters. The characters in the Basic Multilingual Plane (BMP) are
+     * represented by two bytes; characters outside the BMP are represented by four bytes. Codepoints
+     * 0x0000 through 0xFFFF are BMP because it contains the great majority of characters in current
+     * use for the world's languages
+     *
+     * <p>See <a
+     * href="https://www.ling.upenn.edu/courses/Spring_2003/ling538/Lecnotes/Unicode.html">Unicode.html</a>
      */
     @Test
     @Ignore(
@@ -216,19 +216,21 @@ public class ImportedLuceneJapaneseAnalyzerTest extends BaseTokenStreamTestCase 
     }
 
     /**
-     * RE: UTF-16
-     * When it was first realized that more than 65,536 characters might be needed, an attempt was made to expand
-     * the character space while keeping what was basically a two-byte encoding. The result was UTF-16. UTF-16
-     * adds a complication: surrogate pairs. The ranges 0xD800-0xDBFF, the High Surrogate Area, and 0xDC00-0xDFFF,
-     * the Low Surrogate Area, do not directly represent characters. Instead, pairs of values, one a high surrogate,
-     * the other a low surrogate, together encode a character. The low ten bits of the high surrogate are
-     * concatenated with the low ten bits of the low surrogate, yielding a 20 bit number. Such surrogate pairs can
-     * encode 1,048,576 additional characters. UTF-16 can therefore encode a total of 65,536 -2048 + 1,048,576 or
-     * 1,112,064 characters. The characters in the Basic Multilingual Plane (BMP) are represented by two bytes;
-     * characters outside the BMP are represented by four bytes. Codepoints 0x0000 through 0xFFFF are BMP because it
-     * contains the great majority of characters in current use for the world's languages
-     * <p>
-     * See <a href="https://www.ling.upenn.edu/courses/Spring_2003/ling538/Lecnotes/Unicode.html">Unicode.html</a>
+     * RE: UTF-16 When it was first realized that more than 65,536 characters might be needed, an
+     * attempt was made to expand the character space while keeping what was basically a two-byte
+     * encoding. The result was UTF-16. UTF-16 adds a complication: surrogate pairs. The ranges
+     * 0xD800-0xDBFF, the High Surrogate Area, and 0xDC00-0xDFFF, the Low Surrogate Area, do not
+     * directly represent characters. Instead, pairs of values, one a high surrogate, the other a low
+     * surrogate, together encode a character. The low ten bits of the high surrogate are concatenated
+     * with the low ten bits of the low surrogate, yielding a 20 bit number. Such surrogate pairs can
+     * encode 1,048,576 additional characters. UTF-16 can therefore encode a total of 65,536 -2048 +
+     * 1,048,576 or 1,112,064 characters. The characters in the Basic Multilingual Plane (BMP) are
+     * represented by two bytes; characters outside the BMP are represented by four bytes. Codepoints
+     * 0x0000 through 0xFFFF are BMP because it contains the great majority of characters in current
+     * use for the world's languages
+     *
+     * <p>See <a
+     * href="https://www.ling.upenn.edu/courses/Spring_2003/ling538/Lecnotes/Unicode.html">Unicode.html</a>
      */
     @Test
     @Ignore(

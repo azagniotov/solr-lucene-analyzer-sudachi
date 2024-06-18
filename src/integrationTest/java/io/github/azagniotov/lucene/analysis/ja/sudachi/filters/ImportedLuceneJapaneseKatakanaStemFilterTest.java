@@ -60,8 +60,8 @@ public class ImportedLuceneJapaneseKatakanaStemFilterTest extends BaseTokenStrea
      *   <li>party (without long sound)
      *   <li>center
      * </ul>
-     * <p>
-     * Note that we remove a long sound in the case of "coffee" that is required.
+     *
+     * <p>Note that we remove a long sound in the case of "coffee" that is required.
      */
     public void testStemVariants() throws Exception {
         assertAnalyzesTo(

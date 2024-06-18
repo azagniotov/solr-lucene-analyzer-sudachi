@@ -47,8 +47,8 @@ import org.apache.lucene.analysis.core.StopFilter;
 import org.apache.lucene.util.AttributeFactory;
 
 /**
- * Analyzer which uses Sudachi as internal tokenizer. It also applies
- * {@link SudachiBaseFormFilter} and stop word/stop POS filtering.
+ * Analyzer which uses Sudachi as internal tokenizer. It also applies {@link SudachiBaseFormFilter}
+ * and stop word/stop POS filtering.
  *
  * @see SudachiTokenizer
  */

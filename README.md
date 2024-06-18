@@ -143,10 +143,17 @@ Simple example of `<analyzer>` XML element
       <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilterFactory" />
       <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilterFactory" tags="lang/stoptags_ja.txt" />
       <filter class="solr.CJKWidthFilterFactory" />
+
       <!-- Removes common tokens typically not useful for search, but have a negative effect on ranking -->
       <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_ja.txt" />
+
       <!-- Normalizes common katakana spelling variations by removing any last long sound character (U+30FC) -->
       <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiKatakanaStemFilterFactory" minimumLength="4" />
+
+      <!-- Sutegana (捨て仮名) are small letters of Hiragana and Katakana syllabaries. In the old / archaic Japanese texts, Sutegana (捨て仮名) is not used unlike in the modern texts. -->
+      <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiJapaneseHiraganaUppercaseFilterFactory" />
+      <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiJapaneseKatakanaUppercaseFilterFactory" />
+
       <!-- Lower-cases romaji characters -->
       <filter class="solr.LowerCaseFilterFactory" />
     </analyzer>
@@ -190,10 +197,17 @@ A more comprehensive example of two `<analyzer>` XML elements, query time and in
         <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilterFactory" />
         <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilterFactory" tags="lang/stoptags_ja.txt" />
         <filter class="solr.CJKWidthFilterFactory" />
+
         <!-- Removes common tokens typically not useful for search, but have a negative effect on ranking -->
         <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_ja.txt" />
+
         <!-- Normalizes common katakana spelling variations by removing any last long sound character (U+30FC) -->
         <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiKatakanaStemFilterFactory" minimumLength="4" />
+
+		<!-- Sutegana (捨て仮名) are small letters of Hiragana and Katakana syllabaries. In the old / archaic Japanese texts, Sutegana (捨て仮名) is not used unlike in the modern texts. -->
+		<filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiJapaneseHiraganaUppercaseFilterFactory" />
+		<filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiJapaneseKatakanaUppercaseFilterFactory" />
+
         <!-- Lower-cases romaji characters -->
         <filter class="solr.LowerCaseFilterFactory" />
     </analyzer>
@@ -225,10 +239,17 @@ A more comprehensive example of two `<analyzer>` XML elements, query time and in
         <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiBaseFormFilterFactory" />
         <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiPartOfSpeechStopFilterFactory" tags="lang/stoptags_ja.txt" />
         <filter class="solr.CJKWidthFilterFactory" />
+
         <!-- Removes common tokens typically not useful for search, but have a negative effect on ranking -->
         <filter class="solr.StopFilterFactory" ignoreCase="true" words="lang/stopwords_ja.txt" />
+
         <!-- Normalizes common katakana spelling variations by removing any last long sound character (U+30FC) -->
         <filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiKatakanaStemFilterFactory" minimumLength="4" />
+
+		<!-- Sutegana (捨て仮名) are small letters of Hiragana and Katakana syllabaries. In the old / archaic Japanese texts, Sutegana (捨て仮名) is not used unlike in the modern texts. -->
+		<filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiJapaneseHiraganaUppercaseFilterFactory" />
+		<filter class="io.github.azagniotov.lucene.analysis.ja.sudachi.filters.SudachiJapaneseKatakanaUppercaseFilterFactory" />
+
         <!-- Lower-cases romaji characters -->
         <filter class="solr.LowerCaseFilterFactory" />
     </analyzer>
@@ -263,7 +284,7 @@ The above command does the following:
 
 At runtime, the plugin expects the system and user dictionaries to be located at `/tmp/sudachi/system-dict/system.dict` and `/tmp/sudachi/user_lexicon.dict` respectively.
 
-But, their location in the local file system can be controlled via the ENV variables `SUDACHI_SYSTEM_DICT` and `SUDACHI_USER_DICT` respectively.
+But, their location in the local file system (e.g.: in a Docker container or your local laptop) can be controlled via the ENV variables `SUDACHI_SYSTEM_DICT` and `SUDACHI_USER_DICT` respectively.
 
 [`Back to top`](#table-of-contents)
 

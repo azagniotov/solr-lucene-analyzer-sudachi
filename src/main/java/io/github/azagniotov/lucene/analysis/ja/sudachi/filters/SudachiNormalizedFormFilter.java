@@ -28,9 +28,11 @@ import org.apache.lucene.analysis.tokenattributes.KeywordAttribute;
  *
  * <p>This acts as a lemmatizer for verbs and adjectives.
  *
- * <p>To prevent terms from being stemmed use an instance of {@link org.apache.lucene.analysis.miscellaneous.SetKeywordMarkerFilter}
- * or a custom {@link org.apache.lucene.analysis.TokenFilter} that sets the {@link org.apache.lucene.analysis.tokenattributes.KeywordAttribute}
- * before this {@link org.apache.lucene.analysis.TokenStream}.
+ * <p>To prevent terms from being stemmed use an instance of {@link
+ * org.apache.lucene.analysis.miscellaneous.SetKeywordMarkerFilter} or a custom {@link
+ * org.apache.lucene.analysis.TokenFilter} that sets the {@link
+ * org.apache.lucene.analysis.tokenattributes.KeywordAttribute} before this {@link
+ * org.apache.lucene.analysis.TokenStream}.
  */
 public final class SudachiNormalizedFormFilter extends TokenFilter {
 

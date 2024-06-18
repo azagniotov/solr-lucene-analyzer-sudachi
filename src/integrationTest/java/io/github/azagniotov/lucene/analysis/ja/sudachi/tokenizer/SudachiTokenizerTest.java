@@ -30,6 +30,8 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.charfilter.MappingCharFilter;
 import org.apache.lucene.analysis.charfilter.NormalizeCharMap;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.tests.analysis.BaseTokenStreamTestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -251,5 +253,55 @@ public class SudachiTokenizerTest extends BaseTokenStreamTestCase {
         // Because of the custom test config Config.fromClasspath("sudachi_test_config.json"),
         // the number of resulting tokens is large than when using default config
         assertEquals(170500, totalTokens);
+    }
+
+    @Test
+    public void testSplitSuperLargeTextByMode_A_Search() throws Exception {
+        final int charLength = 10 * 1024 * 1024; // 10 MiB
+
+        final Tokenizer luceneTokenizer = this.testUtils.makeTokenizer(true, SplitMode.A);
+        luceneTokenizer.setReader(new StringReader("あ".repeat(charLength)));
+
+        final CharTermAttribute charTermAttribute = luceneTokenizer.getAttribute(CharTermAttribute.class);
+        final OffsetAttribute offsetAttribute = luceneTokenizer.getAttribute(OffsetAttribute.class);
+
+        luceneTokenizer.reset();
+
+        int totalLength = 0;
+        int prevEndOffset = 0;
+        while (luceneTokenizer.incrementToken()) {
+            assertEquals(prevEndOffset, offsetAttribute.startOffset());
+
+            prevEndOffset = offsetAttribute.endOffset();
+            totalLength += charTermAttribute.length();
+        }
+
+        assertEquals(charLength, totalLength);
+        assertEquals(charLength, prevEndOffset);
+    }
+
+    @Test
+    public void testSplitSuperLargeTextByMode_C_Extended() throws Exception {
+        final int charLength = 10 * 1024 * 1024; // 10 MiB
+
+        final Tokenizer luceneTokenizer = this.testUtils.makeTokenizer(true, SplitMode.C);
+        luceneTokenizer.setReader(new StringReader("あ".repeat(charLength)));
+
+        final CharTermAttribute charTermAttribute = luceneTokenizer.getAttribute(CharTermAttribute.class);
+        final OffsetAttribute offsetAttribute = luceneTokenizer.getAttribute(OffsetAttribute.class);
+
+        luceneTokenizer.reset();
+
+        int totalLength = 0;
+        int prevEndOffset = 0;
+        while (luceneTokenizer.incrementToken()) {
+            assertEquals(prevEndOffset, offsetAttribute.startOffset());
+
+            prevEndOffset = offsetAttribute.endOffset();
+            totalLength += charTermAttribute.length();
+        }
+
+        assertEquals(charLength, totalLength);
+        assertEquals(charLength, prevEndOffset);
     }
 }
