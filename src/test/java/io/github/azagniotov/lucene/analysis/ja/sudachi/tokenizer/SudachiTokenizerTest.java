@@ -20,7 +20,6 @@ import static org.apache.lucene.analysis.TokenStream.DEFAULT_TOKEN_ATTRIBUTE_FAC
 
 import com.worksap.nlp.sudachi.JapaneseDictionary;
 import com.worksap.nlp.sudachi.Morpheme;
-import com.worksap.nlp.sudachi.MorphemeList;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.cache.DictionaryCache;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.util.NoOpResourceLoader;
 import io.github.azagniotov.lucene.analysis.ja.sudachi.util.Strings;
@@ -254,11 +253,11 @@ public class SudachiTokenizerTest {
         assertThat(tokens).containsExactly("テスト", "テスト", "テスト", "テスト", "テスト");
     }
 
-    private List<String> tokens(final Iterator<MorphemeList> morphemeList, final boolean useNormalizedForm) {
+    private List<String> tokens(final Iterator<List<Morpheme>> morphemeList, final boolean useNormalizedForm) {
         final List<Morpheme> result = new ArrayList<>();
 
-        for (final Iterator<MorphemeList> it = morphemeList; it.hasNext(); ) {
-            final MorphemeList sentence = it.next();
+        for (final Iterator<List<Morpheme>> it = morphemeList; it.hasNext(); ) {
+            final List<Morpheme> sentence = it.next();
 
             sentence.iterator().forEachRemaining(morpheme -> {
                 if (DISCARD_PUNCTUATION) {
