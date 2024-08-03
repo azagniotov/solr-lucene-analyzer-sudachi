@@ -17,17 +17,17 @@
 package io.github.azagniotov.lucene.analysis.ja.sudachi.tokenizer;
 
 import com.worksap.nlp.sudachi.Morpheme;
-import com.worksap.nlp.sudachi.MorphemeList;
 import java.util.Iterator;
+import java.util.List;
 
 class SentenceMorphemeIterator implements MorphemeIterator {
 
     private Iterator<Morpheme> morphemeIterator;
-    private final Iterator<MorphemeList> sentenceIterator;
+    private final Iterator<List<Morpheme>> sentenceIterator;
     private int baseOffset = 0;
     private int sentencesTotalLength = 0;
 
-    SentenceMorphemeIterator(final Iterator<MorphemeList> sentenceIterator) {
+    SentenceMorphemeIterator(final Iterator<List<Morpheme>> sentenceIterator) {
         this.morphemeIterator = new EmptyIterator();
         this.sentenceIterator = sentenceIterator;
     }

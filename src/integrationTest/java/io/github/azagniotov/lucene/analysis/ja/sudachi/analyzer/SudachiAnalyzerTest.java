@@ -44,19 +44,29 @@ import org.junit.Test;
 
 public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
 
-    private Analyzer analyzer;
+    private Analyzer defaultAnalyzer;
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        analyzer = new SudachiAnalyzer(
+        defaultAnalyzer = new SudachiAnalyzer(
                 SudachiAnalyzer.getDefaultStopSet(), SudachiAnalyzer.getDefaultStopTags(), true, "search");
     }
 
     @Override
     public void tearDown() throws Exception {
-        analyzer.close();
+        defaultAnalyzer.close();
         super.tearDown();
+    }
+
+    @Test
+    public void testAnalyzeLargeText_9MB() throws Exception {
+        final InputStream textInputStream =
+                this.getClass().getResourceAsStream("/9mb.japanese.history.large.content.txt");
+        final String japanese = new Scanner(textInputStream).useDelimiter("\\A").next();
+
+        final TokenStream tokenStream = defaultAnalyzer.tokenStream("any", japanese);
+        assertNotNull(tokenStream);
     }
 
     @Test
@@ -213,7 +223,7 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
 
         final List<String> nCopies = Collections.nCopies(limit, hiraganaWord);
 
-        assertAnalyzesTo(analyzer, sb.toString(), nCopies.toArray(new String[0]));
+        assertAnalyzesTo(defaultAnalyzer, sb.toString(), nCopies.toArray(new String[0]));
     }
 
     @Test
@@ -228,7 +238,7 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
         sb.append(new String(new char[limit]).replace("\0", katakanaWord));
 
         final List<String> nCopies = Collections.nCopies(limit, katakanaWord);
-        assertAnalyzesTo(analyzer, sb.toString(), nCopies.toArray(new String[0]));
+        assertAnalyzesTo(defaultAnalyzer, sb.toString(), nCopies.toArray(new String[0]));
     }
 
     @Test
@@ -240,7 +250,7 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
         sb.append(new String(new char[limit]).replace("\0", kanjiWord));
 
         final List<String> nCopies = Collections.nCopies(limit, kanjiWord);
-        assertAnalyzesTo(analyzer, sb.toString(), nCopies.toArray(new String[0]));
+        assertAnalyzesTo(defaultAnalyzer, sb.toString(), nCopies.toArray(new String[0]));
     }
 
     @Test
@@ -255,14 +265,15 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
         //
 
         // 'Full' dictionary by Sudachi does not split this properly to すもも and もも
-        assertAnalyzesTo(analyzer, "すもももももももものうち。", new String[] {"すもももももも", "もも"});
-        assertAnalyzesTo(analyzer, "エーービ〜〜〜シ〰〰〰〰", new String[] {"エービーシ"});
-        assertAnalyzesTo(analyzer, "シュミレーション", new String[] {"シュミレーション"});
-        assertAnalyzesTo(analyzer, "ちゃあ", new String[] {}); // Result ちゃあ => だ got filtered out due to stopwords.txt
-        assertAnalyzesTo(analyzer, "打ち込む", new String[] {"打つ", "込む"});
+        assertAnalyzesTo(defaultAnalyzer, "すもももももももものうち。", new String[] {"すもももももも", "もも"});
+        assertAnalyzesTo(defaultAnalyzer, "エーービ〜〜〜シ〰〰〰〰", new String[] {"エービーシ"});
+        assertAnalyzesTo(defaultAnalyzer, "シュミレーション", new String[] {"シュミレーション"});
+        assertAnalyzesTo(
+                defaultAnalyzer, "ちゃあ", new String[] {}); // Result ちゃあ => だ got filtered out due to stopwords.txt
+        assertAnalyzesTo(defaultAnalyzer, "打ち込む", new String[] {"打つ", "込む"});
 
         assertAnalyzesTo(
-                analyzer,
+                defaultAnalyzer,
                 "The quick 客室乗務員 brown FOXes jumps over the lazy dogs and computers 医薬品安全管理責任者",
                 new String[] {
                     "the",
@@ -287,19 +298,22 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
                     "者"
                 });
 
-        assertAnalyzesTo(analyzer, "清水寺は東京都にあります。", new String[] {"清水寺", "東京", "都"});
+        assertAnalyzesTo(defaultAnalyzer, "清水寺は東京都にあります。", new String[] {"清水寺", "東京", "都"});
 
-        assertAnalyzesTo(analyzer, "メガネは顔の一部です。", new String[] {"メガネ", "顔", "一部"});
+        assertAnalyzesTo(defaultAnalyzer, "メガネは顔の一部です。", new String[] {"メガネ", "顔", "一部"});
 
-        assertAnalyzesTo(analyzer, "日本経済新聞でモバゲーの記事を読んだ。", new String[] {"日本", "経済", "新聞", "モバゲ", "記事", "読む"});
+        assertAnalyzesTo(defaultAnalyzer, "日本経済新聞でモバゲーの記事を読んだ。", new String[] {"日本", "経済", "新聞", "モバゲ", "記事", "読む"});
 
-        assertAnalyzesTo(analyzer, "Java, Scala, Groovy, Clojure", new String[] {"java", "scala", "groovy", "clojure"});
+        assertAnalyzesTo(
+                defaultAnalyzer, "Java, Scala, Groovy, Clojure", new String[] {"java", "scala", "groovy", "clojure"});
 
-        assertAnalyzesTo(analyzer, "ＬＵＣＥＮＥ、ＳＯＬＲ、Lucene, Solr", new String[] {"lucene", "solr", "lucene", "solr"});
+        assertAnalyzesTo(
+                defaultAnalyzer, "ＬＵＣＥＮＥ、ＳＯＬＲ、Lucene, Solr", new String[] {"lucene", "solr", "lucene", "solr"});
 
         // Need an entry in user dictionary to fix: さしすせそ (the すせ is missing in the result)
-        assertAnalyzesTo(
-                analyzer, "ｱｲｳｴｵカキクケコさしすせそABCＸＹＺ123４５６", new String[] {"アイウエオカキクケコ", "さし", "そ", "abcxyz", "123456"});
+        assertAnalyzesTo(defaultAnalyzer, "ｱｲｳｴｵカキクケコさしすせそABCＸＹＺ123４５６", new String[] {
+            "アイウエオカキクケコ", "さし", "そ", "abcxyz", "123456"
+        });
 
         // The "たろう" is removed by the Sudachi Analyzer because of:
         // 1. BaseForm filter:
@@ -307,7 +321,7 @@ public class SudachiAnalyzerTest extends BaseTokenStreamTestCase {
         // 2. SudachiPartOfSpeechStopFilter:
         //    the auxiliary verb (助動詞) it is uncommented in the stoptags.txt,
         //    thus the token is removed from the token stream.
-        assertAnalyzesTo(analyzer, "ももたろう", new String[] {"もも"});
+        assertAnalyzesTo(defaultAnalyzer, "ももたろう", new String[] {"もも"});
     }
 
     private Tokenizer createTokenizer(final Map<String, String> args) throws IOException {

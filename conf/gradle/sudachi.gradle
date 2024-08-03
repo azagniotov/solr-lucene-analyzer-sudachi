@@ -25,7 +25,7 @@ plugins.withType(JavaPlugin) {
         targetDir = file("/tmp/sudachi")
         dictionaryName = "sudachi-dictionary-${sudachiDictionaryVersion}-${sudachiDictionaryType}"
         downloadDestination = "${rootDir}/.sudachi/downloaded/${dictionaryName}.zip"
-        dictChecksum = "cbf35332df534fb4dfb5eb57d04c894e"
+        dictChecksum = "28484266ae6231d27dc745ff27adc459"
     }
 
     task deleteDictionaryData() {
